@@ -9,10 +9,10 @@ this function may not open one.
 
 The timeout is a deadline, not a socket option. A socket timeout bounds one
 read, so a model that answers slowly in many small pieces can run past it for
-as long as it likes; the turn budget that the Stop handler will live inside
-needs a wall clock. The call therefore runs in a worker thread that is
-abandoned when the deadline passes, and the process it belongs to ends with
-the turn.
+as long as it likes; the turn budget the Stop handler lives inside needs a wall
+clock. The call therefore runs in a worker thread that is abandoned when the
+deadline passes — really abandoned, so that the hook process can exit at the
+deadline rather than when the call it stopped waiting for finally returns.
 
 One call per turn, no state, no retry beyond a single bounded one. Everything
 that can go wrong ends the same way for the caller: an ExtractError or a
@@ -37,7 +37,6 @@ same model served by thirty of them is thirty measurements.
 
 from __future__ import annotations
 
-import concurrent.futures
 import hashlib
 import json
 import os
@@ -49,7 +48,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from ledger import schema
+from ledger import budget, schema
 
 if TYPE_CHECKING:  # the extractor may hold settings, never open the file they came from
     from ledger.config import Extractor as Settings
@@ -203,18 +202,16 @@ def _send(transport: Transport, request: Request, timeout_s: float) -> Response:
 
 
 def _within(transport: Transport, request: Request, seconds: float) -> Response:
-    """The transport, given a wall clock rather than a socket timeout."""
-    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    """The transport, given a wall clock rather than a socket timeout.
+
+    The call may still be in flight when the deadline passes. It is abandoned,
+    and abandoned so that the process can leave without it: see
+    budget.run_within, which is where that distinction is measured.
+    """
     try:
-        running = pool.submit(transport, request, seconds)
-        try:
-            return running.result(timeout=seconds)
-        except concurrent.futures.TimeoutError as e:
-            raise ExtractError(f"the model call passed its {seconds:.1f}s deadline") from e
-    finally:
-        # The call may still be in flight; it is abandoned rather than waited on,
-        # and the hook process is about to end anyway.
-        pool.shutdown(wait=False, cancel_futures=True)
+        return budget.run_within(seconds, lambda: transport(request, seconds))
+    except budget.Overrun as e:
+        raise ExtractError(f"the model call passed its {seconds:.1f}s deadline") from e
 
 
 def _answer(response: Response, *, prefilled: bool) -> tuple[object, str]:

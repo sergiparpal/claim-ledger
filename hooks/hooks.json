@@ -1,5 +1,5 @@
 {
-  "description": "Claim ledger: record evidence for each tool call, capture the turn's report",
+  "description": "Claim ledger: record evidence for each tool call, audit the turn's claims",
   "hooks": {
     "PostToolUse": [
       { "matcher": "Bash|Edit|Write|NotebookEdit",
@@ -16,8 +16,8 @@
     "Stop": [
       { "hooks": [{ "type": "command", "command": "python3",
                     "args": ["${CLAUDE_PLUGIN_ROOT}/src/ledger/turn.py"],
-                    "timeout": 15,
-                    "statusMessage": "Capturing the turn's report" }] }
+                    "timeout": 20,
+                    "statusMessage": "Auditing the turn's claims" }] }
     ]
   }
 }

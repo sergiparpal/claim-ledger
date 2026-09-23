@@ -8,7 +8,7 @@ only. The design is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) and
 
 ## What it does now
 
-This is phase 0: the evidence log and the corpus capture, nothing else.
+This is phase 1: the ledger records, audits and reports. It never blocks.
 
 - After every Bash, Edit, Write and NotebookEdit call, succeeded or failed, it
   appends one record to `.claude/claim-ledger/sessions/<session_id>.jsonl`:
@@ -21,20 +21,40 @@ This is phase 0: the evidence log and the corpus capture, nothing else.
   the report Claude finished with, and that turn's slice of the evidence log.
   These are the corpus the extractor will be measured against. Set
   `capture = false` under `[corpus]` to stop it.
+- Then it audits the turn. The report text, and nothing else, goes to the
+  extractor, which returns the claims it holds as verbatim spans with a type
+  each. A table-driven join matches those against the evidence log and gives
+  each one a verdict; no model is involved in that step and none can produce a
+  `VERIFIED`. What the report never mentioned is listed beside them.
+- The result is one line at the end of the turn, and only more than one line
+  when there is something to say:
+
+  ```text
+  claim-ledger · 4 verified, 2 unchecked · 2 checks seen · nothing unreported
+  ```
+
+  It reaches you and never the model: teaching the agent which claims get
+  caught is the one change that would make the whole thing useless.
+- Every claim, with its verdict, scope and the extractor route that typed it,
+  is appended to `.claude/claim-ledger/claims.jsonl`. Nothing computes a rate
+  from it until the sample size declared in the requirements is reached.
 - `python3 tools/dump_session.py [SESSION_ID]` prints a session log as a table.
 - `python3 tools/extract_report.py <report.md>` runs the extractor over one
   captured report and prints the claims it finds, so a corpus can be annotated
-  against real output. It needs `ANTHROPIC_API_KEY`; `--request` prints what
-  would be sent and sends nothing.
+  against real output. It needs whichever variable `[extractor] key_env` names
+  (`OPENROUTER_API_KEY` in the sample config); `--request` prints what would be
+  sent and sends nothing.
 
 ## What it does not do yet
 
-- Nothing extracts by itself. The extractor exists and can be run by hand, but
-  the Stop hook still only captures the turn; no verdict is computed and no
-  appendix is shown until the extractor has been measured against a corpus.
-- The configuration hash check (I-8) is not built. The deny rule is the only
-  protection so far, and it only stops the Edit tool.
-- Nothing blocks a turn, and in v1 nothing ever will.
+- **The extractor has not been measured.** There is no annotated corpus and no
+  recall figure, so the appendix should be read as an instrument still being
+  calibrated. Phase 1 clears when recall on checkable claims reaches 0.90 over
+  at least 50 annotated reports.
+- Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
+  3, and each is gated on evidence from the phase before it.
+- Nothing aggregates several claims in one sentence into one verdict. Each
+  claim carries its own, and the appendix lists them separately.
 
 ## Install
 
@@ -60,13 +80,26 @@ and it records as usual. The `python3` on your PATH must be 3.11 or later.
   a leading `NAME=value` is masked. `--token=…`, `export NAME=…`,
   `env NAME=…` and assignments after `&&` are stored as written.
 - **Turns that end without a Stop event get no appendix.** This covers a user
-  interrupt, and an API error, which fires StopFailure instead. It will stay
-  true after the appendix exists.
+  interrupt, and an API error, which fires StopFailure instead. Those turns are
+  recorded in the evidence log like any other, and are simply never audited:
+  the silence means the hook did not run, not that the turn was clean.
+- **A turn whose `claim-ledger.toml` cannot be read is not captured either.**
+  Whether to capture is a setting in that file, so a config that fails to load
+  takes the capture with it. The turn is `UNKNOWN` and says so.
+- **The configuration hash is taken when the ledger first runs in a session**,
+  not when the session opens, because the earliest the plugin exists in a
+  session is its first hook. A change made before that first hook is not
+  detectable from this side.
 - **Files written by Bash commands get no `files` entry.** Freshness is
   unaffected, because it reads mtimes from disk.
 - **Subagent tool calls are recorded like the main thread's.**
 - **The session must start at the project root.** `.claude/settings.json` and
   the deny rule are read from the directory Claude Code starts in.
+- **One lost record makes every later turn of that session `UNKNOWN`.** An
+  entry in `errors.log` means the evidence log has a hole in it, and a log with
+  a hole cannot be joined against honestly — not for the turn that lost the
+  record and not for a later one. The condition is the session's, so it is
+  sticky by design; starting a new session clears it.
 - **The log and the configuration can be written by any process the agent
   starts.** This is accepted, not defended against; see Threat model in the
   requirements.

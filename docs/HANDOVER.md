@@ -1,21 +1,23 @@
-# Handover — 23 September 2026
+# Handover — 23 September 2026 (step-8 session)
 
 For a session that has read REQUIREMENTS.md, SPEC.md and CLAUDE.md. Facts as
 of this date; nothing here is a plan the user has approved.
 
 ## Where the build stands
 
-Steps 1–7 of the build order are built: config, recorder and evidence log,
-install, corpus capture, extractor client, join and coverage. Step 8 (appendix
-renderer, Stop wiring) is not started.
+**All eight build steps are built.** Step 8 — the appendix renderer and the
+Stop wiring — landed on 23 September 2026. Phase 1 is code-complete and
+unmeasured: there is still no corpus and no recall figure.
 
-- `python3 -m unittest discover` from the repo root: **176 tests, exit 0**, on
-  Python 3.12.3, 3.13.14 and 3.14.6 and through `.githooks/pre-commit`.
+- `python3 -m unittest discover` from the repo root: **237 tests, exit 0**, on
+  Python 3.12.3.
 - Step 4, the phase-0 exit check, was done by the user by hand and passed: 16
   tool calls, 16 records, one to one.
-- **Nothing is wired into the Stop handler but capture.** `turn.py` writes
-  `reports/<session>-<n>.md` and advances the turn counter. A test asserts it
-  imports none of `extract`, `schema`, `join`, `coverage`.
+- **The Stop handler runs the whole pipeline.** `turn.py` captures the report,
+  extracts, joins, runs coverage, writes the calibration rows and puts the
+  appendix out as a `systemMessage`. It never exits 2, and a test asserts that
+  on every run. `test_install` asserts it imports every stage, which is the
+  inverse of what that test said before step 8.
 - The extraction route is live and measured: `deepseek/deepseek-v4.1-flash`
   through OpenRouter's `/api/v1/messages`, provider `morph`, answer shape
   enforced by `output_config`, `temperature` 0, thinking off through
@@ -30,7 +32,10 @@ renderer, Stop wiring) is not started.
 - `OPENROUTER_API_KEY` is **not** in the Claude Code session environment. It is
   exported at line 131 of `~/.bashrc`; commands that need it load that one line
   (`eval "$(grep -E '^[[:space:]]*export[[:space:]]+OPENROUTER_API_KEY=' ~/.bashrc)"`).
-- Nothing is committed: the repository has no commits.
+- One commit exists: `feef038`, phase 0. The step-8 work is uncommitted.
+- **The route and the prompt are frozen**, by the user's instruction on 23
+  September 2026, because the corpus will be measured against them. Do not
+  touch `[extractor]` or `prompts/extract.md`.
 
 **Do first:** run the suite to confirm the environment, then read "What I would
 have done next" below and agree it with the user before changing the route,
@@ -77,6 +82,31 @@ the prompt or anything the corpus will be measured against.
 13. **Tests are checked by mutation.** Every session, the new code is broken
     one way at a time in a scratch copy and the suite must fail for each. Three
     mutants have survived so far and each one exposed a missing test.
+14. **The budget and the hook timeout are two different numbers**, and the gap
+    between them is the point. `[budget] turn_timeout_s` is 15, the pipeline's
+    own clock; the Stop hook's timeout in `hooks/hooks.json` is 20, when the
+    harness kills the process. They were both 15 until 23 September 2026, which
+    left nothing to render the `UNKNOWN` in. The loader refuses an extractor
+    timeout that is not strictly shorter than the budget (R-43 read literally),
+    and `test_install` asserts 20 > 15 > 12.
+15. **`budget.run_within` uses a daemon thread, and that is load-bearing.** A
+    `concurrent.futures` pool looks like it abandons work and does not: the
+    interpreter joins its workers at exit. Measured on 23 September 2026, a 1s
+    deadline over an 8s call exited at 8.1s. `extract.py` used that pattern
+    until step 8.
+16. **A turn is UNKNOWN before any verdict is sought** when the config hash
+    changed, when `errors.log` holds an entry for this session, or when the
+    session log cannot be read. The errors.log condition is the *session's*,
+    not the turn's, so one lost record makes every later turn of that session
+    UNKNOWN. That is what the spec says and it is the conservative direction,
+    but it is stickier than it looks.
+17. **The config baseline is seeded by whichever hook runs first** in a session
+    (`sessions/<session>.confighash`, written with `O_EXCL`). I-8 says "when
+    the session opens"; the earliest the ledger exists is its first hook, so a
+    change made before that is not detectable from this side.
+18. **The join runs over the whole session log, coverage over this turn's
+    slice.** R-6 admits earlier evidence; R-22 asks only what this turn left
+    out. Mutating either direction is caught by `test_turn.VerdictTest`.
 
 Every number behind the rejections below, and behind the current pin, is in
 `docs/provider-measurements.md` with its date and conditions. That file is what
@@ -113,9 +143,27 @@ re-derived from the repository, and it goes stale.
 - `morph`'s quantization is undeclared, and the fp8 providers ignore the
   thinking switch. 18 of 22 providers are untested.
 - Stability is measured on one 442-character report.
-- **I-5 is implemented nowhere.** Nothing aggregates several claims in one
-  sentence to the most severe verdict.
-- The freshness scan walks the whole tree per check; untested on a large repo.
+- **I-5 still says "a sentence" and the system has no sentences.** The
+  severity order is now in one place, `appendix.SEVERITY`, and the collapse
+  rule is a weakest-link over the whole turn; nothing groups claims by the
+  sentence they came from, and doing so would need a sentence splitter, which
+  is a guess in a pipeline that has none. A rewording was recommended to the
+  user on 23 September 2026 and is theirs to accept.
+- **The alias table misses the words the model actually used, first time out.**
+  The first live end-to-end turn, 23 September 2026: the report said "I updated
+  src/parser.py and the tests pass", the log held a passing `python-suite` run,
+  and the suite claim came back `UNSUPPORTED`. The extractor returned the
+  referent `tests`; `[checks.aliases]` declares `"the tests"` and not bare
+  `"tests"`, so the referent named something, resolved to nothing, and stayed
+  unsupported. That is the rule working — it refused to fall back to the only
+  check in the session, which is what would have manufactured a verification —
+  but it means the alias table is now a measurement target in its own right.
+  Do not widen it from single observations; collect what real reports say
+  during the corpus phase and widen it once, deliberately. The file is the
+  user's (I-8).
+- The freshness scan walks the whole tree per check, once per `suite_passed`
+  claim; untested on a large repo. It is now bounded by the turn budget, so on
+  a repo where it is slow the turn goes `UNKNOWN` rather than over.
 - Subagent tool calls are recorded like the main thread's; no `agent_id` is
   stored. Bash-written files leave no `files` entry. Cancelled and denied calls
   leave no record at all.
@@ -124,10 +172,14 @@ re-derived from the repository, and it goes stale.
 
 ## What I would have done next
 
-1. Confirm the suite passes; change nothing about the route.
-2. Fill the corpus: real sessions with capture on, `claude --plugin-dir <plugin>`
-   from an installed sandbox, towards the 50 reports A-11 asks for.
-3. Write `corpus/annotations.jsonl` by hand, then a recall harness that reports
+1. Confirm the suite passes; change nothing about the route or the prompt.
+2. **Use the plugin daily.** That is what step 8 was for: the appendix is the
+   reason to keep it switched on, and the corpus fills from real turns.
+3. Fill the corpus: real sessions with capture on, `claude --plugin-dir <plugin>`
+   from an installed sandbox, towards the 50 reports A-12 asks for.
+4. Write `corpus/annotations.jsonl` by hand, then a recall harness that reports
    recall on checkable claims, the spurious rate, any non-verbatim span, and
    the `UNKNOWN` share beside it.
-4. Only then step 8, the appendix and Stop wiring.
+5. Watch the `UNKNOWN` rate while doing it. A quarter of turns coming back
+   UNKNOWN would say as little as poor recall, and the sticky errors.log
+   condition (decision 16) is the most likely cause of a surprise.

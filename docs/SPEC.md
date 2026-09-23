@@ -24,7 +24,7 @@ This spec covers phases 0 and 1 of the requirements document: the evidence log, 
 - `HUMAN`-tier acknowledgement belongs to phase 3.
 - The recall threshold is declared before the first measurement, not before the code.
 
-**Requirements covered here:** R-1 to R-24, R-26 to R-29, R-34 to R-44, and I-1 to I-10. R-25, R-30 to R-33 are specified in the requirements document and implemented later. Last edited 23 September 2026, when the record's turn fields and version were brought into line with the code: a copy of this document without this sentence is stale.
+**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 23 September 2026, in the step-8 session, when the coverage list above was corrected, the Stop hook's timeout was raised clear of the turn budget, and the appendix and its pipeline were wired: a copy of this document without this sentence is stale.
 
 **Revised 19 September 2026**, after the step-1 session verified the hook payloads and measured concurrent appends. What changed: the record dropped its counter and its exit code, gained an outcome and a turn id; freshness moved to join time; `[checks]` takes exact invocations instead of globs; config protection became detection rather than prevention.
 
@@ -44,6 +44,7 @@ claim-ledger/
 │   ├── join.py                referent matching and the verdict table
 │   ├── coverage.py            consequential actions the report never mentions
 │   ├── appendix.py            rendering, collapsed and expanded
+│   ├── budget.py              the turn's wall clock, and abandoning a slow stage
 │   ├── turn.py                Stop handler: the pipeline, end to end
 │   └── calibration.py         the durable claims-and-verdicts log
 ├── tests/
@@ -133,6 +134,10 @@ temperature = 0
 enable_thinking = false
 
 [budget]
+# The pipeline's own wall clock. Strictly longer than [extractor] timeout_s,
+# which the loader checks, and strictly shorter than the Stop hook's timeout in
+# hooks/hooks.json, which is when the harness kills the process. That second
+# gap is what the UNKNOWN gets rendered in.
 turn_timeout_s = 15
 
 [log]
@@ -218,8 +223,8 @@ Three registrations, all command hooks, all in `hooks/hooks.json`.
     "Stop": [
       { "hooks": [{ "type": "command", "command": "python3",
                     "args": ["${CLAUDE_PLUGIN_ROOT}/src/ledger/turn.py"],
-                    "timeout": 15,
-                    "statusMessage": "Capturing the turn" }] }
+                    "timeout": 20,
+                    "statusMessage": "Auditing the turn's claims" }] }
     ]
   }
 }
@@ -239,7 +244,7 @@ The one exception is the refusal. With the gitignore line missing, `errors.log` 
 - No payload carries a start time, so R-2's start field is optional and `duration_ms` stands in where the harness supplies it.
 - `Stop` does not fire when the user interrupts, and an API error fires `StopFailure` instead. Those turns get no appendix at all. The README says so plainly rather than leaving the silence to be discovered.
 - `systemMessage` is capped at 10,000 characters. The collapsed appendix keeps a normal turn far under it; the expanded one truncates spans to fit and says how many entries it dropped.
-- The 15 second timeout is deliberate and declared. A cancelled hook renders no decision, so the pipeline writes its `UNKNOWN` row before the model call rather than relying on a killed process to report anything.
+- **The hook's timeout is not the budget, and it is strictly larger.** `[budget] turn_timeout_s` is 15: the pipeline's own wall clock, which it watches and reports overrunning as `UNKNOWN`. The hook's timeout is 20: when the harness kills the process. Equal values, which is what shipped until 23 September 2026, leave nothing between the two — the pipeline would notice it had run out of budget at the same instant it was killed, and the `UNKNOWN` it exists to report would be what the kill destroyed. The five seconds are the room to render it. A cancelled hook renders no decision at all, which is why the margin is real time rather than an assumption about how fast rendering is.
 
 ## Extractor contract
 
@@ -347,21 +352,33 @@ claim-ledger
 
 CONTRADICTED
   "the tests pass"
-  pytest -q exited 1 at 14:32:07
+  pytest -q failed at 2026-09-19T14:32:07.880Z
 
 STALE
   "the suite is green"
-  pytest -q passed 14:30:02; src/engine.py modified 14:35:12
+  pytest -q ok at 2026-09-19T14:30:02.100Z; src/engine.py was modified at
+  2026-09-19T14:35:12.004Z, after it ran
 
 UNSUPPORTED
   "I ran the migration script"
   no matching command in this session
 
 UNREPORTED
-  migrations/0007_add_index.sql written 14:36:40 (HUMAN)
+  migrations/0007_add_index.sql (HUMAN)
 
-4 verified · 2 unchecked · 1 LOW-tier action not listed
+0 verified, 0 unchecked · 3 checks seen · 1 LOW-tier action not listed
 ```
+
+**Corrected 23 September 2026, when the renderer was built.** The example above
+said `exited 1` and gave bare clock times. Neither was reachable: the exit code
+is deliberately not in the log, because the harness's error string is not a
+stable format and parsing it is how a `CONTRADICTED` goes wrong, and the
+timestamps are the full UTC ones the log and the mtimes share, since a scope
+that drops the date cannot be compared against anything. The scope line is
+`join`'s own text, printed as it wrote it and never reformatted (I-4). An
+`EXTRACTION DEFECTS` group follows `UNREPORTED` when a span came back that the
+report does not contain: a dropped claim is a claim that went unjudged, and
+collapsing over one would hide the rate phase 1 exists to measure.
 
 - Entries are grouped by verdict, `CONTRADICTED` always first and alone at the head (R-29).
 - A span longer than 120 characters is elided in the middle; the calibration log keeps it whole.
@@ -371,7 +388,7 @@ UNREPORTED
 
 ## Corpus capture
 
-Phase 0 collects the material phase 1 needs. The fifty annotated reports of A-11 cannot be written from imagination, and the only honest source is real turns recorded while nothing else is running.
+Phase 0 collects the material phase 1 needs. The fifty annotated reports of A-12 cannot be written from imagination, and the only honest source is real turns recorded while nothing else is running.
 
 - From phase 0 onwards, every turn writes `reports/<session>-<n>.md`: the report text, the session id, the turn id, a per-session sequence number under the name turn\_number, and the slice of the evidence log for that turn.
 - Capture is on by default and switched off by one config key, since a report may carry material the user does not want on disk.
@@ -407,6 +424,17 @@ The suite makes no network call and no model call. Every test runs from a fixtur
 | `test_appendix_collapsed` | A-11 | everything verified, nothing unreported |
 | `test_unsupported_command` | A-10 | claim naming a command absent from the log |
 
+Added at step 8, when the pipeline had somewhere to run:
+
+| Test | Covers |
+| --- | --- |
+| `tests/test_appendix.py` | the collapsed line, severity order, the 10,000 character cap, span elision |
+| `tests/test_budget.py` | the turn's wall clock, and that an abandoned stage does not hold the process open |
+| `tests/test_calibration.py` | R-34's rows and R-35's annotation appended without rewriting |
+| `test_turn.PipelineTest` | the recorded answer from the route in use, driven all the way to an appendix |
+| `test_turn.UnknownTurnTest` | every condition that makes a turn `UNKNOWN`, and that each one still captures |
+| `test_turn.BudgetTest` | R-43: running out of budget reports rather than skipping, and is quick about it |
+
 **Invariant tests**, which matter more than the scenarios:
 
 - `test_isolation`: the extractor request body contains the report and the vocabulary, and none of the fixture's paths, commands or session ids.
@@ -429,7 +457,7 @@ Eight steps, each with a condition that decides whether it is done. Steps 1 to 4
 | 5 | corpus capture | reports land with their evidence slice; capture switches off by config |
 | 6 | extractor client, schema, doubles | recorded responses replay end to end without network |
 | 7 | join, verdict table, coverage | the acceptance and invariant tests pass |
-| 8 | appendix renderer and Stop wiring | a real session prints the collapsed line, and an induced failure prints an `UNKNOWN` line |
+| 8 | appendix renderer and Stop wiring | **done, 23 September 2026.** An induced failure prints the `UNKNOWN` line: measured against a stalled endpoint, the hook rendered `claim-ledger · UNKNOWN · ExtractError: the model call passed its 12.0s deadline · 0 checks seen`, exited 0 by itself at 12.1s, and left 7.9s before the harness's kill. A real session printing the collapsed line waits on a key in the session environment |
 
 Step 4 is blocking and worth its own session. If the log misses calls, every verdict built on it is uninterpretable, and no amount of work on the extractor would reveal it — the ledger would simply report fewer claims than it should, quietly.
 

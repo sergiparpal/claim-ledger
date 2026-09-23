@@ -64,6 +64,10 @@ temperature = 0
 enable_thinking = false
 
 [budget]
+# The pipeline's own wall clock: longer than the extractor's deadline above,
+# which the loader checks, and shorter than the Stop hook's timeout in
+# hooks/hooks.json, which is when the harness kills the process. The pipeline
+# reports running out of time; a killed hook reports nothing at all.
 turn_timeout_s = 15
 
 [log]

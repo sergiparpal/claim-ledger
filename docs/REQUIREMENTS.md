@@ -10,7 +10,7 @@ Today the same model produces the work, the report and the confidence. A sentenc
 
 This is a requirements document. It states what the system must do and what it must never do. The technical design follows separately.
 
-**Name.** `claim-ledger` is provisional. Last edited 20 September 2026, after the step-6 session: a copy of this document without this sentence is stale.
+**Name.** `claim-ledger` is provisional. Last edited 23 September 2026, when the phase-1 recall threshold was marked settled in § Open questions and the extractor corpus was renumbered A-12, freeing A-11 for the acceptance row that already had it: a copy of this document without this sentence is stale.
 
 **Validity.** The approach covers claims about what the agent did inside a recorded environment. It does not cover claims about the world or about the quality of a design, and no amount of engineering here will make it.
 
@@ -201,7 +201,7 @@ Each row is a scenario the implementation must reproduce, as an automated test w
 | A-10 | Report claims a command was run that appears nowhere in the log | `UNSUPPORTED` | appendix, blocks only at `HUMAN` tier |
 | A-11 | Every claim verified and nothing unreported | — | appendix collapses to one line |
 
-**A-11 Extractor corpus.** A fixed set of at least 50 real reports with their claims annotated by hand. Recall on checkable claims is the headline number, and misses are listed individually rather than averaged away. The corpus is frozen before the first measurement, and any change to it is dated.
+**A-12 Extractor corpus.** A fixed set of at least 50 real reports with their claims annotated by hand. Recall on checkable claims is the headline number, and misses are listed individually rather than averaged away. The corpus is frozen before the first measurement, and any change to it is dated.
 
 ## Measurement and anti-metrics
 
@@ -248,4 +248,4 @@ Five are settled, and their answers are recorded in the sections they affect. Th
 - [x] Where does the evidence log live so that it survives compaction but is not committed by accident? Decided: one JSONL file per session under .claude/claim-ledger/, gitignored, ordered by position in the file.
 - [x] How are files modified outside the agent, by the user editing in parallel, treated for staleness? Decided: mtimes are read at join time, so a change by any route counts.
 - [x] One extractor call per turn, or two with different models so that disagreement itself downgrades? Decided: one per turn in v1, behind an interface that allows two.
-- [ ] What is the declared corpus size and recall threshold for phase 1, written before the first measurement?
+- [x] What is the declared corpus size and recall threshold for phase 1, written before the first measurement — declared 20 September 2026, before the extractor existed, and recorded in § Rollout phases: recall 0.90 or better on checkable claims over a frozen corpus of at least 50 reports, spurious extractions at or below 0.10 of everything extracted, and no non-verbatim span tolerated. Checked here on 23 September 2026; the declaration itself does not move.

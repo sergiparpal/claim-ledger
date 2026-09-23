@@ -405,6 +405,43 @@ class ConcurrencyTest(RecorderTest):
         self.assertEqual(self.error_entries(), [])
 
 
+class ConfigBaselineTest(RecorderTest):
+    def test_the_first_hook_of_a_session_seeds_the_config_baseline(self):
+        """I-8's "when the session opens": the earliest the ledger exists."""
+        self.assertIsNone(record.read_config_baseline(self.root, SESSION))
+        self.run_recorder(self.payload("post_tool_use_bash"))
+        self.assertEqual(record.read_config_baseline(self.root, SESSION),
+                         config.fingerprint(self.root / config.CONFIG_FILENAME))
+
+    def test_a_later_hook_leaves_the_baseline_where_it_was(self):
+        """First writer wins, so a config edited mid-session is still detectable
+        against what the session opened with rather than against itself."""
+        self.run_recorder(self.payload("post_tool_use_bash"))
+        opened_with = record.read_config_baseline(self.root, SESSION)
+        path = self.root / config.CONFIG_FILENAME
+        path.write_text(path.read_text().replace("max_command_chars = 2000",
+                                                 "max_command_chars = 1999"))
+        self.run_recorder(self.payload("post_tool_use_bash"))
+        self.assertEqual(record.read_config_baseline(self.root, SESSION), opened_with)
+        self.assertNotEqual(record.read_config_baseline(self.root, SESSION),
+                            config.fingerprint(path))
+
+    def test_the_baseline_is_not_written_where_git_would_commit_it(self):
+        (self.root / ".gitignore").unlink()
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True, capture_output=True,
+                       timeout=60, env={"PATH": os.environ.get("PATH", ""),
+                                        "GIT_CONFIG_GLOBAL": os.devnull,
+                                        "GIT_CONFIG_SYSTEM": os.devnull})
+        result = subprocess.run([sys.executable, str(RECORDER)],
+                                input=json.dumps(self.payload("post_tool_use_bash")).encode(),
+                                env={"PATH": os.environ.get("PATH", ""),
+                                     "CLAUDE_PROJECT_DIR": str(self.root)},
+                                cwd=self.root, capture_output=True, timeout=60)
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("not recording", json.loads(result.stdout)["systemMessage"])
+        self.assertFalse((self.root / ".claude").exists())
+
+
 class EvidenceReaderTest(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()

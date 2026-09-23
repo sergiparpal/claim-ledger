@@ -56,6 +56,9 @@ if __name__ == "__main__" and not __package__:
 
 from ledger import config, evidence, install  # noqa: E402
 
+#: What this component calls itself in errors.log. The turn handler reads it
+#: back: a lost record is the session's problem, a failed audit is the turn's.
+COMPONENT = "record"
 OUTCOME_BY_EVENT = {"PostToolUse": "ok", "PostToolUseFailure": "failed"}
 PATH_FIELD = {"Edit": "file_path", "Write": "file_path", "NotebookEdit": "notebook_path"}
 ERRORS_LOG = evidence.STATE_DIR / "errors.log"
@@ -83,7 +86,7 @@ def main() -> int:
     try:
         record_event(raw, project_dir, now)
     except Exception as error:  # every failure must reach errors.log
-        report_failure(root, "record", raw, error, now)
+        report_failure(root, COMPONENT, raw, error, now)
     return 0
 
 
@@ -100,6 +103,10 @@ def record_event(raw: bytes, project_dir: str | None, now: datetime) -> dict:
     turn_id, turn_number = turn_ids(payload, root)
     record = build(payload, cfg, root, turn_id=turn_id, turn_number=turn_number, ts_end=now)
     evidence.append(log, record)
+    # After the record, never before it: a lost record is the one failure this
+    # system must not have, and seeding a hash is not worth risking one for.
+    seed_config_baseline(root, payload.get("session_id"),
+                         config.fingerprint(root / config.CONFIG_FILENAME))
     return record
 
 
@@ -170,6 +177,42 @@ def turn_ids(payload: dict, root: Path) -> tuple[str | None, int]:
 def turn_counter(root: Path, session: object) -> Path:
     """The per-session turn counter, beside that session's log."""
     return evidence.session_log(root, session).with_suffix(".turn")
+
+
+def config_baseline(root: Path, session: object) -> Path:
+    """Where this session's opening hash of claim-ledger.toml is kept (I-8)."""
+    return evidence.session_log(root, session).with_suffix(".confighash")
+
+
+def seed_config_baseline(root: Path, session: object, digest: str) -> None:
+    """Record the config hash for this session, once. The first hook wins.
+
+    I-8 says "when the session opens", and the earliest the ledger exists in a
+    session is its first hook, so that is what opening means here. A change made
+    before the ledger has run once is not detectable by anything on this side,
+    and saying so is better than implying a window that does not exist.
+
+    O_EXCL rather than a read-then-write: concurrent recorders race for this,
+    and the create either wins or finds the answer already there.
+    """
+    path = config_baseline(root, session)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    except FileExistsError:
+        return
+    try:
+        os.write(fd, (digest + "\n").encode("ascii"))
+    finally:
+        os.close(fd)
+
+
+def read_config_baseline(root: Path, session: object) -> str | None:
+    """The hash this session opened with, or None when none was ever written."""
+    try:
+        return config_baseline(root, session).read_text(encoding="ascii").strip() or None
+    except (FileNotFoundError, ValueError):
+        return None
 
 
 def read_turn_counter(counter: Path) -> int:

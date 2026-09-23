@@ -206,16 +206,18 @@ class HookRegistrationTest(unittest.TestCase):
                     with self.subTest(event=event):
                         self.assertEqual(handler["type"], "command")
                         self.assertIsNotNone(shutil.which(handler["command"]))
-                        self.assertEqual(handler["timeout"], 15 if event == "Stop" else 5)
+                        self.assertEqual(handler["timeout"], 20 if event == "Stop" else 5)
                         for arg in handler["args"]:
                             self.assertTrue(arg.startswith("${CLAUDE_PLUGIN_ROOT}/"), arg)
                             resolved = Path(arg.replace("${CLAUDE_PLUGIN_ROOT}", str(REPO)))
                             self.assertEqual(resolved, REPO / "src" / "ledger" / script[event])
                             self.assertTrue(resolved.is_file())
 
-    def test_the_stop_handler_captures_and_does_not_audit_yet(self):
+    def test_the_stop_handler_runs_the_whole_pipeline(self):
+        """Step 8, 23 September 2026. Until then this asserted the opposite: that
+        turn.py imported none of these, because the Stop handler only captured."""
         stop = json.loads(HOOKS.read_text())["hooks"]["Stop"][0]["hooks"][0]
-        self.assertIn("Capturing", stop["statusMessage"])
+        self.assertIn("Auditing", stop["statusMessage"])
         tree = ast.parse((REPO / "src" / "ledger" / "turn.py").read_text())
         imported = set()
         for node in ast.walk(tree):
@@ -223,8 +225,18 @@ class HookRegistrationTest(unittest.TestCase):
                 imported |= {alias.name.rsplit(".", 1)[-1] for alias in node.names}
             elif isinstance(node, ast.ImportFrom):
                 imported |= {alias.name for alias in node.names}
-        self.assertEqual(imported & {"extract", "schema", "join", "coverage", "appendix",
-                                     "calibration"}, set(), "the Stop handler only captures")
+        self.assertEqual({"extract", "schema", "join", "coverage", "appendix", "calibration"}
+                         - imported, set(), "the Stop handler runs every stage")
+
+    def test_the_hook_is_killed_later_than_the_budget_gives_up(self):
+        """R-43. The gap between the two is the only room the UNKNOWN has to be
+        rendered in: equal values leave the pipeline discovering it is out of
+        time at the instant the harness kills it. Measured, not assumed, in
+        tests/test_turn.py."""
+        stop = json.loads(HOOKS.read_text())["hooks"]["Stop"][0]["hooks"][0]
+        cfg = config.load(REPO / config.CONFIG_FILENAME)
+        self.assertGreater(stop["timeout"], cfg.budget.turn_timeout_s)
+        self.assertGreater(cfg.budget.turn_timeout_s, cfg.extractor.timeout_s)
 
     def test_the_python3_the_hook_runs_is_new_enough(self):
         interpreter = shutil.which("python3")

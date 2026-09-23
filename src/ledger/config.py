@@ -43,6 +43,7 @@ first entry in file order that matches is the one reported.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -225,6 +226,19 @@ class Config:
         return TierMatch(self.default_tier, None)
 
 
+def fingerprint(path: str | Path) -> str:
+    """A hash of the configuration exactly as it sits on disk (R-27, I-8).
+
+    Over the bytes, not over the parsed Config: a change the loader happens to
+    read the same way is still the user's table changing under the session, and
+    I-8 asks for detection of the change, not of its effect. Prevention is not
+    available — any process the agent starts can write this file — so what the
+    hash buys is that a change is reported, whoever made it, including the
+    user's own edit mid-session.
+    """
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
 def load(path: str | Path) -> Config:
     """Read and validate the config at path. Raises ConfigError on any problem."""
     path = Path(path)
@@ -284,10 +298,14 @@ def _validate(doc: dict, path: Path) -> Config:
 
     budget_table = _table(doc, "budget", ("turn_timeout_s",), path)
     budget = Budget(_seconds(budget_table["turn_timeout_s"], path, "budget.turn_timeout_s"))
-    if extractor.timeout_s > budget.turn_timeout_s:
+    # R-43 reads "shorter", not "no longer": a timeout equal to the budget
+    # containing it leaves no time to render the UNKNOWN that overrunning it is
+    # supposed to produce, which is the one outcome the budget exists to make
+    # visible. Equality is refused for that reason, not for tidiness.
+    if extractor.timeout_s >= budget.turn_timeout_s:
         raise ConfigError(path, "extractor.timeout_s",
-                          f"is {extractor.timeout_s}s, longer than the "
-                          f"{budget.turn_timeout_s}s turn budget it has to fit inside")
+                          f"is {extractor.timeout_s}s, which is not shorter than the "
+                          f"{budget.turn_timeout_s}s turn budget it has to fit inside (R-43)")
 
     log_table = _table(doc, "log", ("max_command_chars",), path)
     log = Log(_positive_int(log_table["max_command_chars"], path, "log.max_command_chars"))

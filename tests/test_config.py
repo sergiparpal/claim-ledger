@@ -49,7 +49,7 @@ def small_config(checks=None, human=(), low=()):
               'auth = "x-api-key"', 'key_env = "TEST_KEY"', 'model = "m"',
               'provider = "p/fp8"', 'answer_shape = "json_schema"',
               "timeout_s = 1", "max_report_chars = 1", "[extractor.parameters]",
-              "[budget]", "turn_timeout_s = 1",
+              "[budget]", "turn_timeout_s = 2",   # R-43: strictly longer than timeout_s above
               "[log]", "max_command_chars = 10",
               "[gate]", "enabled = false",
               "[corpus]", "capture = false"]
@@ -228,6 +228,8 @@ class NoFallbackTest(ConfigTest):
             ("timeout_s        = 12", "timeout_s = inf", "extractor.timeout_s"),
             # a budget it cannot fit inside is not a budget
             ("timeout_s        = 12", "timeout_s = 16", "extractor.timeout_s"),
+            # equal is not shorter: it leaves no time to render the UNKNOWN (R-43)
+            ("timeout_s        = 12", "timeout_s = 15", "extractor.timeout_s"),
             ("temperature = 0", 'model = "sneaky"', "extractor.parameters.model"),
             ("temperature = 0", "messages = []", "extractor.parameters.messages"),
             ("temperature = 0", "temperature = [0]", "extractor.parameters.temperature"),
