@@ -37,7 +37,7 @@ These hold in every version. A change that violates one is a different system, n
 2. **I-2 Downgrade only.** Every ambiguity resolves to the weaker verdict. No judgment, by any component, can produce `VERIFIED`.
 3. **I-3 Deterministic verification.** `VERIFIED` is assigned only by a table-driven join over the evidence log. The mapping from claim type and evidence state to verdict is data, not reasoning.
 4. **I-4 Scope travels with the label.** Every `VERIFIED` carries the command, its outcome and its timestamp. There is no bare "verified".
-5. **I-5 Weakest link.** A sentence holding several claims inherits the most severe verdict among them. Severity runs `CONTRADICTED`, `UNKNOWN`, `STALE`, `UNSUPPORTED`, `NOT_CHECKABLE`, `VERIFIED`, from most severe to least.
+5. **I-5 Weakest link.** Wherever the system reduces several verdicts to one, the result is the most severe among them. Severity runs `CONTRADICTED`, `UNKNOWN`, `STALE`, `UNSUPPORTED`, `NOT_CHECKABLE`, `VERIFIED`, from most severe to least. Every claim keeps its own verdict and is shown with it; no summary, count or label standing for several claims may read milder than the worst of them.
 6. **I-6 Abstention is free.** Rewording a claim downward always satisfies the gate as far as that claim goes, and the system never requires that a check be run. A `HUMAN`-tier action is a separate condition, cleared only by acknowledgement.
 7. **I-7 No vacuous pass.** A report that claims nothing does not pass while the evidence log shows consequential actions it left unmentioned.
 8. **I-8 The consequence table is the user's.** Prevention is not achievable: any process the agent starts can write the file. So the requirement is detection. The configuration is hashed when the session opens and rechecked at the end of every turn, and a change makes the turn `UNKNOWN` and is reported.
@@ -52,5 +52,7 @@ it holds the invariants.
 | Frozen | File | Status |
 | --- | --- | --- |
 | Invariants I-1 to I-10 | `docs/REQUIREMENTS.md` § Invariants, and § Invariants above | frozen |
-| Claim-type vocabulary | `src/ledger/schema.py` | not written yet (build step 6); frozen once it exists |
-| Verdict table | `src/ledger/join.py` | not written yet (build step 7); frozen once it exists |
+| Claim-type vocabulary | `src/ledger/schema.py` | frozen (written at build step 6) |
+| Verdict table | `src/ledger/join.py` | frozen (written at build step 7) |
+| Extractor route and prompt | `claim-ledger.toml` § `[extractor]`, `src/ledger/prompts/extract.md` | frozen 23 September 2026: the corpus is measured against them |
+| Phase-1 recall threshold | `docs/REQUIREMENTS.md` § Rollout phases | frozen: declared before the extractor existed, and does not move |

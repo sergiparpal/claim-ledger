@@ -9,8 +9,10 @@ of this date; nothing here is a plan the user has approved.
 Stop wiring — landed on 23 September 2026. Phase 1 is code-complete and
 unmeasured: there is still no corpus and no recall figure.
 
-- `python3 -m unittest discover` from the repo root: **237 tests, exit 0**, on
-  Python 3.12.3.
+- `python3 tools/run_suite.py` from the repo root: **268 tests, exit 0, on all
+  three declared versions** — 3.12.3 from the system, 3.13.14 and 3.14.6
+  through uv. That script, not `unittest discover`, is what the pre-commit hook
+  and CI run.
 - Step 4, the phase-0 exit check, was done by the user by hand and passed: 16
   tool calls, 16 records, one to one.
 - **The Stop handler runs the whole pipeline.** `turn.py` captures the report,
@@ -143,12 +145,12 @@ re-derived from the repository, and it goes stale.
 - `morph`'s quantization is undeclared, and the fp8 providers ignore the
   thinking switch. 18 of 22 providers are untested.
 - Stability is measured on one 442-character report.
-- **I-5 still says "a sentence" and the system has no sentences.** The
-  severity order is now in one place, `appendix.SEVERITY`, and the collapse
-  rule is a weakest-link over the whole turn; nothing groups claims by the
-  sentence they came from, and doing so would need a sentence splitter, which
-  is a guess in a pipeline that has none. A rewording was recommended to the
-  user on 23 September 2026 and is theirs to accept.
+- **I-5 was reworded on 23 September 2026, by the user's decision**, to bind
+  aggregation rather than sentences: the system has no sentences, and grouping
+  spans by one would need a splitter, which is a guess in a pipeline that has
+  none. The severity order it names lives in `appendix.SEVERITY`, and
+  `test_documents` asserts the order in the code is the order the document
+  declares, and that CLAUDE.md's copy of the invariants matches word for word.
 - **The alias table misses the words the model actually used, first time out.**
   The first live end-to-end turn, 23 September 2026: the report said "I updated
   src/parser.py and the tests pass", the log held a passing `python-suite` run,
@@ -167,8 +169,16 @@ re-derived from the repository, and it goes stale.
 - Subagent tool calls are recorded like the main thread's; no `agent_id` is
   stored. Bash-written files leave no `files` entry. Cancelled and denied calls
   leave no record at all.
-- Python 3.11 has never run, CI has never run (no remote), Windows paths have
-  never been exercised.
+- **Ask uv about Python, not PATH.** 3.13.14 and 3.14.6 are installed under
+  `~/.local/share/uv/python/` and are not on PATH, so `which python3.13` finds
+  nothing and `uv python list` finds them. A session that asked PATH reported
+  them as uninstalled, which is how "it passed on the versions I found" gets
+  written down as a fact. The declared set now lives in `tools/run_suite.py`
+  and the suite refuses to run on fewer.
+- 3.11 is the floor CLAUDE.md claims and is not installed here, so it is not in
+  the declared set; CI covers it in a job of its own. `uv python install 3.11`
+  and one line in `DECLARED` folds it in.
+- CI has never run (no remote). Windows paths have never been exercised.
 
 ## What I would have done next
 

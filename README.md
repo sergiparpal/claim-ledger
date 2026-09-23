@@ -3,7 +3,8 @@
 A Claude Code plugin that keeps the harness's own record of what an agent did,
 so that the claims in its end-of-turn report can be checked against that
 record instead of against the agent's account. Python 3.11+, standard library
-only. The design is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) and
+only. [docs/OPERATING.md](docs/OPERATING.md) is the one-page note for running it;
+the design is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) and
 [docs/SPEC.md](docs/SPEC.md).
 
 ## What it does now
@@ -56,6 +57,46 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
 - Nothing aggregates several claims in one sentence into one verdict. Each
   claim carries its own, and the appendix lists them separately.
 
+## Tests
+
+```bash
+python3 tools/run_suite.py
+```
+
+**Declared versions: 3.12, 3.13, 3.14.** The set lives in `tools/run_suite.py`
+and nowhere else; the pre-commit hook and CI both go through that script. A
+declared version that is not installed is a named failure and stops the run —
+the suite never reports a pass on fewer versions than it claims. Each one is
+resolved from PATH first and then through uv, and the script says which
+answered, because asking PATH and asking uv give different answers about the
+same machine:
+
+```text
+claim-ledger · declared: 3.12, 3.13, 3.14
+
+  3.12  system  Ran 255 tests in 6.2s  OK
+  3.13  uv      Ran 255 tests in 5.9s  OK
+  3.14  uv      Ran 255 tests in 5.9s  OK
+```
+
+`--list` shows where each version was found without running anything. Install a
+missing one with `uv python install <version>`; uv is only needed for versions
+that are not on PATH, and the script never downloads one behind your back.
+
+**3.11 is the floor the project supports and is not in the declared set**,
+because it is not installed on the machine this is developed on. CI covers it
+in a job of its own so the claim is not resting on nothing. To fold it in:
+`uv python install 3.11`, then add it to `DECLARED`.
+
+Enable the hook once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The suite makes no network call and no model call, and neither the tests nor
+the hooks write to `.claude/claim-ledger/`.
+
 ## Install
 
 1. Write `claim-ledger.toml` at the project root. The one in this repository
@@ -70,7 +111,8 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
 While git would commit `.claude/claim-ledger/`, the plugin writes nothing and
 says so on every tool call. Whether git would is git's answer, so ignoring
 `.claude/` wholesale counts; outside a repository there is nothing to commit
-and it records as usual. The `python3` on your PATH must be 3.11 or later.
+and it records as usual. The `python3` on your PATH must be 3.11 or later; see
+Tests above for the versions the suite is declared to pass on.
 
 ## Known gaps
 

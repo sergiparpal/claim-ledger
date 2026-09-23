@@ -10,7 +10,7 @@ Today the same model produces the work, the report and the confidence. A sentenc
 
 This is a requirements document. It states what the system must do and what it must never do. The technical design follows separately.
 
-**Name.** `claim-ledger` is provisional. Last edited 23 September 2026, when the phase-1 recall threshold was marked settled in § Open questions and the extractor corpus was renumbered A-12, freeing A-11 for the acceptance row that already had it: a copy of this document without this sentence is stale.
+**Name.** `claim-ledger` is provisional. Last edited 23 September 2026, when the phase-1 recall threshold was marked settled in § Open questions, the extractor corpus was renumbered A-12, freeing A-11 for the acceptance row that already had it, and I-5 was reworded to bind aggregation rather than sentences, which the system does not have: a copy of this document without this sentence is stale.
 
 **Validity.** The approach covers claims about what the agent did inside a recorded environment. It does not cover claims about the world or about the quality of a design, and no amount of engineering here will make it.
 
@@ -79,7 +79,7 @@ These hold in every version. A change that violates one is a different system, n
 2. **I-2 Downgrade only.** Every ambiguity resolves to the weaker verdict. No judgment, by any component, can produce `VERIFIED`.
 3. **I-3 Deterministic verification.** `VERIFIED` is assigned only by a table-driven join over the evidence log. The mapping from claim type and evidence state to verdict is data, not reasoning.
 4. **I-4 Scope travels with the label.** Every `VERIFIED` carries the command, its outcome and its timestamp. There is no bare "verified".
-5. **I-5 Weakest link.** A sentence holding several claims inherits the most severe verdict among them. Severity runs `CONTRADICTED`, `UNKNOWN`, `STALE`, `UNSUPPORTED`, `NOT_CHECKABLE`, `VERIFIED`, from most severe to least.
+5. **I-5 Weakest link.** Wherever the system reduces several verdicts to one, the result is the most severe among them. Severity runs `CONTRADICTED`, `UNKNOWN`, `STALE`, `UNSUPPORTED`, `NOT_CHECKABLE`, `VERIFIED`, from most severe to least. Every claim keeps its own verdict and is shown with it; no summary, count or label standing for several claims may read milder than the worst of them.
 6. **I-6 Abstention is free.** Rewording a claim downward always satisfies the gate as far as that claim goes, and the system never requires that a check be run. A `HUMAN`-tier action is a separate condition, cleared only by acknowledgement.
 7. **I-7 No vacuous pass.** A report that claims nothing does not pass while the evidence log shows consequential actions it left unmentioned.
 8. **I-8 The consequence table is the user's.** Prevention is not achievable: any process the agent starts can write the file. So the requirement is detection. The configuration is hashed when the session opens and rechecked at the end of every turn, and a change makes the turn `UNKNOWN` and is reported.

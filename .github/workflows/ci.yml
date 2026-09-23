@@ -8,15 +8,26 @@ permissions:
   contents: read
 
 jobs:
-  unittest:
+  # The declared set, from tools/run_suite.py, run by the same script the
+  # pre-commit hook runs. One source of truth for which versions are claimed.
+  declared:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - name: Install the declared versions
+        run: uv python install $(python3 tools/run_suite.py --versions)
+      - run: python3 tools/run_suite.py
+
+  # 3.11 is the floor the project claims to support and is not in the declared
+  # set, because it is not installed on the machine this is developed on. It is
+  # covered here so the support claim is not left resting on nothing. Install it
+  # locally and add it to DECLARED to fold this job into the one above.
+  floor:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
       - run: python3 -m unittest discover

@@ -1,5 +1,8 @@
 #!/bin/sh
-# Runs the test suite before every commit; a failing suite blocks the commit.
+# Runs the test suite on every declared Python version before every commit; a
+# failing suite, or a declared version that is not installed, blocks the commit.
+# The declared set lives in tools/run_suite.py, not here and not in the session
+# that happens to be running.
 # Enable once per clone: git config core.hooksPath .githooks
 cd "$(git rev-parse --show-toplevel)" || exit 1
-exec python3 -m unittest discover
+exec python3 tools/run_suite.py
