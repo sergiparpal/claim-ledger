@@ -1,0 +1,15 @@
+{
+  "v": 2,
+  "session": "abc123",
+  "turn_id": "550e8400-e29b-41d4-a716-446655440000",
+  "turn_number": 1,
+  "tool_use_id": "toolu_01BASH",
+  "tool": "Bash",
+  "kind": "check",
+  "command": "pytest -q",
+  "check_id": "python-suite",
+  "outcome": "ok",
+  "ts_end": "2026-09-19T14:32:07.880Z",
+  "duration_ms": 6660,
+  "tier": "REVIEW"
+}

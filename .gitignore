@@ -1,0 +1,6 @@
+# Plugin runtime state: evidence logs, reports, calibration log. Never committed.
+.claude/claim-ledger/
+
+# Python
+__pycache__/
+*.py[cod]

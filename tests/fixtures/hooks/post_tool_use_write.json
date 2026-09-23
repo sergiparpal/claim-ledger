@@ -1,0 +1,24 @@
+{
+  "session_id": "abc123",
+  "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/abc123.jsonl",
+  "cwd": "<project>",
+  "permission_mode": "default",
+  "effort": {
+    "level": "high"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "<project>/src/engine.py",
+    "content": "FILE-CONTENT-SENTINEL-write"
+  },
+  "tool_response": {
+    "type": "create",
+    "filePath": "<project>/src/engine.py",
+    "content": "FILE-CONTENT-SENTINEL-write",
+    "structuredPatch": []
+  },
+  "tool_use_id": "toolu_01WRITE",
+  "duration_ms": 12
+}

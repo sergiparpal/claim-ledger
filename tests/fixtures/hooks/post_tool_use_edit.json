@@ -1,0 +1,29 @@
+{
+  "session_id": "abc123",
+  "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/abc123.jsonl",
+  "cwd": "<project>",
+  "permission_mode": "default",
+  "effort": {
+    "level": "high"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "<project>/migrations/0007_add_index.sql",
+    "old_string": "FILE-CONTENT-SENTINEL-old",
+    "new_string": "FILE-CONTENT-SENTINEL-new",
+    "replace_all": false
+  },
+  "tool_response": {
+    "filePath": "<project>/migrations/0007_add_index.sql",
+    "oldString": "FILE-CONTENT-SENTINEL-old",
+    "newString": "FILE-CONTENT-SENTINEL-new",
+    "originalFile": "FILE-CONTENT-SENTINEL-original",
+    "structuredPatch": [],
+    "userModified": false,
+    "replaceAll": false
+  },
+  "tool_use_id": "toolu_01EDIT",
+  "duration_ms": 9
+}

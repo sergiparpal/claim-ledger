@@ -1,0 +1,26 @@
+{
+  "session_id": "abc123",
+  "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/abc123.jsonl",
+  "cwd": "<project>",
+  "permission_mode": "default",
+  "effort": {
+    "level": "high"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "pytest -q",
+    "description": "Run the Python suite",
+    "timeout": 120000,
+    "run_in_background": false
+  },
+  "tool_response": {
+    "stdout": "12 passed in 0.41s OUTPUT-SENTINEL-stdout",
+    "stderr": "",
+    "interrupted": false,
+    "isImage": false
+  },
+  "tool_use_id": "toolu_01BASH",
+  "duration_ms": 6660
+}

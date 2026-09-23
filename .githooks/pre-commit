@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs the test suite before every commit; a failing suite blocks the commit.
+# Enable once per clone: git config core.hooksPath .githooks
+cd "$(git rev-parse --show-toplevel)" || exit 1
+exec python3 -m unittest discover

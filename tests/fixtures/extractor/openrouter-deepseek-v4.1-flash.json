@@ -1,0 +1,40 @@
+{
+  "id": "gen-1789945072-HnqMw4lmTj2SW7RvZUvO",
+  "type": "message",
+  "role": "assistant",
+  "container": null,
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"claims\": [{\"span\": \"I've completed the first three steps successfully.\", \"type\": \"judgment\", \"referents\": []}, {\"span\": \"The unit test passed.\", \"type\": \"suite_passed\", \"referents\": [\"unit test\"]}, {\"span\": \"I'll proceed with staging, committing, and pushing the changes.\", \"type\": \"intent\", \"referents\": []}]}",
+      "citations": []
+    }
+  ],
+  "model": "deepseek/deepseek-v4.1-flash",
+  "stop_reason": "end_turn",
+  "stop_details": null,
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 120,
+    "output_tokens": 88,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "cache_creation_input_tokens": null,
+    "cache_read_input_tokens": 640,
+    "cache_creation": null,
+    "inference_geo": null,
+    "server_tool_use": null,
+    "service_tier": null,
+    "speed": "standard",
+    "cost": 6.6312e-05,
+    "is_byok": false,
+    "cost_details": {
+      "upstream_inference_cost": 6.6312e-05,
+      "upstream_inference_prompt_cost": 1.8792e-05,
+      "upstream_inference_completions_cost": 4.752e-05
+    }
+  },
+  "context_management": null,
+  "provider": "Morph"
+}

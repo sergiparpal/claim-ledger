@@ -1,0 +1,23 @@
+{
+  "description": "Claim ledger: record evidence for each tool call, capture the turn's report",
+  "hooks": {
+    "PostToolUse": [
+      { "matcher": "Bash|Edit|Write|NotebookEdit",
+        "hooks": [{ "type": "command", "command": "python3",
+                    "args": ["${CLAUDE_PLUGIN_ROOT}/src/ledger/record.py"],
+                    "timeout": 5 }] }
+    ],
+    "PostToolUseFailure": [
+      { "matcher": "Bash|Edit|Write|NotebookEdit",
+        "hooks": [{ "type": "command", "command": "python3",
+                    "args": ["${CLAUDE_PLUGIN_ROOT}/src/ledger/record.py"],
+                    "timeout": 5 }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "python3",
+                    "args": ["${CLAUDE_PLUGIN_ROOT}/src/ledger/turn.py"],
+                    "timeout": 15,
+                    "statusMessage": "Capturing the turn's report" }] }
+    ]
+  }
+}

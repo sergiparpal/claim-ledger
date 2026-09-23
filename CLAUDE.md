@@ -1,0 +1,56 @@
+# claim-ledger
+
+A Claude Code plugin that gives every factual claim in an agent's end-of-turn
+report a verdict taken from the harness's own execution record.
+
+## Read first
+
+- `docs/REQUIREMENTS.md`, then `docs/SPEC.md`.
+- If the two disagree, the requirements win. Tell the user about the
+  disagreement; do not resolve it yourself.
+- Build order: `docs/SPEC.md` § Build order. Before changing the pipeline,
+  read `docs/SPEC.md` § Traps.
+
+## Commands
+
+- Tests: `python3 -m unittest discover`, from the repo root. Nothing to install.
+- Pre-commit hook: run `git config core.hooksPath .githooks` once per clone.
+  The hook runs the test command above, and a failing suite blocks the commit.
+- CI: `.github/workflows/ci.yml` runs the same command on Python 3.11 to 3.14.
+
+## Constraints
+
+- Python 3.11+, standard library only, no dependencies.
+- No test makes a network call or a model call.
+- Neither the tests nor the hooks write to `.claude/claim-ledger/`.
+- `claim-ledger.toml` belongs to the user (I-8). `src/ledger/config.py` never
+  falls back to defaults: a missing or invalid file raises `ConfigError` naming
+  the offending key.
+
+## Invariants
+
+Copied verbatim from `docs/REQUIREMENTS.md` § Invariants.
+
+These hold in every version. A change that violates one is a different system, not a new release.
+
+1. **I-1 Separation.** The component that assigns verdicts is never the component that wrote the report. The extractor receives the report text and the type vocabulary, and nothing else: no transcript, no tool results, no project files.
+2. **I-2 Downgrade only.** Every ambiguity resolves to the weaker verdict. No judgment, by any component, can produce `VERIFIED`.
+3. **I-3 Deterministic verification.** `VERIFIED` is assigned only by a table-driven join over the evidence log. The mapping from claim type and evidence state to verdict is data, not reasoning.
+4. **I-4 Scope travels with the label.** Every `VERIFIED` carries the command, its outcome and its timestamp. There is no bare "verified".
+5. **I-5 Weakest link.** A sentence holding several claims inherits the most severe verdict among them. Severity runs `CONTRADICTED`, `UNKNOWN`, `STALE`, `UNSUPPORTED`, `NOT_CHECKABLE`, `VERIFIED`, from most severe to least.
+6. **I-6 Abstention is free.** Rewording a claim downward always satisfies the gate as far as that claim goes, and the system never requires that a check be run. A `HUMAN`-tier action is a separate condition, cleared only by acknowledgement.
+7. **I-7 No vacuous pass.** A report that claims nothing does not pass while the evidence log shows consequential actions it left unmentioned.
+8. **I-8 The consequence table is the user's.** Prevention is not achievable: any process the agent starts can write the file. So the requirement is detection. The configuration is hashed when the session opens and rechecked at the end of every turn, and a change makes the turn `UNKNOWN` and is reported.
+9. **I-9 Failure is visible.** If any component fails, the turn is marked `UNKNOWN` and shown as such. A broken pipeline never reads as a clean turn.
+10. **I-10 The report is not edited.** The system annotates and blocks. The agent's own words stay as written.
+
+## FROZEN
+
+A FROZEN file is never edited without asking the user first. This file is one:
+it holds the invariants.
+
+| Frozen | File | Status |
+| --- | --- | --- |
+| Invariants I-1 to I-10 | `docs/REQUIREMENTS.md` § Invariants, and § Invariants above | frozen |
+| Claim-type vocabulary | `src/ledger/schema.py` | not written yet (build step 6); frozen once it exists |
+| Verdict table | `src/ledger/join.py` | not written yet (build step 7); frozen once it exists |

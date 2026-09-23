@@ -1,0 +1,17 @@
+{
+  "id": "msg_recorded",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-4-5",
+  "content": [
+    {
+      "type": "text",
+      "text": "```json\n{\n  \"claims\": [\n    {\n      \"span\": \"I've completed the first three steps successfully\",\n      \"type\": \"judgment\",\n      \"referents\": []\n    },\n    {\n      \"span\": \"The unit test passed\",\n      \"type\": \"suite_passed\",\n      \"referents\": [\"unit test\"]\n    },\n    {\n      \"span\": \"I'll proceed with staging, committing, and pushing the changes\",\n      \"type\": \"intent\",\n      \"referents\": []\n    }\n  ]\n}\n```"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  }
+}

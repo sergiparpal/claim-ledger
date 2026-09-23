@@ -1,0 +1,69 @@
+[checks]
+# Exact invocations that count as a full run of each check. No globs:
+# "pytest*" also matches "pytest --version", which is a route to a
+# false VERIFIED. A command that does not match exactly is not a check,
+# and the claim lands as UNSUPPORTED — the safe direction.
+python-suite = ["python3 -m unittest discover"]
+js-suite     = ["npm test"]
+types        = ["mypy src"]
+lint         = ["ruff check ."]
+
+[checks.scope]
+# which files each check covers, for the freshness rule
+python-suite = ["src/**/*.py", "tests/**/*.py"]
+js-suite     = ["src/**/*.ts"]
+types        = ["src/**/*.py"]
+lint         = ["**/*"]
+
+[checks.aliases]
+# The words a report actually uses for a check, mapped to the check it means.
+# Taken from real extractions: a claim that says "the unit test passed" names
+# "unit test", which matches no id and no invocation, and would otherwise be
+# UNSUPPORTED. Matching is case-insensitive.
+"unit test"  = "python-suite"
+"unit tests" = "python-suite"
+"the tests"  = "python-suite"
+"the suite"  = "python-suite"
+
+[tiers]
+# used in phase 1 to decide which actions are consequential enough
+# that not mentioning them is worth reporting
+HUMAN   = ["migrations/**", "deploy/**", "Bash(git push*)", "Bash(*rm -rf*)"]
+LOW     = ["docs/**", "**/*.md"]
+default = "REVIEW"
+
+[extractor]
+# OpenRouter's Anthropic-shaped endpoint. The address and the header are
+# configuration, so that no ANTHROPIC_-named variable decides where a report
+# is sent. Both x-api-key and bearer were verified to work there.
+base_url         = "https://openrouter.ai/api/v1"
+auth             = "x-api-key"
+key_env          = "OPENROUTER_API_KEY"
+model            = "z-ai/glm-5.3-flash"
+# Exactly one provider, fallbacks off: 30 of them serve this model, and a
+# recall figure measured across a shifting set of them means nothing. The
+# suffix is the quantization that answers.
+provider         = "phala/fp8"
+answer_shape     = "json_schema"
+# A deadline, not a socket timeout, and it has to fit inside the turn budget
+# below. glm's tail does not fit: its slowest measured answer took 49.8s.
+timeout_s        = 12
+max_report_chars = 20000
+
+[extractor.parameters]
+# What this route takes, sent as written; a parameter a model refuses leaves
+# the router with no endpoint at all, so the set belongs to the route.
+temperature = 0
+
+[budget]
+turn_timeout_s = 15
+
+[log]
+max_command_chars = 2000
+
+[gate]
+enabled = false   # phase 2 flips this. Present from the start: the loader
+                  # rejects unknown keys, so adding it later is a migration
+
+[corpus]
+capture = true

@@ -1,0 +1,16 @@
+{
+  "v": 2,
+  "session": "abc123",
+  "turn_id": "550e8400-e29b-41d4-a716-446655440000",
+  "turn_number": 1,
+  "tool_use_id": "toolu_01FAIL",
+  "tool": "Bash",
+  "kind": "check",
+  "command": "npm test",
+  "check_id": "js-suite",
+  "outcome": "failed",
+  "outcome_detail": "Exit code 1",
+  "ts_end": "2026-09-19T14:32:07.880Z",
+  "duration_ms": 4187,
+  "tier": "REVIEW"
+}

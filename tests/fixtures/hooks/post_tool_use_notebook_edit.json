@@ -1,0 +1,31 @@
+{
+  "session_id": "abc123",
+  "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+  "transcript_path": "/home/user/.claude/projects/-home-user-project/abc123.jsonl",
+  "cwd": "<project>",
+  "permission_mode": "default",
+  "effort": {
+    "level": "high"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "NotebookEdit",
+  "tool_input": {
+    "notebook_path": "<project>/docs/analysis.ipynb",
+    "cell_id": "cell-3",
+    "new_source": "FILE-CONTENT-SENTINEL-cell",
+    "cell_type": "code",
+    "edit_mode": "replace"
+  },
+  "tool_response": {
+    "new_source": "FILE-CONTENT-SENTINEL-cell",
+    "cell_id": "cell-3",
+    "cell_type": "code",
+    "language": "python",
+    "edit_mode": "replace",
+    "notebook_path": "<project>/docs/analysis.ipynb",
+    "original_file": "FILE-CONTENT-SENTINEL-nb-original",
+    "updated_file": "FILE-CONTENT-SENTINEL-nb-updated"
+  },
+  "tool_use_id": "toolu_01NOTEBOOK",
+  "duration_ms": 15
+}
