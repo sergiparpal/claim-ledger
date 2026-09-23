@@ -6,6 +6,8 @@ report a verdict taken from the harness's own execution record.
 ## Read first
 
 - `docs/REQUIREMENTS.md`, then `docs/SPEC.md`.
+- `docs/DECISIONS.md` for reasons that are in neither, and for what was
+  already tried and rejected.
 - If the two disagree, the requirements win. Tell the user about the
   disagreement; do not resolve it yourself.
 - Build order: `docs/SPEC.md` § Build order. Before changing the pipeline,
