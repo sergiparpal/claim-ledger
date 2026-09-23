@@ -65,8 +65,14 @@ will meet them:
 - **A record was lost** (`component: record` in `errors.log`). Every later turn of
   that session stays UNKNOWN: the log has a hole and the join would read across
   it. A new session clears it.
-- **No `OPENROUTER_API_KEY`** in the environment. Export it before starting Claude
-  Code, not after.
+- **No `OPENROUTER_API_KEY`** in the environment. Claude Code does not inherit it
+  here — it is exported at line 131 of `~/.bashrc`, which an interactive shell
+  reads and a hook does not. Export it before starting Claude Code, not after.
+  A one-off command that needs it can load that one line:
+
+  ```bash
+  eval "$(grep -E '^[[:space:]]*export[[:space:]]+OPENROUTER_API_KEY=' ~/.bashrc)"
+  ```
 
 The report is still captured. Nothing is lost for the corpus.
 

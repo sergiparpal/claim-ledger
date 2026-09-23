@@ -453,7 +453,7 @@ Eight steps, each with a condition that decides whether it is done. Steps 1 to 4
 | 1 | config loader and schema, with the sample `claim-ledger.toml` | an invalid config fails with the offending key named |
 | 2 | recorder handler and log writer | synthetic hook inputs produce the exact records the fixtures expect |
 | 3 | install: the two recorder registrations, deny rule, gitignore line. Stop joins at step 5 as a capture-only handler, and the pipeline moves into it at step 8 | a real session writes a log, and `test_install` passes |
-| 4 | **phase 0 exit check** | a hand-written session, run by you, appears in the log with every mutating call and every check, compared line by line |
+| 4 | **phase 0 exit check** | **done**, date not recorded. A hand-written session, run by the user, compared line by line: 16 tool calls, 16 records, one to one |
 | 5 | corpus capture | reports land with their evidence slice; capture switches off by config |
 | 6 | extractor client, schema, doubles | recorded responses replay end to end without network |
 | 7 | join, verdict table, coverage | the acceptance and invariant tests pass |
@@ -462,6 +462,13 @@ Eight steps, each with a condition that decides whether it is done. Steps 1 to 4
 Step 4 is blocking and worth its own session. If the log misses calls, every verdict built on it is uninterpretable, and no amount of work on the extractor would reveal it — the ledger would simply report fewer claims than it should, quietly.
 
 After step 8, phase 1 runs for real while the corpus fills. The recall threshold gets written down before the corpus is measured, not after.
+
+## Where the rest is written
+
+`REQUIREMENTS.md` states what the system must do; this document states how.
+`docs/DECISIONS.md` holds what neither records: decisions that exist only as
+code, and the routes that were measured and rejected, with their dates.
+`docs/provider-measurements.md` holds the numbers behind the extractor pin.
 
 ## Traps
 

@@ -1,0 +1,139 @@
+# Decisions — claim-ledger
+
+The reasons that exist nowhere else.
+
+A decision whose reason is already in a docstring, in `SPEC.md` or in
+`REQUIREMENTS.md` is not repeated here: two copies of a reason is how one of
+them comes to be wrong, and this file is the one nobody would notice had gone
+stale. What belongs here is the decision a maintainer could undo without any
+test failing, because the reason for it was never written down.
+
+Build status is not here. `SPEC.md` § Build order says what is built,
+`README.md` says what the plugin does and what it does not do yet, and
+`OPERATING.md` says how to run it.
+
+**On the dates.** They are when the decision was written down, not always when
+it was taken. Entries carried over from the handover this file replaces are
+dated 23 September 2026; the build they came out of ran from 19 to 23 September
+and finer dates are not recoverable from anything left behind.
+
+## Decisions that exist only as code
+
+### The refusal writes nothing at all, not even `errors.log` — 23 September 2026
+
+While git would commit `.claude/claim-ledger/`, the recorder and the Stop
+handler write no file of any kind and return a `systemMessage` instead.
+
+The tempting repair is to at least log the refusal. `errors.log` lives in the
+directory being refused, so writing it is the thing being refused. Stderr is no
+better: on a hook that exits 0 it reaches only the debug log, which makes the
+refusal silent, which is how a ledger ends up installed and inert.
+
+### The join takes the last matching record, for every claim type — 23 September 2026
+
+`SPEC.md` says "the last" only for `suite_passed`. `join._command` and
+`join._file` do the same thing, with no comment saying so.
+
+The consequence is not obvious and is deliberate: a path written `ok` and then
+written `failed` reads as `UNSUPPORTED`, not `VERIFIED`. The most recent record
+is the one a claim in this turn's report is about. Taking the best matching
+record instead — any successful one, anywhere in the session — would verify "I
+updated the parser" against a write that a later write undid.
+
+`test_join` holds this as `test_a_later_failure_decides_against_an_earlier_pass`
+and three siblings, so changing it fails the suite; but the tests say what
+happens, not why, which is why it is written here.
+
+### Tests are checked by mutation, every session — 23 September 2026
+
+New code is broken one way at a time in a scratch copy, and the suite must fail
+for each break. A mutant that survives is a missing test, not a curiosity.
+
+This is the practice that keeps the suite from being decoration, and it is
+written nowhere in the test plan. Eight mutants have survived so far — three
+before 23 September 2026, five on it — and every one of them was a test that
+did not exist. The five: coverage reading the whole session rather than the
+turn, the model call ignoring what the budget had left, an unparseable
+`errors.log` line being skipped, the config baseline never being seeded, and a
+failing suite being reported as a pass.
+
+## Tried, measured and rejected — do not re-run these
+
+Every number behind these, and behind the current pin, is in
+`docs/provider-measurements.md` with its date and conditions. That file is what
+decides the next pin when `morph` fails the way `phala` did. It cannot be
+re-derived from the repository and it goes stale.
+
+### `openai/gpt-5.6-luna` — refused 21 September 2026
+
+The fastest and cheapest of the three, with no defects, and unusable anyway.
+GPT-5.x accepts neither `temperature` nor `top_p`: with `require_parameters` on,
+sending either returns **404 from routing** before the model is reached. Sampling
+that cannot be pinned gave three different answers across seven runs, twice with
+a fourth claim. An extractor that varies cannot carry a recall figure.
+
+Reasoning effort `"none"` is accepted there and still emits `redacted_thinking`.
+
+### `z-ai/glm-5.3-flash` — replaced 21 September 2026
+
+Correct and stable, and too slow to exist inside a turn: about 5,000 thinking
+tokens on a 442-character report, 49.8 seconds against a 15-second budget.
+Thinking cannot be switched off from this endpoint — `reasoning: {"enabled":
+false}` is accepted and ignored.
+
+Its recording is kept as `openrouter-glm-5.3-flash.json`, because it is the only
+one in the fixtures that carries a thinking block, and the client's handling of
+one would otherwise be untested.
+
+### The assistant prefill, on this route — 20–21 September 2026
+
+OpenRouter returns a whole object and ignores a prefilled assistant turn, so the
+opening brace the client adds makes `{{`. `answer_shape = "prefill"` stays in
+the loader for a route that honours it; on this one the answer shape is enforced
+with `output_config` instead. The exact day is not recorded.
+
+### `phala/fp8` — 20 September 2026
+
+Returned HTTP 400 twice to a body that had worked minutes earlier. The pin moved
+to `baseten/fp8`, and then to `morph` when the model changed. This is the failure
+the provider-measurements table exists to answer quickly.
+
+### The providers that accept `enable_thinking` and ignore it — 21 September 2026
+
+DeepInfra, Fireworks, Together and AtlasCloud all took the switch and reasoned
+anyway, at 2,000 to 5,100 thinking tokens and 25 to 67 seconds. Both providers
+that declare fp8 are among them. Only `morph` returned a reply with no thinking
+block at all, and `morph`'s quantization is undeclared — that is the price of
+the switch working.
+
+The top-level `chat_template_kwargs` shape, rather than under `extra_body`, is
+ignored too. `novita/fp8` 404s under `require_parameters`.
+
+**The rule this gives**: a parameter accepted is not a parameter honoured. Verify
+against the reply, never against the status code.
+
+### The Claude Code CLI as an extraction transport — 20 September 2026
+
+Used in build step 6, before an API key existed on this machine. The CLI cannot
+prefill an assistant turn, so its answers are whole objects from a route the
+client no longer uses. Its recordings are the `cli-no-prefill-haiku*.json`
+fixtures, kept as recordings rather than edited into the shape now sent: the
+tests assert what the client does with them today, which is refuse them.
+
+## Measured, and still open
+
+### The alias table is a measurement target — 23 September 2026
+
+The first live end-to-end turn: the report said "I updated src/parser.py and the
+tests pass", the evidence log held a passing `python-suite` run, and the suite
+claim came back `UNSUPPORTED`. The extractor returned the referent `tests`;
+`[checks.aliases]` declares `"the tests"` and not bare `"tests"`, so the referent
+named something, resolved to nothing, and stayed unsupported.
+
+That is the rule working. It refused to fall back to the only check in the
+session, which is exactly the fallback that manufactures a false `VERIFIED`.
+
+But it makes the alias table an instrument rather than a convenience, and it is
+not one that should be tuned from single observations. Collect what real reports
+actually say during the corpus phase, then widen it once, deliberately. The file
+is the user's (I-8).

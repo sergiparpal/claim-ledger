@@ -5,7 +5,8 @@ so that the claims in its end-of-turn report can be checked against that
 record instead of against the agent's account. Python 3.11+, standard library
 only. [docs/OPERATING.md](docs/OPERATING.md) is the one-page note for running it;
 the design is in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) and
-[docs/SPEC.md](docs/SPEC.md).
+[docs/SPEC.md](docs/SPEC.md); [docs/DECISIONS.md](docs/DECISIONS.md) holds the
+reasons that live in neither, and what was tried and rejected on the way.
 
 ## What it does now
 
@@ -134,7 +135,13 @@ Tests above for the versions the suite is declared to pass on.
   detectable from this side.
 - **Files written by Bash commands get no `files` entry.** Freshness is
   unaffected, because it reads mtimes from disk.
-- **Subagent tool calls are recorded like the main thread's.**
+- **Subagent tool calls are recorded like the main thread's**, with no
+  `agent_id` to tell them apart.
+- **The freshness scan walks the whole working tree, once per `suite_passed`
+  claim.** It has never been run against a large repository. It is bounded by
+  the turn budget, so where it is slow the turn goes `UNKNOWN` rather than over
+  time — visible, but not fast.
+- **Windows paths have never been exercised.**
 - **The session must start at the project root.** `.claude/settings.json` and
   the deny rule are read from the directory Claude Code starts in.
 - **One lost record makes every later turn of that session `UNKNOWN`.** An
