@@ -24,7 +24,7 @@ This spec covers phases 0 and 1 of the requirements document: the evidence log, 
 - `HUMAN`-tier acknowledgement belongs to phase 3.
 - The recall threshold is declared before the first measurement, not before the code.
 
-**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 23 September 2026, in the step-8 session, when the coverage list above was corrected, the Stop hook's timeout was raised clear of the turn budget, and the appendix and its pipeline were wired: a copy of this document without this sentence is stale.
+**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 23 September 2026, in the step-8 session, when the coverage list above was corrected, the Stop hook's timeout was raised clear of the turn budget, the appendix and its pipeline were wired, and two rules the code already followed were written down here rather than left in a handover: the last matching record for every checkable type, and the `LOW` half of the tier rule: a copy of this document without this sentence is stale.
 
 **Revised 19 September 2026**, after the step-1 session verified the hook payloads and measured concurrent appends. What changed: the record dropped its counter and its exit code, gained an outcome and a turn id; freshness moved to join time; `[checks]` takes exact invocations instead of globs; config protection became detection rather than prevention.
 
@@ -152,7 +152,7 @@ capture = true
 ```
 
 - Check matching is exact, after stripping surrounding whitespace. A separate aliases table maps the words a report actually uses, such as the unit test or the tests, to a check id, because a referent that names something and resolves to nothing must stay unsupported: resolving it to whatever check the session happened to run would verify a claim about the integration tests against a unit run. A command containing a shell operator is never a check, and an unlisted invocation is not one either. Missing a real run costs a `VERIFIED`; matching the wrong one manufactures a false one.
-- Tier precedence: `HUMAN` beats `LOW` beats the default; within a tier, first match wins in file order. `HUMAN` matches any part of a compound command, deliberately over-matching.
+- Tier precedence: `HUMAN` beats `LOW` beats the default; within a tier, first match wins in file order. The two tiers match by opposite rules, and both err the same way. `HUMAN` matches **any part** of a compound command, deliberately over-matching: `cd app && timeout 60 git push` meets `Bash(git push*)`. `LOW` applies only when a `LOW` entry covers **every part** of the action — each path it touched, each segment of the command — because `LOW` is the tier that stops an action being listed as unreported, and one that is only partly cheap is not cheap. An action that is half `docs/**` and half `src/**` takes the default. Simplifying either half to "matches somewhere" would make `LOW` the easiest tier to fall into rather than the hardest.
 - Command patterns use Claude Code's permission-rule syntax, so they read the same as the deny rules beside them.
 - A missing or invalid config is a hard startup failure with the offending key named. A scope entry containing whitespace is invalid for the same reason: it can never match a path, and a scope that cannot match leaves the session with no checks at all, silently. It never falls back to defaults, because a silent default here decides what counts as consequential.
 - Protection (R-27, I-8): the file's hash is taken when the session opens and rechecked at the end of every turn; a change marks the turn `UNKNOWN` and says so. The install also writes a deny rule for `Edit(claim-ledger.toml)`, which stops the obvious route and nothing else — a Python one-liner from Bash writes the file regardless.
@@ -306,9 +306,23 @@ No model runs here. Given a claim and the log, the verdict is a lookup, and the 
 | Type | Evidence sought | Match rule |
 | --- | --- | --- |
 | `suite_passed` | the last `check` record whose `check_id` the claim's referents resolve to | the referent is matched against check ids, their invocations and the aliases the config declares, and one that names something but resolves to nothing stays unsupported; only a claim naming no suite at all falls back, and only when the session used exactly one |
-| `command_run` | any record whose `command` matches | first token equal, and every further token the claim names present in the recorded command |
-| `file_changed` | any `mutation` record for that path | path normalised to project-relative, case-sensitive, symlinks resolved |
+| `command_run` | the last record whose `command` matches | first token equal, and every further token the claim names present in the recorded command |
+| `file_changed` | the last `mutation` record for that path | path normalised to project-relative, case-sensitive, symlinks resolved |
 | `judgment`, `intent` | none | always `NOT_CHECKABLE` |
+
+**The last matching record, for all three checkable types**, in log order — not
+the best one. A claim in this turn's report is about the state the work is in
+now, and the most recent record is what says what that is. Searching for any
+successful record instead would verify "I updated the parser" against a write
+that a later write undid, and "the migration ran" against the first of two
+attempts.
+
+The consequence is worth stating because it reads as a bug until it is
+explained: **a file written `ok` and then written `failed` is `UNSUPPORTED`, not
+`VERIFIED`.** The last record says the write failed, a failed write changed
+nothing, and nothing is what the claim is then supported by. The same holds for
+a check that passed and was then re-run into a failure — `CONTRADICTED`, on the
+strength of the second run. Evidence does not accumulate; it is superseded.
 
 **Freshness.** At join time, expand the check's `scope` globs and `stat` them on disk. The claim is fresh when the check's `ts_end` is later than the newest mtime among those files, and when no mutation record for a file it covers sits later in the log than the check itself. Both tests are needed because the harness stamps a hook when the call returns, not when it started. In a measured session a suite that began 2.7 seconds before an edit was recorded 461 milliseconds after it, so the timestamp test alone would have called it fresh and verified a suite that no longer passed. Subtracting duration\_ms does not rescue it either, since the harness does not measure the command end to end. The log-order test catches what the agent did, the mtime test what happened outside it, and both can only add STALE, never remove it. Reading the filesystem also covers a file written by a Bash command which, leaving no `files` entry, would have left a passing suite looking current. Files outside the check's scope cannot make it stale, and `command_run` and `file_changed` carry no freshness test. The scan reads the working tree as a person would see it: `.git` is skipped, so a `git add` cannot stale a check scoped `**/*`; the ledger's own directory is skipped, so writing the log cannot stale one either; and everything git ignores is dropped, in one batched `git check-ignore` rather than a call per file. Where there is no git, nothing is ignored.
 

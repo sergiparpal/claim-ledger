@@ -12,6 +12,12 @@ Build status is not here. `SPEC.md` § Build order says what is built,
 `README.md` says what the plugin does and what it does not do yet, and
 `OPERATING.md` says how to run it.
 
+**Entries leave when their reason finds a home.** On 23 September 2026 the join
+taking the last matching record, and the `LOW` half of the tier rule, both moved
+into `SPEC.md`: they are behaviour someone can reason backwards from, which
+makes them specification rather than folklore. An entry disappearing from here
+is usually that, not a decision reversed.
+
 **On the dates.** They are when the decision was written down, not always when
 it was taken. Entries carried over from the handover this file replaces are
 dated 23 September 2026; the build they came out of ran from 19 to 23 September
@@ -28,21 +34,6 @@ The tempting repair is to at least log the refusal. `errors.log` lives in the
 directory being refused, so writing it is the thing being refused. Stderr is no
 better: on a hook that exits 0 it reaches only the debug log, which makes the
 refusal silent, which is how a ledger ends up installed and inert.
-
-### The join takes the last matching record, for every claim type — 23 September 2026
-
-`SPEC.md` says "the last" only for `suite_passed`. `join._command` and
-`join._file` do the same thing, with no comment saying so.
-
-The consequence is not obvious and is deliberate: a path written `ok` and then
-written `failed` reads as `UNSUPPORTED`, not `VERIFIED`. The most recent record
-is the one a claim in this turn's report is about. Taking the best matching
-record instead — any successful one, anywhere in the session — would verify "I
-updated the parser" against a write that a later write undid.
-
-`test_join` holds this as `test_a_later_failure_decides_against_an_earlier_pass`
-and three siblings, so changing it fails the suite; but the tests say what
-happens, not why, which is why it is written here.
 
 ### Tests are checked by mutation, every session — 23 September 2026
 
