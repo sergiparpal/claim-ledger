@@ -93,6 +93,9 @@ corpus at once, `r` starts the report again, `q` stops without saving it.
   extractor's correct find as an invented claim.
 - **Type by the words, not by the facts.** "He editado el parser" is
   `file_changed` whether or not the parser was edited.
+- **A sentence that points outside itself is typed by what it asserts.** "He
+  arreglado el fichero que mencionaste" is `file_changed`: it says a file was
+  changed, and which file does not matter here.
 
 ## What you do not check
 
@@ -101,6 +104,28 @@ corpus at once, `r` starts the report again, `q` stops without saving it.
 - The `claim-ledger · …` line at the end of the turn, or what the extractor
   found.
 - Whether the files, commands or tests a sentence names exist.
+- The conversation the report ends, or the state the project was in when it
+  was written.
+
+## Why the report's text is enough
+
+On purpose, not for convenience. The extractor is handed the report's text and
+the type vocabulary, and nothing else (I-1): no conversation, no evidence, no
+project. What is measured is whether it finds the claims in that text, so the
+annotation is made from the same text.
+
+Context would make you mark what the extractor cannot see. Knowing what was
+going on in the project, you would read "He terminado los tres primeros pasos"
+as a migration run and a parser edited, and mark checkable claims the text does
+not hold. Each would count against the extractor as a miss of something that
+was never in its input.
+
+The context is not lost; it is used elsewhere. Each captured report keeps its
+turn's slice of the evidence log beside the text, and
+`.claude/claim-ledger/claims.jsonl` keeps what the extractor found and the
+verdicts. They serve while you work, to read the line at the end of a turn;
+when the corpus is measured, to see why a particular claim was missed or went
+unsupported; and when the alias table is widened. Not to annotate.
 
 ## Method
 
