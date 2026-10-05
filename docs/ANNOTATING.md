@@ -127,6 +127,41 @@ verdicts. They serve while you work, to read the line at the end of a turn;
 when the corpus is measured, to see why a particular claim was missed or went
 unsupported; and when the alias table is widened. Not to annotate.
 
+## Why a person, and not a model
+
+A model could do it: annotating is the task the extractor does. That is why it
+cannot be the reference, any more than an exam can be marked against another
+student's answers.
+
+- **A model that annotates is another extractor.** Measuring the extractor
+  against it measures how often two models agree, not how often the extractor
+  is right.
+- **The misses they share disappear.** Models tend to fail in the same places:
+  a claim inside a list, a vague sentence, two claims in one. A claim both
+  miss is invisible to the measurement, and those are the claims recall exists
+  to find. A person makes mistakes too, but not in the direction the model
+  does: they add noise to the figure, not a bias in the extractor's favour.
+- **Something would have to measure the annotating model.** Knowing whether its
+  annotations can be trusted takes human annotations to compare them with,
+  which is where this started.
+- **It is what the design avoids.** Everything here separates what does the
+  work from what judges it, and a model as the measure of a model brings that
+  back at the one point where the system is calibrated. A-12 asks for
+  annotation by hand, and the 0.90 threshold is declared over a corpus
+  annotated that way; against a model's annotations the same number would mean
+  something else. Changing it is a change to the requirements.
+
+Where a model can help without becoming the reference:
+
+- **The mechanical part**, already automated: cutting the report into
+  sentences, checking that a span is verbatim, writing the line.
+- **Comparing models with each other.** DeepSeek and Haiku disagreeing on a
+  report says where to look, though it is not a recall figure.
+- **A second pass after you have annotated**, pointing at claims you missed.
+  It has a cost: the claims it recovers are ones a model can see, so the
+  reference tilts slightly toward the extractor, and the ones you both miss
+  stay missing.
+
 ## Method
 
 - **Annotate a report before looking at what the extractor found in it**, and
