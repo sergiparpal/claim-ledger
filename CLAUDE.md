@@ -15,10 +15,17 @@ report a verdict taken from the harness's own execution record.
 
 ## Commands
 
-- Tests: `python3 -m unittest discover`, from the repo root. Nothing to install.
+- Tests: `python3 tools/run_suite.py`, from the repo root. It runs
+  `python3 -m unittest discover` on every version declared in
+  `tools/run_suite.py` (3.12, 3.13, 3.14), and a declared version that is not
+  installed is a named failure, not a shorter run. Nothing to install beyond
+  those interpreters; uv is only needed for one that is not on PATH.
 - Pre-commit hook: run `git config core.hooksPath .githooks` once per clone.
-  The hook runs the test command above, and a failing suite blocks the commit.
-- CI: `.github/workflows/ci.yml` runs the same command on Python 3.11 to 3.14.
+  The hook runs `tools/run_suite.py`; a failing suite, or a declared version
+  that is missing, blocks the commit.
+- CI: `.github/workflows/ci.yml` runs `tools/run_suite.py` on the declared set,
+  and `python3 -m unittest discover` on 3.11, the supported floor, in a job of
+  its own.
 
 ## Constraints
 

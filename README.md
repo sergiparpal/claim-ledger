@@ -75,9 +75,11 @@ same machine:
 ```text
 claim-ledger · declared: 3.12, 3.13, 3.14
 
-  3.12  system  Ran 255 tests in 6.2s  OK
-  3.13  uv      Ran 255 tests in 5.9s  OK
-  3.14  uv      Ran 255 tests in 5.9s  OK
+  3.12  system  Ran 272 tests in 6.326s OK                             6.4s
+  3.13  system  Ran 272 tests in 5.853s OK                             6.1s
+  3.14  system  Ran 272 tests in 5.741s OK                             5.9s
+
+all 3 declared versions passed
 ```
 
 `--list` shows where each version was found without running anything. Install a
