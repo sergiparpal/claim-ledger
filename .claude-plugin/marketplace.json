@@ -1,0 +1,14 @@
+{
+  "name": "claim-ledger",
+  "description": "claim-ledger for Claude Code, installed from this directory.",
+  "owner": {
+    "name": "sergiparpal"
+  },
+  "plugins": [
+    {
+      "name": "claim-ledger",
+      "source": "./",
+      "description": "Gives every factual claim in an agent's end-of-turn report a verdict taken from the harness's own execution record."
+    }
+  ]
+}
