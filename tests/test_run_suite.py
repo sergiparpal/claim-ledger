@@ -181,15 +181,15 @@ class WiringTest(unittest.TestCase):
         self.assertIn("python3 tools/run_suite.py", ci)
         self.assertIn("--versions", ci)   # the matrix is not written out twice
 
-    def test_ci_still_covers_the_floor_the_declared_set_leaves_out(self):
-        """3.11 is claimed in CLAUDE.md and is not in DECLARED. If it is in
-        neither, the support claim rests on nothing."""
-        ci = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    def test_the_floor_the_project_claims_is_the_lowest_declared_version(self):
+        """CLAUDE.md claims 3.11. Until 5 October 2026 it was left to a CI job,
+        and this repository has no remote, so that job never ran and the claim
+        rested on nothing. The floor belongs in the set the pre-commit hook
+        runs, with nothing below it."""
         claimed = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
         floor = "3.11"
         self.assertIn(f"Python {floor}+", claimed)
-        if floor not in run_suite.DECLARED:
-            self.assertIn(f'python-version: "{floor}"', ci)
+        self.assertEqual(run_suite.DECLARED[0], floor)
 
     def test_the_versions_flag_prints_the_declared_set_and_nothing_else(self):
         done = subprocess.run([sys.executable, str(REPO / "tools" / "run_suite.py"),

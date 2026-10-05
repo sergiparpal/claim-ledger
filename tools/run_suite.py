@@ -17,9 +17,11 @@ interpreter on PATH first, then uv's managed and discovered installs. uv is
 asked with `python find`, which never downloads, so a missing version stays
 missing and says so instead of turning a commit into a download.
 
-3.11 is the floor the project claims to support and is not in the set below: it
-is not installed here, and CI covers it in a job of its own. Installing it
-(`uv python install 3.11`) and adding it to DECLARED is a one-line change.
+3.11, the floor the project claims to support, is declared like the rest. It
+was left to a CI job of its own until 5 October 2026, and this repository has
+never had a remote, so that job never ran: the floor was claimed and tested
+nowhere. The pre-commit hook runs on every commit; CI runs only where something
+is pushed.
 """
 
 from __future__ import annotations
@@ -32,7 +34,7 @@ import time
 from pathlib import Path
 
 #: The versions the suite is declared to pass on. One place; CI reads it too.
-DECLARED = ("3.12", "3.13", "3.14")
+DECLARED = ("3.11", "3.12", "3.13", "3.14")
 
 REPO = Path(__file__).resolve().parent.parent
 SUITE = ("-m", "unittest", "discover")

@@ -71,7 +71,7 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
 python3 tools/run_suite.py
 ```
 
-**Declared versions: 3.12, 3.13, 3.14.** The set lives in `tools/run_suite.py`
+**Declared versions: 3.11, 3.12, 3.13, 3.14.** The set lives in `tools/run_suite.py`
 and nowhere else; the pre-commit hook and CI both go through that script. A
 declared version that is not installed is a named failure and stops the run —
 the suite never reports a pass on fewer versions than it claims. Each one is
@@ -80,23 +80,24 @@ answered, because asking PATH and asking uv give different answers about the
 same machine:
 
 ```text
-claim-ledger · declared: 3.12, 3.13, 3.14
+claim-ledger · declared: 3.11, 3.12, 3.13, 3.14
 
-  3.12  system  Ran 312 tests in 6.122s OK                             6.3s
-  3.13  system  Ran 312 tests in 5.666s OK                             5.9s
-  3.14  system  Ran 312 tests in 6.689s OK                             6.9s
+  3.11  system  Ran 312 tests in 5.883s OK                             6.1s
+  3.12  system  Ran 312 tests in 6.189s OK                             6.3s
+  3.13  system  Ran 312 tests in 5.900s OK                             6.0s
+  3.14  system  Ran 312 tests in 5.820s OK                             5.9s
 
-all 3 declared versions passed
+all 4 declared versions passed
 ```
 
 `--list` shows where each version was found without running anything. Install a
 missing one with `uv python install <version>`; uv is only needed for versions
 that are not on PATH, and the script never downloads one behind your back.
 
-**3.11 is the floor the project supports and is not in the declared set**,
-because it is not installed on the machine this is developed on. CI covers it
-in a job of its own so the claim is not resting on nothing. To fold it in:
-`uv python install 3.11`, then add it to `DECLARED`.
+**3.11, the floor the project supports, is declared like the rest.** It used to
+be left to a CI job of its own, but this repository has never had a remote, so
+that job never ran and the floor was claimed without being tested. The
+pre-commit hook runs on every commit; CI runs only where something is pushed.
 
 Enable the hook once per clone:
 
