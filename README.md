@@ -41,11 +41,18 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   is appended to `.claude/claim-ledger/claims.jsonl`. Nothing computes a rate
   from it until the sample size declared in the requirements is reached.
 - `python3 tools/dump_session.py [SESSION_ID]` prints a session log as a table.
+- `python3 tools/annotate.py --by <initials> <project>...` annotates the corpus
+  by hand. It walks the captured reports of those projects that
+  `corpus/annotations.jsonl` does not hold yet and asks about each one a
+  sentence at a time: a key per claim type, Enter for none, spans typed by hand
+  where one sentence holds two claims. It shows the report and nothing else,
+  neither the evidence nor the extractor's claims, and appends one line per
+  finished report.
 - `python3 tools/extract_report.py <report.md>` runs the extractor over one
-  captured report and prints the claims it finds, so a corpus can be annotated
-  against real output. It needs whichever variable `[extractor] key_env` names
-  (`OPENROUTER_API_KEY` in the sample config); `--request` prints what would be
-  sent and sends nothing.
+  captured report and prints the claims it finds, to compare against the
+  report's annotation once that is written. It needs whichever variable
+  `[extractor] key_env` names (`OPENROUTER_API_KEY` in the sample config);
+  `--request` prints what would be sent and sends nothing.
 
 ## What it does not do yet
 
@@ -75,9 +82,9 @@ same machine:
 ```text
 claim-ledger · declared: 3.12, 3.13, 3.14
 
-  3.12  system  Ran 272 tests in 6.326s OK                             6.4s
-  3.13  system  Ran 272 tests in 5.853s OK                             6.1s
-  3.14  system  Ran 272 tests in 5.741s OK                             5.9s
+  3.12  system  Ran 312 tests in 6.122s OK                             6.3s
+  3.13  system  Ran 312 tests in 5.666s OK                             5.9s
+  3.14  system  Ran 312 tests in 6.689s OK                             6.9s
 
 all 3 declared versions passed
 ```
