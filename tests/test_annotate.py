@@ -14,7 +14,7 @@ import re
 import sys
 import tempfile
 import unittest
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from ledger import calibration, evidence, schema, turn
@@ -26,6 +26,9 @@ import annotate  # noqa: E402
 
 TODAY = date(2026, 10, 2)  # not today: a run that reads the clock must show
 NOW = datetime(2026, 10, 5, 12, 0, 0, tzinfo=timezone.utc)
+# The clock --older-than is measured against. Not now either: a run that
+# reads the real clock would find every report here old enough, and must show.
+CLOCK = datetime(2026, 9, 21, 12, 0, 0, tzinfo=timezone.utc)
 SESSION = "0f8fad5b-d9cb-469f-a165-70867728950e"
 REPORT = ("I've completed the first three steps successfully. The unit test passed. "
           "I'll proceed with staging, committing, and pushing the changes.")
@@ -51,10 +54,10 @@ class Script:
         return self.answers.pop(0)
 
 
-def capture(root, number, text, session=SESSION):
+def capture(root, number, text, session=SESSION, at=NOW):
     """A report captured by the Stop handler's own writer, evidence slice and all."""
     entry = evidence.Entry(position=number, record=json.loads(EVIDENCE), raw=EVIDENCE)
-    turn.capture(root, {"last_assistant_message": text}, session, number, NOW, [entry], None)
+    turn.capture(root, {"last_assistant_message": text}, session, number, at, [entry], None)
     return f"{session}-{number}"
 
 
@@ -67,13 +70,14 @@ class AnnotateTestCase(unittest.TestCase):
         self.project.mkdir()
         self.corpus = self.tmp / "corpus" / "annotations.jsonl"
 
-    def run_tool(self, *answers, projects=None):
+    def run_tool(self, *answers, projects=None, options=(), now=CLOCK):
         script = Script(*answers)
         out, err = io.StringIO(), io.StringIO()
-        argv = ["annotate.py", "--by", "SP", "--corpus", str(self.corpus)]
+        argv = ["annotate.py", "--by", "SP", "--corpus", str(self.corpus), *options]
         argv += [str(project) for project in (projects or [self.project])]
         with contextlib.redirect_stderr(err):
-            code = annotate.main(argv, ask=script, out=out, today=lambda: TODAY)
+            code = annotate.main(argv, ask=script, out=out, today=lambda: TODAY,
+                                 now=lambda: now)
         return code, out.getvalue(), err.getvalue(), script
 
     def lines(self):
@@ -402,6 +406,91 @@ class SessionTest(AnnotateTestCase):
                 with self.assertRaises(SystemExit) as caught, \
                         contextlib.redirect_stderr(io.StringIO()):
                     annotate.main(argv, ask=script, out=io.StringIO(), today=lambda: TODAY)
+                self.assertEqual(caught.exception.code, 2)
+                self.assertEqual(script.prompts, [])
+        self.assertFalse(self.corpus.exists())
+
+
+class AgeTest(AnnotateTestCase):
+    """--older-than: a report annotated with its turn fresh in mind is annotated
+    against the line that ended the turn, which lists some of the extractor's
+    claims."""
+
+    def options(self, written):
+        return ("--older-than", written)
+
+    def test_an_age_is_whole_hours_or_whole_days(self):
+        self.assertEqual(annotate.age("12h"), annotate.Age("12h", timedelta(hours=12)))
+        self.assertEqual(annotate.age("2d"), annotate.Age("2d", timedelta(days=2)))
+
+    def test_only_reports_captured_before_the_cutoff_are_asked(self):
+        old = capture(self.project, 1, "Ran it.", at=CLOCK - timedelta(days=3))
+        recent = [capture(self.project, 2, "Ran it again.", at=CLOCK - timedelta(hours=2)),
+                  capture(self.project, 3, "Ran it once more.", at=CLOCK - timedelta(hours=1))]
+        code, out, _, script = self.run_tool("1", "", options=self.options("1d"))
+        self.assertEqual(code, 0)
+        self.assertEqual(script.answers, [])
+        self.assertIn("1 of 3 captured reports still to do; "
+                      "2 captured in the last 1d left for later", out)
+        for report in recent:
+            self.assertNotIn(report, out)
+        self.assertEqual([line["report"] for line in self.lines()], [old])
+
+    def test_a_recent_report_is_asked_once_it_is_old_enough(self):
+        recent = capture(self.project, 1, "Ran it.", at=CLOCK - timedelta(hours=2))
+        _, _, _, script = self.run_tool(options=self.options("1d"))
+        self.assertEqual(script.prompts, [])
+        self.run_tool("1", "", options=self.options("1d"), now=CLOCK + timedelta(days=1))
+        self.assertEqual([line["report"] for line in self.lines()], [recent])
+
+    def test_a_report_exactly_at_the_cutoff_is_old_enough(self):
+        capture(self.project, 1, "Ran it.", at=CLOCK - timedelta(days=1))
+        self.run_tool("1", "", options=self.options("1d"))
+        self.assertEqual(len(self.lines()), 1)
+
+    def test_hours_are_an_age_as_well_as_days(self):
+        older = capture(self.project, 1, "Ran it.", at=CLOCK - timedelta(hours=13))
+        capture(self.project, 2, "Ran it again.", at=CLOCK - timedelta(hours=11))
+        self.run_tool("1", "", options=self.options("12h"))
+        self.assertEqual([line["report"] for line in self.lines()], [older])
+
+    def test_without_the_option_a_report_is_asked_however_recent(self):
+        capture(self.project, 1, "Ran it.", at=CLOCK - timedelta(minutes=1))
+        self.run_tool("1", "")
+        self.assertEqual(len(self.lines()), 1)
+
+    def test_a_report_with_no_readable_capture_time_is_named_and_left_out(self):
+        """Its age is unknown, so it may be fresh. Without the option it is
+        asked about like any other."""
+        reports = self.project / evidence.STATE_DIR / turn.REPORTS
+        undated = []
+        for number, written in ((1, "yesterday"), (2, "2026-09-18T12:00:00")):
+            report = capture(self.project, number, "Ran it.", at=CLOCK - timedelta(days=3))
+            path = reports / f"{report}.md"
+            path.write_text(re.sub(r"^captured: .*$", f"captured: {written}",
+                                   path.read_text(encoding="utf-8"), flags=re.MULTILINE),
+                            encoding="utf-8")
+            undated.append((report, path))
+        code, _, err, script = self.run_tool(options=self.options("1d"))
+        self.assertEqual(code, 0)
+        self.assertEqual(script.prompts, [])
+        for _, path in undated:
+            self.assertIn(f"no capture time: {path}", err)
+        self.run_tool("1", "", "1", "")
+        self.assertEqual([line["report"] for line in self.lines()],
+                         [report for report, _ in undated])
+
+    def test_an_age_that_is_not_one_is_refused_before_anything_is_asked(self):
+        capture(self.project, 1, "Ran it.", at=CLOCK - timedelta(days=3))
+        for written in ("1", "d", "0d", "1w", "1.5d", "-1d", "1 d", "1D"):
+            with self.subTest(age=written):
+                script = Script("1", "")
+                argv = ["annotate.py", "--by", "SP", "--corpus", str(self.corpus),
+                        "--older-than", written, str(self.project)]
+                with self.assertRaises(SystemExit) as caught, \
+                        contextlib.redirect_stderr(io.StringIO()):
+                    annotate.main(argv, ask=script, out=io.StringIO(), today=lambda: TODAY,
+                                  now=lambda: CLOCK)
                 self.assertEqual(caught.exception.code, 2)
                 self.assertEqual(script.prompts, [])
         self.assertFalse(self.corpus.exists())

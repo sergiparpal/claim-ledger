@@ -41,14 +41,15 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   is appended to `.claude/claim-ledger/claims.jsonl`. Nothing computes a rate
   from it until the sample size declared in the requirements is reached.
 - `python3 tools/dump_session.py [SESSION_ID]` prints a session log as a table.
-- `python3 tools/annotate.py --by <initials> <project>...` annotates the corpus
-  by hand. It walks the captured reports of those projects that
-  `corpus/annotations.jsonl` does not hold yet and asks about each one a
-  sentence at a time: a key per claim type, Enter for none, spans typed by hand
-  where one sentence holds two claims. It shows the report and nothing else,
-  neither the evidence nor the extractor's claims, and appends one line per
-  finished report. What to mark is in
-  [docs/ANNOTATING.md](docs/ANNOTATING.md).
+- `python3 tools/annotate.py --by <initials> [--older-than 1d] <project>...`
+  annotates the corpus by hand. It walks the captured reports of those
+  projects that `corpus/annotations.jsonl` does not hold yet and asks about
+  each one a sentence at a time: a key per claim type, Enter for none, spans
+  typed by hand where one sentence holds two claims. It shows the report and
+  nothing else, neither the evidence nor the extractor's claims, and appends
+  one line per finished report. `--older-than` keeps back the reports captured
+  too recently, while the line that ended each turn is still in mind. What to
+  mark is in [docs/ANNOTATING.md](docs/ANNOTATING.md).
 - `python3 tools/extract_report.py <report.md>` runs the extractor over one
   captured report and prints the claims it finds, to compare against the
   report's annotation once that is written. It needs whichever variable
@@ -83,10 +84,10 @@ same machine:
 ```text
 claim-ledger · declared: 3.11, 3.12, 3.13, 3.14
 
-  3.11  system  Ran 313 tests in 6.185s OK                             6.4s
-  3.12  system  Ran 313 tests in 6.631s OK                             6.7s
-  3.13  system  Ran 313 tests in 6.299s OK                             6.5s
-  3.14  system  Ran 313 tests in 6.323s OK                             6.5s
+  3.11  system  Ran 321 tests in 5.946s OK                             6.1s
+  3.12  system  Ran 321 tests in 6.271s OK                             6.4s
+  3.13  system  Ran 321 tests in 5.935s OK                             6.0s
+  3.14  system  Ran 321 tests in 5.926s OK                             6.0s
 
 all 4 declared versions passed
 ```

@@ -35,8 +35,12 @@ asserts, so that the measurement can tell whether the extractor finds it.
 ## Running the tool
 
 ```bash
-python3 ~/code/claim-ledger/tools/annotate.py --by <initials> <project> [<project>...]
+python3 ~/code/claim-ledger/tools/annotate.py --by <initials> --older-than 1d <project> [<project>...]
 ```
+
+`--older-than 1d` (or `12h`) leaves out the reports captured more recently
+than that; they are counted, and asked about in a later run once they are old
+enough. Without it, every report is asked about, however recent.
 
 It takes up where `corpus/annotations.jsonl` left off, shows each report, and
 asks about it one sentence at a time:
@@ -106,7 +110,9 @@ corpus at once, `r` starts the report again, `q` stops without saving it.
   ones recall counts.
 - **Annotate at another time, not straight after the turn.** The line at the
   end of a turn lists some of the claims the extractor found; with it fresh in
-  mind you will mark the same ones. Judge only the text the tool shows.
+  mind you will mark the same ones. `--older-than 1d` leaves out the last
+  day's reports, and `n` leaves for another run any other you still remember.
+  Judge only the text the tool shows.
 
 ## What is written
 

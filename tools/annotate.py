@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Annotate captured reports by hand into the corpus, one report at a time.
 
-    python3 tools/annotate.py --by INITIALS PROJECT [PROJECT ...]
+    python3 tools/annotate.py --by INITIALS [--older-than AGE] PROJECT [PROJECT ...]
 
 Walks the reports the Stop handler captured under each
 PROJECT/.claude/claim-ledger/reports/, skips those the corpus already holds,
@@ -18,6 +18,12 @@ either: what ran says nothing about what the report claims, and a passing
 suite on screen makes a vague sentence read as a suite claim. Compare with
 tools/extract_report.py afterwards, never before.
 
+For the same reason, --older-than 1d (or 12h) leaves out the reports captured
+more recently than that. The line at the end of a turn lists some of the claims
+the extractor found, and a report annotated while that line is fresh in mind
+is annotated against it. The recent ones are counted, and asked about in a
+later run once they are old enough.
+
 A span must appear in the report word for word, as the extractor's must. The
 corpus is only ever appended to, and a file that cannot be appended to safely
 stops the run before anything is asked: a line that is not an annotation, a
@@ -33,8 +39,8 @@ import json
 import os
 import re
 import sys
-from collections.abc import Callable, Sequence
-from datetime import date
+from collections.abc import Callable, Mapping, Sequence
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import TextIO
 
@@ -71,6 +77,23 @@ class Report:
     report_id: str  # the file's stem, <session>-<n>, which is what a corpus line names
     path: Path
     text: str       # the report exactly as captured, and nothing else of the file
+    captured: datetime | None = None  # None when the header does not say, or not readably
+
+
+@dataclasses.dataclass(frozen=True)
+class Age:
+    text: str  # as written, for the line that says what was left for later
+    delta: timedelta
+
+
+def age(text: str) -> Age:
+    """12h or 2d: a whole, positive number of hours or of days."""
+    match = re.fullmatch(r"([1-9]\d*)([hd])", text)
+    if not match:
+        raise argparse.ArgumentTypeError(f"{text!r} is not an age: write it as 12h or 2d")
+    number = int(match.group(1))
+    return Age(text, timedelta(hours=number) if match.group(2) == "h"
+               else timedelta(days=number))
 
 
 def annotated(corpus: Path) -> set[str]:
@@ -117,11 +140,11 @@ def find_reports(projects: Sequence[Path]) -> tuple[list[Report], list[str]]:
                                     f"and {path}")
             seen[path.stem] = path
             try:
-                _, text = turn.read_capture(path)
+                header, text = turn.read_capture(path)
             except (turn.TurnError, OSError, ValueError) as e:
                 unreadable.append(f"{path}: {e}")
                 continue
-            reports.append(Report(path.stem, path, text))
+            reports.append(Report(path.stem, path, text, _captured(header)))
     return reports, unreadable
 
 
@@ -129,6 +152,15 @@ def _turn_order(path: Path) -> tuple[str, int]:
     """By session, then by turn number as a number, so that 10 comes after 9."""
     session, _, number = path.stem.rpartition("-")
     return (session, int(number)) if number.isdigit() else (path.stem, -1)
+
+
+def _captured(header: Mapping[str, str]) -> datetime | None:
+    """When the Stop handler captured the report, as the header's UTC timestamp says."""
+    try:
+        moment = datetime.fromisoformat(header.get("captured", ""))
+    except ValueError:
+        return None
+    return moment if moment.tzinfo is not None else None
 
 
 def pieces(text: str) -> list[str]:
@@ -249,13 +281,17 @@ def append(corpus: Path, entry: dict) -> None:
 
 
 def main(argv: list[str], *, ask: Callable[[str], str] = input, out: TextIO | None = None,
-         today: Callable[[], date] = date.today) -> int:
+         today: Callable[[], date] = date.today,
+         now: Callable[[], datetime] = lambda: datetime.now(timezone.utc)) -> int:
     out = out or sys.stdout
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("projects", nargs="+", type=Path,
                         help="project roots whose captured reports to annotate")
     parser.add_argument("--by", required=True,
                         help="the annotator's initials, written into every line")
+    parser.add_argument("--older-than", type=age, metavar="AGE",
+                        help="only reports captured at least this long ago, as 12h or 2d; "
+                             "the rest are counted and left for a later run")
     parser.add_argument("--corpus", type=Path, default=CORPUS,
                         help="the file annotations are appended to "
                              "(default: corpus/annotations.jsonl in this repository)")
@@ -273,8 +309,17 @@ def main(argv: list[str], *, ask: Callable[[str], str] = input, out: TextIO | No
         print(f"left out, it does not read as a captured report: {problem}", file=sys.stderr)
 
     pending = [report for report in reports if report.report_id not in done]
+    later = ""
+    if args.older_than is not None:
+        cutoff = now() - args.older_than.delta
+        for report in pending:
+            if report.captured is None:
+                print(f"left out, it carries no capture time: {report.path}", file=sys.stderr)
+        recent = [r for r in pending if r.captured is not None and r.captured > cutoff]
+        pending = [r for r in pending if r.captured is not None and r.captured <= cutoff]
+        later = f"; {len(recent)} captured in the last {args.older_than.text} left for later"
     print(f"{len(done)} annotated in {args.corpus}; {len(pending)} of {len(reports)} "
-          f"captured reports still to do", file=out)
+          f"captured reports still to do{later}", file=out)
     saved = 0
     for index, report in enumerate(pending, 1):
         try:

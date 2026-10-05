@@ -107,17 +107,19 @@ spurious extractions at or below 0.10, and no non-verbatim span. Declared before
 the extractor existed; it does not move. Annotate by hand with:
 
 ```bash
-python3 ~/code/claim-ledger/tools/annotate.py --by <initials> <project> [<project>...]
+python3 ~/code/claim-ledger/tools/annotate.py --by <initials> --older-than 1d <project> [<project>...]
 ```
 
 It takes up where `corpus/annotations.jsonl` left off and asks a sentence at a
 time: `1`–`5` for the type, Enter for no claim, `s` to type the spans when one
 sentence holds two claims, `n` to leave a report for another run, `q` to stop.
 A report is written only once it is finished. It shows the report and nothing
-else. What to mark, and the rules for the hard cases, are in
-[ANNOTATING](ANNOTATING.md). Run `python3 tools/extract_report.py <report.md>` on a report after
-annotating it, never before: an annotator who has seen the extractor's list
-confirms it, and the claims it missed are the ones recall counts.
+else, and `--older-than 1d` keeps back the last day's reports, while the line
+that ended each turn is still in mind. What to mark, and the rules for the hard
+cases, are in [ANNOTATING](ANNOTATING.md). Run
+`python3 tools/extract_report.py <report.md>` on a report after annotating it,
+never before: an annotator who has seen the extractor's list confirms it, and
+the claims it missed are the ones recall counts.
 
 Until that corpus exists there is no recall figure, and the appendix is an
 instrument nobody has calibrated. Read it as one.
