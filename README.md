@@ -47,7 +47,8 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   sentence at a time: a key per claim type, Enter for none, spans typed by hand
   where one sentence holds two claims. It shows the report and nothing else,
   neither the evidence nor the extractor's claims, and appends one line per
-  finished report.
+  finished report. What to mark is in
+  [docs/ANNOTATING.md](docs/ANNOTATING.md).
 - `python3 tools/extract_report.py <report.md>` runs the extractor over one
   captured report and prints the claims it finds, to compare against the
   report's annotation once that is written. It needs whichever variable
@@ -82,10 +83,10 @@ same machine:
 ```text
 claim-ledger · declared: 3.11, 3.12, 3.13, 3.14
 
-  3.11  system  Ran 312 tests in 5.883s OK                             6.1s
-  3.12  system  Ran 312 tests in 6.189s OK                             6.3s
-  3.13  system  Ran 312 tests in 5.900s OK                             6.0s
-  3.14  system  Ran 312 tests in 5.820s OK                             5.9s
+  3.11  system  Ran 313 tests in 6.185s OK                             6.4s
+  3.12  system  Ran 313 tests in 6.631s OK                             6.7s
+  3.13  system  Ran 313 tests in 6.299s OK                             6.5s
+  3.14  system  Ran 313 tests in 6.323s OK                             6.5s
 
 all 4 declared versions passed
 ```

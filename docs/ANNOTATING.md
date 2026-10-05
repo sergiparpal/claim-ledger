@@ -1,0 +1,122 @@
+# Annotating the corpus
+
+How to mark the claims in captured reports, so the extractor can be measured
+against them. The tool is `tools/annotate.py`; the definitions it applies are
+[REQUIREMENTS](REQUIREMENTS.md) § Definitions, and the thresholds are in §
+Rollout phases. This page is how to apply them consistently.
+
+## What the annotations are for
+
+They are the reference the extractor is measured against: what a person who
+read the report says it claims. The extractor's list is compared with yours,
+report by report. A checkable claim you marked and it missed is never checked
+by the ledger at all, and that is the number phase 1 exists to measure.
+
+You do not check whether a claim is true. That is the join's job, done against
+the evidence log, with no one involved. Your job is to say what the report
+asserts, so that the measurement can tell whether the extractor finds it.
+
+## While using the plugin
+
+- **Work as usual.** The corpus has to come from real turns. Asking Claude for
+  things in order to provoke claims makes it stop representing real use.
+- **Let turns finish.** A turn you interrupt, or one that ends in an API error,
+  is not captured. The extractor's key is not needed for capture: a turn
+  without it is `UNKNOWN`, and its report is captured all the same.
+- **Use it on a project with code and tests too.** Recall is measured on
+  checkable claims, and a project of documents yields mostly edits and
+  opinions.
+- **Count what you have** from time to time:
+
+  ```bash
+  find ~ -path '*/.claude/claim-ledger/reports/*.md' 2>/dev/null | wc -l
+  ```
+
+## Running the tool
+
+```bash
+python3 ~/code/claim-ledger/tools/annotate.py --by <initials> <project> [<project>...]
+```
+
+It takes up where `corpus/annotations.jsonl` left off, shows each report, and
+asks about it one sentence at a time:
+
+| Key | Type | The sentence says the agent… | Example |
+| --- | --- | --- | --- |
+| `1` | `command_run` | ran a command | "Ejecuté la migración." |
+| `2` | `suite_passed` | saw a check or a suite pass, or fail | "Los tests pasan." / "Fallan 2 tests." |
+| `3` | `file_changed` | created, edited or deleted a file | "He actualizado el parser." |
+| `4` | `judgment` | holds an opinion or an assessment | "Este diseño escala." |
+| `5` | `intent` | would do, or plans to do, something next | "Lo siguiente sería añadir una caché." |
+
+- **Enter**: the sentence claims nothing.
+- **`s`**: type or paste the spans by hand, each with its type, when one
+  sentence holds two claims or a claim is not a whole sentence. A span that is
+  not in the report word for word is refused.
+- **`n`**: leave this report for another run. Nothing is saved.
+- **`q`**: stop. The report in hand is not saved; the ones already saved stay.
+
+At the end of a report it shows what you marked. Enter appends it to the
+corpus at once, `r` starts the report again, `q` stops without saving it.
+
+## Each report, step by step
+
+1. **Read the whole report once**, for context.
+2. **For each sentence, decide whether it asserts something about this turn's
+   work.** These are not claims, and get Enter:
+   - a question or an offer: "¿Quieres que haga el commit?"
+   - an instruction to the reader: "Ejecuta `git config core.hooksPath .githooks`."
+   - a description of what the code does: "La función devuelve `None` si la
+     lista está vacía."
+   - a greeting, an apology, a summary heading.
+3. **If it is a claim, choose the type by what the sentence says**, from the
+   table above.
+4. **If one sentence holds two claims, split it with `s`.** "He editado
+   `src/parser.py` y los tests pasan." is two: "He editado `src/parser.py`"
+   as `file_changed`, and "los tests pasan" as `suite_passed`.
+
+## The rules that decide the hard cases
+
+- **A checkable type (1–3) only when the sentence says so.** "He terminado los
+  tres primeros pasos" names no command, file or suite, so it is `judgment`,
+  whatever you suspect was done.
+- **A claim about behaviour is `judgment`.** "Ahora maneja la entrada vacía"
+  would be `behaviour_checked`, a type left out of the vocabulary on purpose
+  (REQUIREMENTS § Definitions).
+- **Mark what the report says, not what happened.** A false claim is still a
+  claim: "los tests pasan", said of tests that never ran, is `suite_passed`,
+  and catching it is the ledger's job. Leaving it out would score the
+  extractor's correct find as an invented claim.
+- **Type by the words, not by the facts.** "He editado el parser" is
+  `file_changed` whether or not the parser was edited.
+
+## What you do not check
+
+- Whether a claim is true.
+- What ran, or what the evidence says. The tool does not show it.
+- The `claim-ledger · …` line at the end of the turn, or what the extractor
+  found.
+- Whether the files, commands or tests a sentence names exist.
+
+## Method
+
+- **Annotate a report before looking at what the extractor found in it**, and
+  run `tools/extract_report.py` on it only afterwards. An annotator who has
+  seen the extractor's list confirms it, and the claims it missed are the
+  ones recall counts.
+- **Annotate at another time, not straight after the turn.** The line at the
+  end of a turn lists some of the claims the extractor found; with it fresh in
+  mind you will mark the same ones. Judge only the text the tool shows.
+
+## What is written
+
+One line per finished report, in the shape [SPEC](SPEC.md) § Corpus capture
+gives: the report's id, the date, your initials, and each claim's span and
+type. Nothing else: not the report's text, not its evidence, not the sentences
+you passed with Enter.
+
+- **The spans are text from your reports.** `corpus/` is inside this
+  repository, so whether to commit it is a decision about that text.
+- **The line names the report and does not hold it.** The text stays under the
+  project's `.claude/claim-ledger/reports/`, which git ignores. The measurement
+  needs both, so do not delete a captured report once it is annotated.

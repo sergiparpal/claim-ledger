@@ -10,6 +10,7 @@ prompts are driven by a script of answers; nothing here waits for a person.
 import contextlib
 import io
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -125,6 +126,13 @@ class VocabularyTest(unittest.TestCase):
     def test_one_key_per_type_in_the_frozen_order(self):
         self.assertEqual(list(annotate.KEYS), ["1", "2", "3", "4", "5"])
         self.assertEqual(list(annotate.KEYS.values()), list(schema.CLAIM_TYPES))
+
+    def test_the_annotation_guide_names_the_keys_the_tool_reads(self):
+        """docs/ANNOTATING.md is what an annotator reads; a key that means one
+        type there and another here would put a wrong type in the corpus."""
+        guide = (REPO / "docs" / "ANNOTATING.md").read_text(encoding="utf-8")
+        rows = re.findall(r"^\| `(\d)` \| `([a-z_]+)` \|", guide, re.MULTILINE)
+        self.assertEqual(rows, list(annotate.KEYS.items()))
 
     def test_the_default_corpus_is_the_file_the_documents_name(self):
         self.assertEqual(annotate.CORPUS, REPO / "corpus" / "annotations.jsonl")

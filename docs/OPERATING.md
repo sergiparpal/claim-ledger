@@ -114,7 +114,8 @@ It takes up where `corpus/annotations.jsonl` left off and asks a sentence at a
 time: `1`–`5` for the type, Enter for no claim, `s` to type the spans when one
 sentence holds two claims, `n` to leave a report for another run, `q` to stop.
 A report is written only once it is finished. It shows the report and nothing
-else. Run `python3 tools/extract_report.py <report.md>` on a report after
+else. What to mark, and the rules for the hard cases, are in
+[ANNOTATING](ANNOTATING.md). Run `python3 tools/extract_report.py <report.md>` on a report after
 annotating it, never before: an annotator who has seen the extractor's list
 confirms it, and the claims it missed are the ones recall counts.
 
