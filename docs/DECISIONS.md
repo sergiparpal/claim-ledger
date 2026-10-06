@@ -128,3 +128,26 @@ But it makes the alias table an instrument rather than a convenience, and it is
 not one that should be tuned from single observations. Collect what real reports
 actually say during the corpus phase, then widen it once, deliberately. The file
 is the user's (I-8).
+
+### A command claim links only when the report names the command — 6 October 2026
+
+The first audited turn in distiller, from the desktop app: the report said "Hice
+el commit `2cbb88c` en una rama nueva, `spec-slice-1`, …", the evidence log held
+`git switch -c spec-slice-1 && git add docs/SPEC.md && git commit …`, ok, in the
+same turn, and the commit is in the repository. The claim came back
+`UNSUPPORTED`. The extractor typed it `command_run` with the referents
+`2cbb88c`, `spec-slice-1` and `main`, which is what its prompt asks for: the
+names the sentence gives, never resolved.
+
+`names_command` links a referent to a recorded command only when its first token
+is the command's first token and every further token is in the command. A hash
+or a branch is never a command's first token, and "hice el commit" names no
+command at all. So a true claim about a command, worded the way reports word
+them, stays unsupported.
+
+That is the rule erring in the right direction (I-2): resolving "the commit" to
+whichever git command happened to run is how a claim about one command gets
+verified against another. Recall will not show it, since the claim was found
+and typed right; it shows in the verdicts, as `UNSUPPORTED` on a command the
+log holds. Like the alias table, count it during the corpus phase rather than
+tune it from one turn. `join.py` is frozen, so any change there is the user's.
