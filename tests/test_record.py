@@ -18,7 +18,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from ledger import config, evidence, install, record
@@ -36,6 +36,12 @@ TOOL_EVENTS = ["post_tool_use_bash", "post_tool_use_failure_bash",
                "post_tool_use_edit", "post_tool_use_notebook_edit"]
 PROJECT_FILES = ["src/engine.py", "migrations/0007_add_index.sql", "docs/analysis.ipynb"]
 ISO_MS = "%Y-%m-%dT%H:%M:%S.%fZ"
+# The hook stamps ts_end in another process, so only wall-clock readings can be
+# compared, and the wall clock can step back: WSL2 resyncs it with the host's.
+# On 6 October 2026 this comparison failed once and not again in 80 reruns, and
+# a step back is the one way the code allows. Two seconds absorbs such a step;
+# a stamp in local time, hours off, still fails, as does one seconds late.
+CLOCK_SLACK = timedelta(seconds=2)
 
 
 class RecorderTest(unittest.TestCase):
@@ -111,8 +117,10 @@ class FixtureRecordTest(RecorderTest):
                 records = self.records()
                 self.assertEqual(len(records), count)
                 written, expected = records[-1], self.expected(name)
-                ts_end = datetime.strptime(written.pop("ts_end"), ISO_MS)
-                self.assertTrue(before <= ts_end.replace(tzinfo=timezone.utc) <= after)
+                ts_end = datetime.strptime(written.pop("ts_end"), ISO_MS).replace(
+                    tzinfo=timezone.utc)
+                self.assertLessEqual(before - CLOCK_SLACK, ts_end)
+                self.assertLessEqual(ts_end, after + CLOCK_SLACK)
                 expected.pop("ts_end")
                 self.assertEqual(written, expected)
         self.assertEqual(self.error_entries(), [])
