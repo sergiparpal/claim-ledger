@@ -66,13 +66,19 @@ will meet them:
   that session stays UNKNOWN: the log has a hole and the join would read across
   it. A new session clears it.
 - **No `OPENROUTER_API_KEY`** in the environment. Claude Code does not inherit it
-  here — it is exported at line 131 of `~/.bashrc`, which an interactive shell
-  reads and a hook does not. Export it before starting Claude Code, not after.
-  A one-off command that needs it can load that one line:
+  here — it lives in `~/.config/claim-ledger/env` (mode 600), which `~/.bashrc`
+  loads in an interactive shell and a hook never reads. Export it before
+  starting Claude Code, not after. A one-off command that needs it can load the
+  file itself:
 
   ```bash
-  eval "$(grep -E '^[[:space:]]*export[[:space:]]+OPENROUTER_API_KEY=' ~/.bashrc)"
+  . ~/.config/claim-ledger/env
   ```
+
+- **HTTP 401 from the model call.** The key arrived and OpenRouter refused it,
+  answering "User not found": the key was revoked or deleted. Make a new one and
+  write it into `~/.config/claim-ledger/env`, and into any
+  `.claude/settings.local.json` that holds a copy under `env`.
 
 The report is still captured. Nothing is lost for the corpus.
 
