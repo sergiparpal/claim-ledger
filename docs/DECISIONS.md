@@ -151,3 +151,25 @@ verified against another. Recall will not show it, since the claim was found
 and typed right; it shows in the verdicts, as `UNSUPPORTED` on a command the
 log holds. Like the alias table, count it during the corpus phase rather than
 tune it from one turn. `join.py` is frozen, so any change there is the user's.
+
+### A claim about a tool the log does not record is always unsupported — 6 October 2026
+
+A later turn in distiller said "Por eso comparé `HEAD` con el commit anterior,
+`7cd4728`, para que el análisis cubra el commit de la spec." It was true: the
+agent had called semantic-diff-weaver's MCP tool on `7cd4728` and `HEAD`. It came
+back `UNSUPPORTED`, "no matching command in this session", and nothing else was
+possible: the recorder's matcher is `Bash|Edit|Write|NotebookEdit` (SPEC § Hook
+wiring), so an MCP call, like a Read, a WebFetch or any other tool, leaves no
+record for a claim to join.
+
+That is I-2 working too: a claim nothing in the log can support is
+`UNSUPPORTED`, never a guess. But it is a different gap from the entry above.
+There the record existed and the referents did not reach it; here there is no
+record, and no wording of the claim would change that. How often it happens
+depends on the tools a session has loaded, so a session with MCP servers shows
+more true claims as `UNSUPPORTED` than one without.
+
+Widening the matcher would record those calls, but `command_run` joins on a
+command line and an MCP call has none. What such a record would hold, and what
+a claim would have to name to reach it, is open. Count these during the corpus
+phase, apart from the referent misses above, before deciding anything.
