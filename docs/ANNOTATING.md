@@ -96,6 +96,11 @@ corpus at once, `r` starts the report again, `q` stops without saving it.
 - **A sentence that points outside itself is typed by what it asserts.** "He
   arreglado el fichero que mencionaste" is `file_changed`: it says a file was
   changed, and which file does not matter here.
+- **A claim that something was not done is `judgment`.** "`docs/SPEC.md` no se
+  ha tocado" denies a change. No type says that, and `file_changed` would mark
+  the very write the sentence denies. If the sentence also asserts something
+  done, split it with `s`: in "He editado `src/parser.py`; `docs/SPEC.md` no se
+  ha tocado", the first part is `file_changed` and the second `judgment`.
 
 ## What you do not check
 

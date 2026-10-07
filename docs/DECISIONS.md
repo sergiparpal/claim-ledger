@@ -152,6 +152,12 @@ and typed right; it shows in the verdicts, as `UNSUPPORTED` on a command the
 log holds. Like the alias table, count it during the corpus phase rather than
 tune it from one turn. `join.py` is frozen, so any change there is the user's.
 
+A later turn showed the same rule missing compound commands: "usé pytest
+9.1.1, pytest‑cov 7.1.0 y coverage 7.16.2 …" against more than twenty recorded
+commands that ran pytest after a `cd … &&`, inside a `for` loop or behind a
+variable assignment. None begins with `pytest`, and a report seldom names a
+command by its first word as it was typed.
+
 ### A claim about a tool the log does not record is always unsupported — 6 October 2026
 
 A later turn in distiller said "Por eso comparé `HEAD` con el commit anterior,
@@ -173,3 +179,26 @@ Widening the matcher would record those calls, but `command_run` joins on a
 command line and an MCP call has none. What such a record would hold, and what
 a claim would have to name to reach it, is open. Count these during the corpus
 phase, apart from the referent misses above, before deciding anything.
+
+### A negated claim can be typed as the change it denies — 7 October 2026
+
+A turn in distiller ended "Está en la rama local `spike/junit-coverage-contexts`
+(commit `b96de07`, sin push), y `docs/SPEC.md` no se ha tocado." The extractor
+typed the sentence `file_changed`, with `docs/SPEC.md` among its referents, and
+the join found no write of that file in the session: `UNSUPPORTED`, "no record
+of that file being written". It read as the agent claiming an edit it never
+made. The sentence claimed the opposite, and the log agreed with it.
+
+The vocabulary has no type for "I did not change X", and the prompt sends a
+sentence that fits none of the checkable types to `judgment` or `intent`. So
+this is a typing error by the extractor, and the measurement will count it as
+one: the annotation guide says a claim that something was not done is
+`judgment`. The prompt and the vocabulary are frozen; this is measured, not
+fixed.
+
+It matters beyond the noise. `file_changed` is joined against the whole
+session's log, not the turn's slice: had `docs/SPEC.md` been written in an
+earlier turn of the session, the same sentence would have come back `VERIFIED`,
+verifying the opposite of what it says. That is the false `VERIFIED` the
+prompt's "never guess upward" exists to prevent, so the corpus should show how
+often a negation reaches a checkable type.
