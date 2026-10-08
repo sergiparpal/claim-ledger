@@ -180,7 +180,7 @@ command line and an MCP call has none. What such a record would hold, and what
 a claim would have to name to reach it, is open. Count these during the corpus
 phase, apart from the referent misses above, before deciding anything.
 
-### A negated claim can be typed as the change it denies — 7 October 2026
+### A sentence can be typed as a file change it does not claim — 7 October 2026
 
 A turn in distiller ended "Está en la rama local `spike/junit-coverage-contexts`
 (commit `b96de07`, sin push), y `docs/SPEC.md` no se ha tocado." The extractor
@@ -202,3 +202,33 @@ earlier turn of the session, the same sentence would have come back `VERIFIED`,
 verifying the opposite of what it says. That is the false `VERIFIED` the
 prompt's "never guess upward" exists to prevent, so the corpus should show how
 often a negation reaches a checkable type.
+
+The same day a sentence with no negation and no file in it reached
+`file_changed` too: "`f8edf74` es ahora `879625e`, en
+`spec/junit-coverage-spike`.", about a commit the turn had rewritten with `git
+commit --amend`. Its referents were the two hashes and the branch; a branch
+named like a path is the likely trigger. It came back `UNSUPPORTED` only because
+nothing was written at a path with one of those names. By the guide's rules it
+is `judgment`: it names no file, and no command either.
+
+### A file claim links only when it names the recorded path — 7 October 2026
+
+A turn in distiller said "Contiene las dos tandas de cambios del SPEC (14 líneas
+añadidas …) y no queda nada pendiente en el árbol de trabajo." `docs/SPEC.md`
+had been edited ten times earlier in the session, and the commit the turn
+amended holds that change. The extractor returned the referent `SPEC`, as the
+sentence names it, and the claim came back `UNSUPPORTED`, "no record of that
+file being written". Whether the sentence is a file claim at all, or a
+description of the commit, is the annotator's call; the link failed either way.
+
+`names_path` links a referent to a write only when it equals the recorded path,
+project-relative and whole: `docs/SPEC.md` is reached by `docs/SPEC.md` and by
+nothing else, not `SPEC.md` and not `SPEC`. Reports name files the way people
+talk about them, and the log holds paths. This is the alias table's problem
+again, for files rather than checks.
+
+The direction is the same one: resolving "the SPEC" to whichever written file
+looks like it is how a claim about one file gets verified against another, and
+a match on the file name alone would join `README.md` to every README in a
+repository. Count it during the corpus phase with the other referent misses;
+`join.py` is frozen.
