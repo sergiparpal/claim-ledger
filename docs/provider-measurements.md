@@ -43,10 +43,12 @@ top-level `chat_template_kwargs` shape (rather than under `extra_body`) took
 | 23 Sep | 8 | 2.9–7.6s, median 3.8s | none missed, all identical |
 | 17 Oct, every tenth call of the corpus run below | 11 | 0.61–1.32s, median 0.76s | **three distinct answers**: two different sets of 3 claims (nine runs and one), and once **no claims at all**; none identical to the recording |
 | 17 Oct, three more, read | 3 | 0.4–0.9s | one with no claims; two with the recording's three claims, the intent now carrying `git add`, `commit` and `push` as referents, which the sentence does not name; one of the two without the spans' final full stops |
+| 17 Oct, every tenth call of the slow-hour run below | 11 | 0.55–2.61s, median 1.31s | the same three answers as the corpus run, five, three and three times; **no claims at all** in three |
 
 In September, thirteen of fourteen runs inside the deadline, every answer the
 same. On 17 October all fourteen were inside it, with at least three distinct
-answers among them. 18 of the 22 providers serving this model are untested.
+answers among them, and so were the eleven of the slow hour, with the same
+three. 18 of the 22 providers serving this model are untested.
 
 ### The distiller corpus under a long deadline — 17 October 2026
 
@@ -79,6 +81,43 @@ answer both times; the claim count differed in 31, by a factor of two or more in
 13. 21 of the 107 answers were empty lists, among them four reports whose other
 run found 18, 26, 33 and 45 claims. 17 answers carried at least one span that is
 not in the report: 41 defects against 1,093 claims kept.
+
+### The same corpus at a slow hour — 17 October 2026
+
+The run above caught a fast hour, and the hook's own turns had been slower, so a
+watcher waited for a slow one. From 12:22 UTC it sent a probe every five
+minutes: the same request for one distiller report of 1,000 characters, whose
+answers ran to 355–534 output tokens. Each call was timed in stages, DNS, TCP,
+TLS, first byte and whole body, through `http.client` with urllib's headers,
+since urllib times none of them. Two probes in a row at twice the fast run's
+prediction, or one past 12s, would start the run. Four probes went past twice,
+never two in a row, and at 16:57 one took 13.05s, 4.9 times. The run that
+followed, 16:57 to 17:10 UTC, repeated the one above call for call: the same 48
+reports in the same order, the fixed report every tenth call, the 150s deadline.
+All 107 calls answered by Morph, `end_turn`, no reasoning token; $0.050 with the
+57 probes.
+
+| Wall, 96 calls on real reports | p50 | p75 | p90 | p95 | p99 | max |
+| --- | --- | --- | --- | --- | --- | --- |
+| fast run above, seconds | 2.4 | 4.0 | 6.6 | 10.0 | 12.7 | 14.1 |
+| slow hour, seconds | 4.7 | 10.4 | 17.1 | 21.8 | 33.2 | 38.6 |
+
+Inside 12s, 78 of the 96 (81%); inside 15s, 89%; 20s, 93%; 25s, 96%; 30s, 98%;
+all inside 45s. About 1.6s plus 10.4ms per output token (r = 0.86), against
+0.65s plus 4.7ms in the fast run. Connecting took a median of 43ms and the first
+byte came at a median of 0.69s, against 0.84s in the probes before the episode:
+the time went after the first byte, where the provider delivered a median of 89
+tokens a second against 184 before it, and as few as 27. Whether that is a queue
+at the provider or slower decoding cannot be told from a call that is not
+streamed. The 11 reports whose turns had passed the deadline in the hook took
+0.6 to 17.4s; 3 of their 22 calls went past 12s.
+
+The answers varied as they had at the fast hour. 6 of the 48 reports got the
+same answer twice; across the day's four runs, 2 of the 48 got one answer every
+time, and the median was three distinct answers per report. 23 of the 107
+answers were empty lists. 12 answers carried a span that is not in the report:
+32 defects against 1,121 claims kept. The probe report never came back empty,
+and gave 25 distinct answers in its 57 runs, the most common of them 11 times.
 
 ## z-ai/glm-5.3-flash — replaced 21 September 2026
 

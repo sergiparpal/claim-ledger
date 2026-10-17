@@ -373,6 +373,16 @@ has also taken 7.8 seconds over two claims, so those turns met a longer answer,
 a slower hour, or both. The window caught no slow hour, and the tail in one is
 still unmeasured.
 
+That evening a watcher caught one (`provider-measurements.md`). From 16:57 to
+17:10 UTC the same calls on real reports took a median of 4.7 seconds and up to
+38.6: 81% finished inside 12 seconds, 93% inside 20, all of them inside 45.
+Neither this machine's network nor OpenRouter's front was slower; the time went
+after the first byte, at the provider, which delivered about 89 tokens a second
+instead of 184, so each output token cost about 10 milliseconds instead of 5.
+The deadline still caps the size of an answer, but at a slow hour the cap is
+less than half as large, about 1,000 tokens for 12 seconds: the largest answer
+of that run, 2,943 tokens, took 38.6 seconds.
+
 ### The route no longer gives the same answer twice — 17 October 2026
 
 The route was frozen on a measurement that included its repeatability: the
@@ -437,6 +447,13 @@ writes into the session transcript, and that is the only place empty answers
 can be counted from. Among the ledger's own files, a captured report with no
 claim row and no `errors.log` entry is also what a hook killed after its capture
 leaves behind.
+
+The slow hour came that evening (`provider-measurements.md`), and the answers
+varied as much at half the speed. From 16:57 to 17:10 UTC 23 of the 107 were
+empty lists and only 6 of the 48 reports got the same answer twice; over the
+day's four runs, 2 of the 48 got one answer every time. A report probed 57 times
+between 12:22 and 16:57 UTC never came back empty, and gave 25 distinct answers.
+So it lasted the afternoon, at either speed.
 
 ### No suite claim can be verified in distiller — 17 October 2026
 
