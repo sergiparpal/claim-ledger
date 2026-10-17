@@ -372,3 +372,35 @@ report can get answers of very different sizes (the next entry), and the hook
 has also taken 7.8 seconds over two claims, so those turns met a longer answer,
 a slower hour, or both. The window caught no slow hour, and the tail in one is
 still unmeasured.
+
+### The route no longer gives the same answer twice — 17 October 2026
+
+The route was frozen on a measurement that included its repeatability: the
+thirteen runs that answered on 21 and 23 September gave the same three claims
+every time. On 17 October 2026 the same request, sent by the hook's own code
+with a long deadline, went out twice for each of the 48 reports distiller had
+captured. Eight got the same answer both times. The claim count differed in 31,
+by a factor of two or more in 13, and 21 of the 107 answers were empty lists,
+among them reports whose other run found 18, 26, 33 and 45 claims. The fixed
+report of the September runs gave three distinct answers in eleven, none the one
+recorded then, and two of its answers read that day name `git add`, `commit` and
+`push` as referents of a sentence that names none of them. The numbers and their
+conditions are in `provider-measurements.md`.
+
+`temperature` 0 is sent and accepted, and the answers vary anyway. Whether the
+provider ignores it, or runs the model in a way that breaks near-ties
+differently from one call to the next, cannot be seen from here: the reply names
+the provider and says nothing about how it ran. The thinking switch still holds;
+none of the 107 replies carried a reasoning token.
+
+Two consequences run against the design. A recall figure taken from one run of
+an extractor that varies like this describes that run, which is why
+`openai/gpt-5.6-luna` was refused. And an empty list is a valid answer (R-12),
+so a turn whose answer comes back empty does not read `UNKNOWN`: it reads as a
+report that claims nothing, and only coverage, listing the turn's writes as
+unreported, hints otherwise.
+
+It may be recent. The 33 turns the hook answered from 6 to 17 October include no
+empty answer, and one seven-minute window cannot say when the change came or
+whether it lasts; that needs another window, ideally at a slow hour. The route
+is frozen, so what to do about it is the user's.
