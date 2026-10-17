@@ -404,26 +404,35 @@ It may be recent. The first 33 turns the hook answered, from 6 to 17 October,
 include no empty answer. The 34th was one, and it came inside the window above:
 turn 1 of distiller session `6cc8dfdd`, at 11:55 UTC on 17 October 2026. Its
 report, 2,438 characters, names the commit it made, the one file it changed and
-two `make` targets that exited 0. The hook took 523 milliseconds, the only
-answered turn under a second, and printed `0 verified, 0 unchecked` with no
-extraction defect, so the model returned an empty list: `schema.validate` turns
-every item of an answer into a claim, a defect or an `UNKNOWN` turn. Above that
-line it listed `TASKS.md (REVIEW)` three times as `UNREPORTED`, once for each
-Edit the turn made to it. That is I-7 working, not a second fault: coverage
-excuses a write only when a claim names its path, and with no claims it excused
-nothing. It does put on the report an omission that was the extractor's. In a
-turn with nothing consequential to list, one that only read or wrote only
-through Bash (the entry above), the same answer prints the collapsed line,
+two `make` targets that exited 0. The hook took 523 milliseconds, where every
+turn that came back with claims took 1.9 seconds or more, and it printed
+`0 verified, 0 unchecked` with no extraction defect, so the model returned an
+empty list: `schema.validate` turns every item of an answer into a claim, a
+defect or an `UNKNOWN` turn. Above that line it listed `TASKS.md (REVIEW)`
+three times as `UNREPORTED`, once for each Edit the turn made to it. That is
+I-7 working, not a second fault: coverage excuses a write only when a claim
+names its path, and with no claims it excused nothing. It does put on the
+report an omission that was the extractor's. In a turn with nothing
+consequential to list, one that only read or wrote only through Bash (the entry
+above), the same answer prints the collapsed line,
 `0 verified, 0 unchecked · … · nothing unreported`, and nothing on it tells
 that turn apart from one whose report claimed nothing.
 
-Coming inside the measured window, it shows that the empty answers reach the
-hook, not that they last; that still needs another window, ideally at a slow
-hour. The route is frozen, so what to do about it is the user's.
+The 35th was one too, and it came after the window: turn 2 of the same session,
+at 12:46 UTC, 48 minutes after the window closed. Its report, 3,484 characters,
+again names the commit it made, the one file it changed and the two `make`
+targets, and gives the full path of a script the agent wrote in its scratchpad,
+outside the project. The hook took 776 milliseconds, printed no defect, and
+listed ten `UNREPORTED` lines: nine edits of `TASKS.md` and the write of that
+script. So the empty answers are not confined to the window. Counting the two
+turns before them, which passed the deadline at 10:41 and 10:51 UTC, four
+distiller turns in a row produced no claim. How often it happens, and whether
+it lasts, still needs another window, ideally at a slow hour. The route is
+frozen, so what to do about it is the user's.
 
 An empty answer writes nothing to `claims.jsonl`, whose rows are one per claim
 and one per defect, so the provider that gave it is recorded nowhere: R-45
-carries the route on each claim. This one was found in the appendix Claude Code
+carries the route on each claim. Both were found in the appendix Claude Code
 writes into the session transcript, and that is the only place empty answers
 can be counted from. Among the ledger's own files, a captured report with no
 claim row and no `errors.log` entry is also what a hook killed after its capture
