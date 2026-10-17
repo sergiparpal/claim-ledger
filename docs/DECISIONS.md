@@ -262,3 +262,39 @@ looks like it is how a claim about one file gets verified against another, and
 a match on the file name alone would join `README.md` to every README in a
 repository. Count it during the corpus phase with the other referent misses;
 `join.py` is frozen.
+
+### A claim is verified when any one of its referents is — 17 October 2026
+
+A report in distiller said "`make protected REF=main` y `make verify` salen con
+código 0." The extractor typed it `command_run` with both commands as its
+referents, the log held one line that ran them both, `make protected REF=main;
+echo "protected exit=$?"; make verify …`, ok, and the claim came back
+`VERIFIED`. Further down, the same report said "`make protected REF=main`: sin
+salida.", with that referent alone, and it came back `UNSUPPORTED`, for the
+reason given under the command entry above. So the first claim was verified on
+`make verify` alone.
+
+`names_command` and `names_path` link a claim to a record when any one of its
+referents reaches it, and `_suite` does the same in its own terms: a referent
+that resolves to no check is dropped as long as another one resolves. The rule
+in the module's docstring, that a referent which names something and resolves
+to nothing is `UNSUPPORTED`, holds only for a claim with one referent. With two,
+one found and one not, the claim takes the stronger verdict, and I-2 resolves
+every ambiguity to the weaker.
+
+It is not rare. Up to 17 October 2026, 20 `command_run` and `file_changed`
+claims in distiller named two referents or more. Six came back `VERIFIED`, and
+each of the six had a referent that the record which verified it does not hold;
+in five of them that referent reaches nothing in the log at all. "El commit solo
+incluye `docs/SPEC.md`, el árbol de trabajo queda limpio y `main` sigue en
+`7cd4728`." was verified by a write of `docs/SPEC.md`, with `main` and `7cd4728`
+reaching nothing. In the `make` case the other half was true, since both
+commands are on the line that was found, but nothing in the join checked that.
+
+No test pins it, either way. The property test in `test_join` gives each claim
+zero referents or one, and a mutant that requires every referent to reach the
+same record passes the whole suite, 321 tests on Python 3.12, on 17 October
+2026. Requiring it is not free: all six claims would have come back
+`UNSUPPORTED`, the true `make` claim among them, because the extractor's
+referents include hashes, branches and identifiers that no record holds. Which
+way to pin it is the user's; `join.py` is frozen.
