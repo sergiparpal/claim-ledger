@@ -486,5 +486,11 @@ a passing `make verify` vouches for the tool, which is a fact about the
 Makefile and not one the ledger may infer. And the run would have to be the
 bare invocation, which is the agent's habit; changing it for the ledger's sake
 would stop the corpus representing real use (ANNOTATING § While using the
-plugin). A change to the file mid-session makes the next turn `UNKNOWN` (I-8),
-and a new session takes it as its baseline.
+plugin). A change to the file mid-session makes every later turn of that
+session `UNKNOWN` (I-8), until the file is restored byte for byte; a new
+session takes the changed file as its baseline.
+
+At the user's request the check was declared the same day:
+`verify = ["make verify"]`, scoped `**/*`, since the character check reads
+every file git does not ignore and gitleaks reads the history, and with no
+aliases yet. The bare run, and the aliases, are still open.
