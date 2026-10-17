@@ -219,6 +219,28 @@ named like a path is the likely trigger. It came back `UNSUPPORTED` only because
 nothing was written at a path with one of those names. By the guide's rules it
 is `judgment`: it names no file, and no command either.
 
+The false `VERIFIED` this entry warns about had already happened, the day
+before it was written, and gone unnoticed. A report on 6 October 2026 said
+"Hice los cuatro cambios en [docs/SPEC.md](docs/SPEC.md). No toqué el Bet, los
+no-objetivos ni los 8 `<TO FILL>`, y no he hecho commit." The extractor gave the
+second sentence a claim of its own, typed `file_changed`, with `docs/SPEC.md` as
+its referent, carried over from the sentence before. Every clause of it denies
+an action, and it came back `VERIFIED` on the strength of the write the first
+sentence claimed. On 17 October 2026 it happened again: "No he tocado nada
+más.", closing a bullet headed `docs/SPEC.md`, typed and given its referent the
+same way, came back `VERIFIED` against that turn's write of the SPEC. That one
+was true, since the commit the turn made, `715e123`, adds four signatures to
+the SPEC and nothing else; whether the first was true was not checked. Either
+way the verdict could not tell: the log shows that a file was written, never
+what was left alone, so a negation that reaches `file_changed` comes back
+`VERIFIED` whenever its file was written at all.
+
+Neither showed in the appendix, which counts `VERIFIED` claims and never lists
+them; both were found by reading `claims.jsonl`. So were five more sentences
+that claim a change and add "no he hecho commit" or "sin commit", a second
+assertion the extractor left in the same span, `VERIFIED` on the strength of
+the first.
+
 ### A file claim links only when it names the recorded path — 7 October 2026
 
 A turn in distiller said "Contiene las dos tandas de cambios del SPEC (14 líneas
