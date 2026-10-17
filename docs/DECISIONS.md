@@ -329,3 +329,35 @@ those wrote the note behind "Lo he anotado en la pregunta, citando K1 y K4.",
 which came back `UNSUPPORTED` for this reason as well as for naming no file.
 Which files a shell command wrote cannot be read from its command line, so this
 is open. Count it during the corpus phase, apart from the referent misses.
+
+### One turn in four passes the deadline — 17 October 2026
+
+The route was measured at thirteen runs in fourteen inside the 12-second
+deadline (`provider-measurements.md`), and README and OPERATING repeated the
+figure until 17 October 2026. Daily use has been worse. Of the 49 turns
+distiller captured from 6 to 17 October 2026, four ended on HTTP 401 and one on
+a report over `max_report_chars`. Of the 44 left, whose call either answered or
+ran out of time, 11 passed the deadline: 2 of the 22 captured before 10 October,
+and 9 of the 22 since.
+
+The times are the Stop hook's `durationMs`, which Claude Code writes into the
+session transcript: the whole pipeline, not the call alone, and the only record
+of latency there is, since the client writes down neither the usage nor whether
+a thinking block came back. The turns that answered took a median of 2.9
+seconds before 10 October and 6.9 since.
+
+Report length does not explain it. Reports of 1,000 and 1,658 characters passed
+the deadline on 17 October, and one of 9,164 answered in 3.1 seconds. The
+measured runs moved too, from 6.1–8.6 seconds on 21 September to a median of
+3.8 on 23 September. The route's speed changes from day to day, and nothing
+recorded says why.
+
+It matters beyond the turns it costs. Recall is to be reported beside the share
+of turns that came back `UNKNOWN`, and `tools/extract_report.py`, the one tool
+that runs the extractor outside a turn, takes the same deadline from the
+project's `claim-ledger.toml`. What a longer deadline would buy is not known,
+because a call abandoned at 12 seconds leaves no trace of how long it would have
+taken. The deadline is in the frozen `[extractor]` table, the three timeouts
+must stay strictly ordered, and the hook's own lives in `hooks/hooks.json`,
+which an installed copy picks up only after a version bump and an update.
+Moving any of them is the user's.

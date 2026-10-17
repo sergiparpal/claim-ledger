@@ -58,8 +58,11 @@ No verdict was computed — it says nothing about your work. The reason is on th
 line; the full entry is in `.claude/claim-ledger/errors.log`. In the order you
 will meet them:
 
-- **The model call timed out or failed.** Expected occasionally, about one run in
-  fourteen on the measured route. Nothing to do.
+- **The model call timed out or failed.** Nothing to do on the turn, but it is
+  not occasional: one run in fourteen passed the deadline when the route was
+  measured, and 11 turns in 44 did in distiller up to 17 October 2026, 9 of them
+  since 10 October. Whether the deadline moves is open; see
+  [DECISIONS](DECISIONS.md).
 - **`claim-ledger.toml` changed mid-session.** Fine if you edited it. Worth a hard
   look if you did not. A new session re-baselines.
 - **A record was lost** (`component: record` in `errors.log`). Every later turn of

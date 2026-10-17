@@ -169,5 +169,7 @@ Tests above for the versions the suite is declared to pass on.
   schema, which ends code fences and stray keys at the source; it cannot make
   a span verbatim, so validation still runs and defects are still counted.
 - **A slow model costs turns.** The call has a wall-clock deadline that fits
-  inside the turn budget, and one that passes it is `UNKNOWN`. On the route in
-  use, one run in fourteen measured that way.
+  inside the turn budget, and one that passes it is `UNKNOWN`. One run in
+  fourteen passed it when the route was measured; in daily use, 11 turns in 44
+  did up to 17 October 2026, 9 of them in the 22 since 10 October. See
+  [docs/DECISIONS.md](docs/DECISIONS.md).
