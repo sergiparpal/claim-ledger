@@ -298,3 +298,34 @@ same record passes the whole suite, 321 tests on Python 3.12, on 17 October
 `UNSUPPORTED`, the true `make` claim among them, because the extractor's
 referents include hashes, branches and identifiers that no record holds. Which
 way to pin it is the user's; `join.py` is frozen.
+
+### A write through Bash is invisible to file claims and to coverage — 17 October 2026
+
+A report in distiller said "nueva D-004 con el contexto, lo elegido, lo
+rechazado (…) y las consecuencias.", under a bullet headed `docs/DECISIONS.md`.
+The extractor typed it `file_changed` with that exact path, and it came back
+`UNSUPPORTED`, "no record of that file being written". The log held `cat >>
+docs/DECISIONS.md <<'EOF'`, ok, in the same turn, and the commit the turn made,
+`715e123`, holds the new entry.
+
+The recorder takes `files` from the input of Edit, Write and NotebookEdit. A
+Bash call that is not a check is recorded as `kind: other`, with its command
+line cut at the first newline (R-7) and no `files` at all, and `names_path`
+reads only mutation records. So no wording of a file claim reaches a write made
+through the shell. It is the unrecorded-tool case above, except that here the
+record exists.
+
+The README lists the missing `files` entry as a known gap and says freshness is
+unaffected, which is true: freshness reads mtimes from disk. Coverage is
+affected. R-22 counts a file mutation as consequential, but coverage finds
+mutations in mutation records, so a write through Bash at the default tier is
+never listed as `UNREPORTED`. A report that says only "done" after a turn that
+wrote only through the shell has nothing listed against it, and I-7 holds only
+to its letter, since the log shows no mutation it left unmentioned.
+
+That turn wrote through Bash four times: the `cat >>` above, a `sed -i` loop
+renumbering `TASKS.md`, and two `python3 -` heredocs that rewrote it. One of
+those wrote the note behind "Lo he anotado en la pregunta, citando K1 y K4.",
+which came back `UNSUPPORTED` for this reason as well as for naming no file.
+Which files a shell command wrote cannot be read from its command line, so this
+is open. Count it during the corpus phase, apart from the referent misses.
