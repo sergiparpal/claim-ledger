@@ -437,3 +437,54 @@ writes into the session transcript, and that is the only place empty answers
 can be counted from. Among the ledger's own files, a captured report with no
 claim row and no `errors.log` entry is also what a hook killed after its capture
 leaves behind.
+
+### No suite claim can be verified in distiller — 17 October 2026
+
+Turn 3 of distiller session `6cc8dfdd`, at 13:16 UTC, reported each step of
+`make verify` by quoting its output, «16 files already formatted», «29 passed»
+and «6 kept, 0 broken» among them, and the pre-commit hook of its commit by its
+line, «Detect hardcoded secrets… Passed». Seven of those claims came back
+`UNSUPPORTED`, "no run of that check in this session", and an eighth, that
+`check_characters.py` printed nothing, "no matching command". All eight were
+true. The outputs in the session transcript hold every quote and nothing from
+`check_characters.py`, and `make verify` printed its own exit status, 0.
+
+The first reason is the configuration. Distiller's `claim-ledger.toml` declares
+no check: its `[checks]` says "None yet. distiller holds a design document and
+no code", which was true when it was written on 5 October 2026. The Makefile
+and the tests came on 12 October, and the file has not changed since. So every
+`suite_passed` claim there lands `UNSUPPORTED` whatever it names, 13 of 13 up
+to 17 October, and all 52 appendices distiller has printed say
+`0 checks seen`: its session logs hold 835 records and not one check. R-29
+prints that count even at zero because zero is worth seeing, and here it
+accounted for all thirteen.
+
+The second reason would remain with `make verify` declared. It ran eleven times
+in distiller's logs and never on its own, always behind a pipe, a `;` or a
+`&&`. In this turn it was
+`make verify 2>&1 | grep -v …; echo "make verify exit: ${PIPESTATUS[0]}"`.
+A command with a shell operator is never a check, and here that rule is what
+keeps the verdict honest: the line exits with the status of `echo`, 0 whatever
+make did, so the `ok` recorded for it says nothing about the suite. The agent
+read make's status from the output; the ledger keeps no output (R-7). The
+pre-commit claim has no route at all: the hook ran inside
+`git add TASKS.md && git commit …`, which no configuration can make a check.
+
+The tempting repair is to look for the quotes in the command's output instead
+of requiring a run of the check, and it was proposed the same day. Two things
+stop it. The log holds no output, by R-7, because output carries file contents
+and secrets. And a substring is not an outcome: «0 errors» is inside
+«10 errors», «29 passed» inside «1 failed, 29 passed», and «Passed» ends the
+line of every pre-commit hook that passes, so a match would resolve an
+ambiguity upward, against I-2. It is the error-string trap of SPEC § Traps,
+moved to the output.
+
+What would let such a claim verify is the user's. `[checks]` would need
+`make verify` with its scope, and aliases from `pytest`, `pyright` and the rest
+to it if a claim naming one tool is to reach that run. Such an alias says that
+a passing `make verify` vouches for the tool, which is a fact about the
+Makefile and not one the ledger may infer. And the run would have to be the
+bare invocation, which is the agent's habit; changing it for the ledger's sake
+would stop the corpus representing real use (ANNOTATING § While using the
+plugin). A change to the file mid-session makes the next turn `UNKNOWN` (I-8),
+and a new session takes it as its baseline.

@@ -46,6 +46,11 @@ whatever happened to run is how a claim about the integration tests gets verifie
 against a unit run. Widen the aliases deliberately, from what reports actually
 say, not one at a time.
 
+If the line also says `0 checks seen`, no alias will help: nothing the session
+ran matched an invocation in `[checks]`, either because none is declared or
+because every run carried a pipe, a `;` or a `&&`, and a command with a shell
+operator is never a check.
+
 A turn that lists no claim and ends `0 verified, 0 unchecked`, under a report
 that plainly claims things, got an empty list from the extractor, which the
 route was first seen doing on 17 October 2026 ([DECISIONS](DECISIONS.md)). Each
