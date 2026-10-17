@@ -361,3 +361,14 @@ taken. The deadline is in the frozen `[extractor]` table, the three timeouts
 must stay strictly ordered, and the hook's own lives in `hooks/hooks.json`,
 which an installed copy picks up only after a version bump and an update.
 Moving any of them is the user's.
+
+Later the same day the route was measured with a 150-second deadline
+(`provider-measurements.md`). In a seven-minute window every call finished
+inside 15 seconds and 93 of 96 inside 12, at about 0.65 seconds plus 4.7
+milliseconds per output token: the deadline caps the size of an answer, at about
+2,400 tokens for 12 seconds, and the length of the report hardly matters. The 11
+reports whose turns had passed it answered in 0.5 to 9.6 seconds. The same
+report can get answers of very different sizes (the next entry), and the hook
+has also taken 7.8 seconds over two claims, so those turns met a longer answer,
+a slower hour, or both. The window caught no slow hour, and the tail in one is
+still unmeasured.
