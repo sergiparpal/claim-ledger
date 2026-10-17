@@ -158,6 +158,14 @@ commands that ran pytest after a `cd … &&`, inside a `for` loop or behind a
 variable assignment. None begins with `pytest`, and a report seldom names a
 command by its first word as it was typed.
 
+On 17 October 2026 a report named a command exactly as it was typed, and the
+rule missed it all the same. "`make protected REF=main`: sin salida." came back
+`UNSUPPORTED` against `make protected REF=main; echo "protected exit=$?"; make
+verify …`, ok, in the same turn. The recorded line is split on whitespace, so
+its third token is `REF=main;`, with the operator attached, and `REF=main` is
+not among its tokens. The verdict errs the safe way, but not for the rule's
+reason: nothing in that claim was ambiguous.
+
 ### A claim about a tool the log does not record is always unsupported — 6 October 2026
 
 A later turn in distiller said "Por eso comparé `HEAD` con el commit anterior,
