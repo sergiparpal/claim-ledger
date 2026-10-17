@@ -55,6 +55,14 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   report's annotation once that is written. It needs whichever variable
   `[extractor] key_env` names (`OPENROUTER_API_KEY` in the sample config);
   `--request` prints what would be sent and sends nothing.
+- `python3 tools/measure_route.py run|watch|summary|fixture` measures the
+  extraction route over a project's captured reports: how long each call takes,
+  stage by stage, and whether the same report gets the same answer twice.
+  `watch` probes until the route turns slow and measures it then. It keeps
+  timings and a digest of each answer, never a claim of a report still to be
+  annotated, and needs the same key as `extract_report.py`. What it found on
+  17 October 2026 is in
+  [docs/provider-measurements.md](docs/provider-measurements.md).
 
 ## What it does not do yet
 

@@ -3,7 +3,7 @@
 **Measured 20–23 September and 17 October 2026. These go stale.** Provider
 latency, routing and parameter support change without notice, and a number here
 is one sample unless it says otherwise. Re-measure before trusting any row to
-choose a pin.
+choose a pin; `tools/measure_route.py` repeats the runs of 17 October.
 
 This file exists for one job: when the pinned provider fails the way
 `phala/fp8` did, this is the table that decides where the pin goes next.
