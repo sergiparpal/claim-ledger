@@ -46,6 +46,13 @@ whatever happened to run is how a claim about the integration tests gets verifie
 against a unit run. Widen the aliases deliberately, from what reports actually
 say, not one at a time.
 
+A turn that lists no claim and ends `0 verified, 0 unchecked`, under a report
+that plainly claims things, got an empty list from the extractor, which the
+route was first seen doing on 17 October 2026 ([DECISIONS](DECISIONS.md)). Each
+`UNREPORTED` line on it is then the extractor's omission, not the report's. With
+nothing to list, the same answer prints the collapsed line, and there
+`0 verified, 0 unchecked` vouches for nothing.
+
 Nothing ever blocks. Phase 1 observes and reports.
 
 ## UNKNOWN turns

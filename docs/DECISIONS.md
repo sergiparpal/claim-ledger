@@ -400,7 +400,31 @@ so a turn whose answer comes back empty does not read `UNKNOWN`: it reads as a
 report that claims nothing, and only coverage, listing the turn's writes as
 unreported, hints otherwise.
 
-It may be recent. The 33 turns the hook answered from 6 to 17 October include no
-empty answer, and one seven-minute window cannot say when the change came or
-whether it lasts; that needs another window, ideally at a slow hour. The route
-is frozen, so what to do about it is the user's.
+It may be recent. The first 33 turns the hook answered, from 6 to 17 October,
+include no empty answer. The 34th was one, and it came inside the window above:
+turn 1 of distiller session `6cc8dfdd`, at 11:55 UTC on 17 October 2026. Its
+report, 2,438 characters, names the commit it made, the one file it changed and
+two `make` targets that exited 0. The hook took 523 milliseconds, the only
+answered turn under a second, and printed `0 verified, 0 unchecked` with no
+extraction defect, so the model returned an empty list: `schema.validate` turns
+every item of an answer into a claim, a defect or an `UNKNOWN` turn. Above that
+line it listed `TASKS.md (REVIEW)` three times as `UNREPORTED`, once for each
+Edit the turn made to it. That is I-7 working, not a second fault: coverage
+excuses a write only when a claim names its path, and with no claims it excused
+nothing. It does put on the report an omission that was the extractor's. In a
+turn with nothing consequential to list, one that only read or wrote only
+through Bash (the entry above), the same answer prints the collapsed line,
+`0 verified, 0 unchecked · … · nothing unreported`, and nothing on it tells
+that turn apart from one whose report claimed nothing.
+
+Coming inside the measured window, it shows that the empty answers reach the
+hook, not that they last; that still needs another window, ideally at a slow
+hour. The route is frozen, so what to do about it is the user's.
+
+An empty answer writes nothing to `claims.jsonl`, whose rows are one per claim
+and one per defect, so the provider that gave it is recorded nowhere: R-45
+carries the route on each claim. This one was found in the appendix Claude Code
+writes into the session transcript, and that is the only place empty answers
+can be counted from. Among the ledger's own files, a captured report with no
+claim row and no `errors.log` entry is also what a hook killed after its capture
+leaves behind.
