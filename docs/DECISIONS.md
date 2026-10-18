@@ -544,3 +544,32 @@ recorded under `f89f6cd8`. None was cancelled.
 No distiller session ran a subagent, so where a subagent's transcript is kept
 was never seen; the tool reads any transcript in the session's folder, on the
 assumption that it is there.
+
+### A span is dropped when the extractor tidies it — 18 October 2026
+
+On 17 October 2026 a distiller turn showed an extraction defect: a span ended
+"`select`, `judge`." where the report has "`select`, `judge`».", so it was not
+in the report, and it was dropped and listed under `EXTRACTION DEFECTS`, as
+SPEC requires. The guess at the time was that the extractor mishandles Spanish
+quotation marks.
+
+The defects say otherwise. Up to 18 October 2026 the hook has dropped 8 spans,
+in 7 of the 36 turns whose answer was not empty, and `tools/daily_use.py
+defects` names what each one changed. Five dropped the `**` that closes a bold
+label: `**La regla** (…` came back as `La regla (…`, starting after the opening
+marker, as a reader sees the text, and losing the closing one inside it. One
+dropped the closing guillemet above, one the full stop of «.», and one turned
+"corrijo" into "correcciones". Meanwhile 51 kept spans hold a guillemet, and 14
+a `**`, copied whole. What the defects share is the extractor tidying the text
+it was told to copy, which its prompt forbids: "copy rather than tidy".
+
+The tempting repair is to compare spans with the markup stripped, or loosely.
+That is the repair SPEC § Traps rules out: it hides the rate phase 1 exists to
+measure, and a loose match would pass "correcciones" for "corrijo", a word the
+report does not hold.
+
+It matters to phase 1, which tolerates no non-verbatim span (REQUIREMENTS §
+Rollout phases), and the measurement runs of 17 October met more: a defect in
+17 and in 12 of 107 answers (`provider-measurements.md`). The prompt is frozen,
+so this is measured, not fixed, and a shortfall sends us to the misses, not to
+the number.
