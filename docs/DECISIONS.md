@@ -729,3 +729,37 @@ lever is left to make these models repeat. So choosing one means accepting
 answers that vary from call to call, as the route's did on 17 October, or, with
 `llama-3.2-3b-instruct`, one turn in eleven `UNKNOWN`; recall on the annotated
 corpus decides either way.
+
+### A provisional route until the corpus chooses one — 18 October 2026
+
+With the pinned route down and none yet chosen by recall, the user decided the
+same evening to run `mistralai/mistral-medium-3.1` on `mistral/zdr`, Mistral's
+zero-retention endpoint, as distiller's route under `extract-2`, so that the
+appendix comes back while the corpus is annotated. It is provisional: the route
+the FROZEN row asks for is still the one recall on the annotated corpus
+chooses. The installed copy moves to 0.2.0, the first with the sentence
+contract, and distiller's `claim-ledger.toml` takes the new model, provider and
+parameters between sessions; the repository's sample keeps the route frozen on
+23 September.
+
+On the 48 reports and against the hook's 12 seconds, it would have lost the
+fewest turns of the candidates: 4 in 96 `UNKNOWN` and 2 empty, against
+DeepSeek's 3 and 20 at its fast hour and 18 and 20 at a slow one, with no
+sentence number out of range. `devstral-2512` measured about the same, and
+medium was preferred for the zero-retention endpoint; `llama-3.2-3b-instruct`
+repeats but would have left 12 turns in 96 `UNKNOWN`. Medium costs about
+$0.00125 a turn against DeepSeek's $0.00034, and its answers vary from call to
+call as DeepSeek's did. It was measured in one window, on a Sunday afternoon; at
+a slow hour DeepSeek's `UNKNOWN` turns went from 3 to 18 in 96, and how medium
+fares in one is not known.
+
+The next route is chosen as SPEC § Corpus capture now says, decided the same
+day: once the 50 reports are annotated, medium, devstral and llama each run the
+corpus three times, each pass's recall and spurious share reported beside its
+share of `UNKNOWN` turns, and each candidate judged by its worst pass, so that
+no miss is averaged away (A-12). The one that clears the phase-1 threshold with
+the fewest `UNKNOWN` turns becomes the route, is frozen, and R-45, which still
+names DeepSeek, is brought up to date. Choosing a route whose answers vary
+departs from R-45's own reasoning in September, which refused a candidate whose
+answers varied run to run; no candidate measured since repeats without failing
+turns, DeepSeek included.
