@@ -11,7 +11,8 @@ Nothing here can be re-derived by reading the repository.
 
 **Conditions, common to every row.** The same 442-character captured report
 (the one embedded in `tests/test_extract.py` as `CAPTURED_REPORT`); prompt
-`extract-1+74af1596`; `output_config` carrying the claim JSON schema;
+`extract-1+74af1596`, or `extract-2+4e6f09ab` where a section says so;
+`output_config` carrying the claim JSON schema;
 `max_tokens` 8192; routing with `allow_fallbacks` false, `data_collection`
 deny, `require_parameters` true. Times are wall clock measured at the client,
 network included, from a single machine in one location.
@@ -202,6 +203,97 @@ UTC, the two side by side, $0.09.
 
 The fixed report: nano gave one answer in its 11 calls, mini two. No reasoning
 token in either run.
+
+### The screen again, under the sentence contract — 18 October 2026
+
+The screen of "Other models" above, from 14:09 to 14:12 UTC, once the extractor
+answered with sentence numbers (DECISIONS § "The extractor points at sentences
+instead of copying them"): prompt `extract-2+4e6f09ab`, the same 48 models, all
+on the same endpoints but `qwen/qwen3-30b-a3b-instruct-2507`, whose best uptime
+had moved to `dekallm`, and the same two reports; 248 calls, $0.04. One call
+each: 42 answered, all inside 15s and each with a claim in the fixed report;
+five returned 429 (`mistralai/mistral-small-3.2-24b-instruct`,
+`mistralai/mistral-large-2512`, `qwen/qwen3-30b-a3b-instruct-2507`,
+`qwen/qwen3-coder`, `qwen/qwen2.5-vl-72b-instruct`), and
+`cohere/command-r-08-2024` passed 60s.
+
+The twenty fastest then had five calls per report, and none of their answers
+pointed at a sentence the report does not have or came back empty. Sixteen of
+them had been in the first screen's second stage, where twelve dropped spans,
+from 2 to 34 in ten answers. Five gave one answer to all ten calls
+(`google/gemma-3-4b-it`, `inference-net/schematron-v2-small`,
+`openai/gpt-4o-mini-2024-07-18`, `openai/gpt-4.1-nano`,
+`qwen/qwen3-coder-next`), and `meta-llama/llama-3.2-3b-instruct` to the nine it
+answered, one call passing 60s.
+
+Each of the twenty, with `openai/gpt-4.1-mini` and `openai/gpt-4o-mini` on
+Azure beside them, was then asked the two reports once more, 44 calls and about
+$0.01, and its answers were read against a key written for the two reports:
+which sentences hold a checkable claim, and of which type. There are eight, one
+in the fixed report and seven in the synthetic one. Two reports and one call
+each make a rough signal, which recall on the annotated corpus replaces.
+
+| Found, of 8 | Checkable where the key has none | Models |
+| --- | --- | --- |
+| 8 | none | `mistralai/mistral-small-24b-instruct-2501`, `mistralai/ministral-14b-2512`, `mistralai/ministral-8b-2512`, `mistralai/mistral-medium-3.1`, `mistralai/mistral-medium-3`, `mistralai/devstral-2512`, `meta-llama/llama-3.2-3b-instruct` |
+| 8 | one: the synthetic report's "No he ejecutado…" as `command_run` | `qwen/qwen3-next-80b-a3b-instruct`, `qwen/qwen3-coder-next` |
+| 7 | none, one for `ministral-3b` | `qwen/qwen-plus`, `openai/gpt-4.1-mini`, `mistralai/codestral-2508`, `cohere/command-r7b-12-2024`, `mistralai/ministral-3b-2512` |
+| 6 | none to two | `openai/gpt-4o-mini`, `qwen/qwen-2.5-7b-instruct`, `google/gemma-3-4b-it` |
+| 4 or fewer | | `qwen/qwen3-coder-30b-a3b-instruct` 4; `inference-net/schematron-v2-small` 3, typing nearly every sentence `command_run`; `openai/gpt-4.1-nano` 2; `openai/gpt-4o-mini-2024-07-18` 1, its synthetic answer refused by the schema; `mistralai/mistral-saba` 0, both calls failed |
+
+Of the seven that found all eight and claimed nothing more, five had given one
+answer to the fixed report and at most two to the synthetic one in the stage
+before: `mistral-small-24b-instruct-2501` on `deepinfra/fp8`;
+`ministral-14b-2512` and `mistral-medium-3.1` on `mistral/zdr`, Mistral's
+zero-retention endpoint; `devstral-2512` on `mistral/eu`; and
+`llama-3.2-3b-instruct` on `parasail/bf16`. All but `devstral-2512` then ran
+the corpus.
+
+### Four of them on the distiller corpus — 18 October 2026
+
+The runs of "The distiller corpus under a long deadline" call for call, under
+`extract-2+4e6f09ab`, with the model and the pinned provider changed and
+`temperature` 0 the only parameter: the same 48 reports in the same order, two
+passes, the fixed report every tenth call, the 150s deadline. The user agreed
+to the corpus going to DeepInfra, Mistral's zero-retention endpoint and
+Parasail. The four ran side by side, each one call at a time, from 14:38 to
+14:59 UTC on a Sunday; $0.22 in all. Every answer came from the pinned
+provider, none with a reasoning token.
+
+DeepInfra refused `mistral-small-24b-instruct-2501` with 429 on thirteen of its
+calls 71 to 84. The run was stopped there, and the 36 calls that had failed or
+not been made were made again in plan order from 14:52, two more 429s clearing
+after a 30s wait. Its column joins the 71 calls the first run answered with the
+36 made again.
+
+| | `mistral-small-24b-instruct-2501`, `deepinfra/fp8` | `ministral-14b-2512`, `mistral/zdr` | `mistral-medium-3.1`, `mistral/zdr` | `llama-3.2-3b-instruct`, `parasail/bf16` |
+| --- | --- | --- | --- | --- |
+| Reports answered the same way in both passes | 10 of 48 | 15 of 48 | 13 of 48 | 35 of 48 |
+| Empty answers | 0 of 107 | 8 of 107 | 2 of 107 | 0 of 107 |
+| Answers the schema refused | 1 | 0 | 2 | 10 |
+| Sentence numbers out of range, against claims kept | 0 against 1,845 | 0 against 1,775 | 0 against 1,702 | 34 against 2,538 |
+| Claims in the median answer | 7 | 11 | 10 | 16 |
+| Wall: median, p95, max | 5.6, 35.0, 68.7s | 4.6, 22.1, 39.2s | 2.2, 9.2, 14.4s | 2.7, 14.2, 29.2s |
+| Inside 12s, of 96 | 69 | 73 | 94 | 90 |
+| $ a call | 0.00010 | 0.00029 | 0.00125 | 0.00039 |
+| Fixed report, distinct answers in 11 calls | 1 | 2 | 1 | 1 |
+
+The same runs under `extract-1`, in "gpt-4.1-nano and gpt-4.1-mini on the
+distiller corpus" above: DeepSeek via Morph answered 8 of the 48 reports the
+same way twice, came back empty 21 times, had 93 of 96 calls inside 12s and 7
+claims in its median answer; nano and mini were inside 12s every time, with 1
+and 2 claims.
+
+llama's 35 are of the 42 reports whose two answers both passed the schema. Its
+ten refused answers fall on the other six, and on four of them twice: three
+reports drew referents that are not a list of non-empty strings in both passes,
+and one an answer cut off at the 8,192-token ceiling in both; two more were cut
+off once. The 34 numbers out of range are all in one answer. medium's two
+refusals added a claim type as a field of its own, and small's one had referents
+the schema refuses, like llama's. Between the two passes the number of claims
+changed on 29, 25 and 27 of the 48 reports for small, ministral and medium, and
+on 1 for llama. After the first byte, small on DeepInfra delivered a median of
+45 tokens a second, and as few as 15; ministral 78, medium 198, llama 351.
 
 ## z-ai/glm-5.3-flash — replaced 21 September 2026
 

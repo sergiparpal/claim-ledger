@@ -662,3 +662,46 @@ The prompt and the answer schema were frozen with the route, since the corpus
 was to be measured against them. No measurement had been taken, so none is
 lost: the corpus will be measured against `extract-2`. The vocabulary did not
 change.
+
+### The sentence contract holds on the corpus, and none of four models carries it — 18 October 2026
+
+The model screen of 18 October was run again under `extract-2`
+(`provider-measurements.md`). None of the twenty models of its second stage
+pointed at a sentence the report does not have or came back empty, where under
+copied spans twelve of the sixteen in both screens had dropped spans. Read
+against a key written for the two test reports, seven found all eight checkable
+claims and typed nothing else checkable. Two more found the eight but typed the
+negation "No he ejecutado…" as `command_run`, the mistake of "A sentence can be
+typed as a file change it does not claim" made through a command: such a claim
+comes back `VERIFIED` whenever the command it denies is in the log. Five of the
+seven had answered the fixed report the same way every time, and the synthetic
+one at most two ways in five calls.
+
+Four of those five ran the corpus test of 17 October, the 48 distiller reports
+twice; the user agreed to sending them to DeepInfra, Mistral's zero-retention
+endpoint and Parasail. The contract held: three returned no sentence number
+outside the report, and the fourth's 34 are in a single answer. Empty answers,
+21 in 107 for the route, came to 8 for `ministral-14b`, 2 for
+`mistral-medium-3.1` and none for the other two. The model changed with the
+contract, so how much of that is the contract's cannot be told.
+
+None of the four will do as measured. The three Mistral models answered the
+same way in both passes for 10 to 15 of the 48 reports, little better than the
+route's 8, and on more than half of them the number of claims changed. Two of
+them passed 12 seconds on a quarter of the calls: `mistral-small-24b` on
+DeepInfra, which also refused it with 429 for a stretch, and `ministral-14b`.
+`mistral-medium-3.1` kept inside 12 seconds as the route did at a fast hour, on
+94 calls of 96, but repeated on 13 and costs 3.7 times the route a call.
+`llama-3.2-3b-instruct` repeated on 35 of the 42 reports whose two answers the
+schema took, but it refused one answer in eleven, on four reports in both
+passes: referents that are not a list of non-empty strings, or output that ran
+into the 8,192-token ceiling. In the hook each of those would be an `UNKNOWN`
+turn, and so would every call past 12 seconds.
+
+All four claimed far more than the route did, 1,702 to 2,538 claims against
+1,093. With the corpus unannotated that is volume, not recall, and recall is
+what chooses the route; these runs only say which models are worth measuring
+for it. Two things are not measured: `devstral-2512`, which met the same bar as
+the four in the screen and has not run on the corpus, and whether a `seed`
+parameter steadies the Mistral models, which would have to be read from the
+answers, since a parameter accepted is not a parameter honoured.
