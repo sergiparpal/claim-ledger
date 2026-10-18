@@ -601,3 +601,31 @@ was chosen for, no reasoning and the same answer every time. The route is
 frozen, so what follows is the user's: wait for Morph, which on 17 October was
 already answering differently from one call to the next, or choose another
 model, which the next entry measured.
+
+### Cheaper models return fewer, emptier and less faithful answers — 18 October 2026
+
+The same day 48 cheaper models that take a schema and a temperature and do not
+reason were screened with the route's prompt (`provider-measurements.md`). Four
+gave one answer to five identical calls on both test reports, and only
+`openai/gpt-4.1-nano`, pinned to Azure, did it without dropping a span. It and
+`openai/gpt-4.1-mini`, which varied once in five, then ran the corpus test of 17
+October, the 48 distiller reports twice; the user agreed to sending them to
+Azure.
+
+Neither will do. nano answered the same way twice for 31 of the 48 reports,
+against the route's 8, mostly by saying less: 38 of its 107 answers were empty,
+against the route's 21, and it kept 226 claims where the route kept 1,093, with
+one span in six of those it returned not in the report. mini varied on 22 of the
+48, came back empty 11 times, and one span in seven was not in the report,
+against one in twenty-eight for the route. Both were faster, everything inside
+12 seconds. With the corpus not yet annotated, the claims kept measure volume,
+not recall; but an empty answer to a report full of work is a miss either way.
+
+What the failures of all three models share is copying: the tidying recorded
+under "A span is dropped when the extractor tidies it", and empty lists. An
+extractor that returned the number of each sentence it types, rather than
+copying its text, could not return a span that is not in the report, since the
+client would take the text from the report itself. That changes the claim
+schema and the prompt, both frozen, and what R-10 asks of the extractor, so it
+is the user's to weigh. It is written down here because nothing measured on 18
+October removes the need for it.

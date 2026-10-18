@@ -154,6 +154,55 @@ out:
 None answered the same way twice as a rule, so none could carry the route even
 with reasoning allowed.
 
+## Other models — 18 October 2026
+
+Every model in OpenRouter's catalogue that takes a JSON schema and a
+temperature, does not reason, answers text, holds 32k tokens and costs at most
+$1 a million tokens in and $4 out, with no free or batch variant and no audio,
+image, code-apply or role-play model: 48. Each was pinned to the endpoint that
+takes both parameters with the best uptime, not fp4, fallbacks off; the route's
+prompt, `temperature` 0 and nothing else, since the thinking switch is
+DeepSeek's template. The two reports of the section above. From 13:23 to 13:26
+UTC, $0.06.
+
+One call each: 46 answered and two returned 429; three found no claim in the
+fixed report (`inference-net/schematron-v2-turbo`,
+`mistralai/ministral-3b-2512`, `qwen/qwen3-30b-a3b-instruct-2507`), and
+`meta-llama/llama-3.3-70b-instruct` took 15.8s. The twenty fastest then had
+five calls per report. The best:
+
+| Model, endpoint | Distinct answers, fixed / synthetic | Spans dropped in 10 answers | Claims, fixed / synthetic | Wall median | $ a call |
+| --- | --- | --- | --- | --- | --- |
+| `openai/gpt-4.1-nano`, `azure` | 1 / 1 | 0 | 1 / 6 | 1.7s | 0.00013 |
+| `google/gemma-3-4b-it`, `parasail/bf16` | 1 / 1 | 5 | 1 / 6 | 1.5s | 0.00002 |
+| `meta-llama/llama-3.2-3b-instruct`, `parasail/bf16` | 1 / 1 | 15 | 1 / 3 | 1.3s | 0.00008 |
+| `inference-net/schematron-v2-small`, `inference-net/bf16` | 1 / 1 | 15 | 1 / 2 | 0.8s | 0.00007 |
+| `openai/gpt-4.1-mini`, `azure` | 1 / 2 | 0 | 2 / 7 | 2.5s | 0.00057 |
+| `qwen/qwen3-vl-8b-instruct`, `parasail/bf16` | 1 / 2 | 0 | 3 / 9–10 | 8.0s | 0.00031 |
+| `qwen/qwen3-coder-next`, `parasail/bf16` | 1 / 2 | 0 | 1 / 5–8 | 2.9s | 0.00017 |
+
+The other thirteen gave two to five distinct answers to the synthetic report.
+Read whole, nano's answer to it missed both suite outputs and gave the `make`
+line no referents; mini's took them all but typed the commit as a file change.
+
+### gpt-4.1-nano and gpt-4.1-mini on the distiller corpus — 18 October 2026
+
+The runs of "The distiller corpus under a long deadline" above, call for call,
+with the model and the pinned provider changed and `temperature` 0 the only
+parameter; the user agreed to the corpus going to Azure. From 13:29 to 13:35
+UTC, the two side by side, $0.09.
+
+| | DeepSeek via Morph, 17 Oct | `gpt-4.1-nano` | `gpt-4.1-mini` |
+| --- | --- | --- | --- |
+| Reports answered the same way in both passes | 8 of 48 | 31 of 48 | 26 of 48 |
+| Empty answers | 21 of 107 | 38 of 107 | 11 of 107 |
+| Spans dropped, against claims kept | 41 against 1,093 | 43 against 226 | 65 against 396 |
+| Wall: median, p95, max | 2.4, 10.0, 14.1s | 1.6, 2.7, 11.8s | 1.7, 5.2, 9.6s |
+| $ a call | 0.00034 | 0.00015 | 0.00067 |
+
+The fixed report: nano gave one answer in its 11 calls, mini two. No reasoning
+token in either run.
+
 ## z-ai/glm-5.3-flash — replaced 21 September 2026
 
 Measured 20 September, `temperature` 0, thinking on (it cannot be switched
