@@ -573,3 +573,31 @@ Rollout phases), and the measurement runs of 17 October met more: a defect in
 17 and in 12 of 107 answers (`provider-measurements.md`). The prompt is frozen,
 so this is measured, not fixed, and a shortfall sends us to the misses, not to
 the number.
+
+### The pinned route is down, and its model has no other provider to take it — 18 October 2026
+
+On 18 October 2026 OpenRouter refused every request on the route with HTTP 404:
+"No endpoints found for deepseek/deepseek-v4.1-flash … Filter Disabled
+Endpoints removed morph/fp8". Morph's endpoint for the model is disabled, and
+the route pins Morph with fallbacks off, so nothing else may answer. The hook
+met it first at 12:18 UTC, in distiller session `580e85e9`; a call at 20:25 UTC
+the evening before had answered, and checks every ten minutes still found it
+down at 13:32 UTC. Every turn since ends `UNKNOWN`, "the model call returned
+HTTP 404", which is I-9 working. The report is still captured, so the corpus
+loses nothing.
+
+The next pin was looked for the same day among the model's 33 other endpoints
+(`provider-measurements.md`), and none will do. All 25 that answered reasoned,
+although the request switches thinking off, which in September only Morph, of
+the five tried, honoured; six refused the route's parameters. The six fastest of
+those that reason were asked the same two reports five times each, and none was
+repeatable: the five that answered gave two to five distinct answers to the
+same report, two of them passed 60 seconds, and one three times spent all 8,192
+tokens reasoning and wrote no answer. The sixth was refused with 429 on every
+call.
+
+So the route cannot move within its own model without losing both properties it
+was chosen for, no reasoning and the same answer every time. The route is
+frozen, so what follows is the user's: wait for Morph, which on 17 October was
+already answering differently from one call to the next, or choose another
+model, which the next entry measured.

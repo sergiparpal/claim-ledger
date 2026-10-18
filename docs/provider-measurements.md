@@ -1,6 +1,6 @@
 # Provider measurements
 
-**Measured 20–23 September and 17 October 2026. These go stale.** Provider
+**Measured 20–23 September and 17–18 October 2026. These go stale.** Provider
 latency, routing and parameter support change without notice, and a number here
 is one sample unless it says otherwise. Re-measure before trusting any row to
 choose a pin; `tools/measure_route.py` repeats the runs of 17 October.
@@ -16,7 +16,7 @@ Nothing here can be re-derived by reading the repository.
 deny, `require_parameters` true. Times are wall clock measured at the client,
 network included, from a single machine in one location.
 
-## deepseek/deepseek-v4.1-flash — the route in use
+## deepseek/deepseek-v4.1-flash — the route in use, its pin down since 18 October 2026
 
 Thinking-switch test, 21 September 2026, one call per provider, all sent
 `extra_body.chat_template_kwargs.enable_thinking = false` and `temperature` 0.
@@ -44,11 +44,14 @@ top-level `chat_template_kwargs` shape (rather than under `extra_body`) took
 | 17 Oct, every tenth call of the corpus run below | 11 | 0.61–1.32s, median 0.76s | **three distinct answers**: two different sets of 3 claims (nine runs and one), and once **no claims at all**; none identical to the recording |
 | 17 Oct, three more, read | 3 | 0.4–0.9s | one with no claims; two with the recording's three claims, the intent now carrying `git add`, `commit` and `push` as referents, which the sentence does not name; one of the two without the spans' final full stops |
 | 17 Oct, every tenth call of the slow-hour run below | 11 | 0.55–2.61s, median 1.31s | the same three answers as the corpus run, five, three and three times; **no claims at all** in three |
+| 18 Oct, 12:28 UTC | 8 | — | **HTTP 404 from routing**: "Filter Disabled Endpoints removed morph/fp8", under both keys; a call at 20:25 UTC the evening before had answered |
 
 In September, thirteen of fourteen runs inside the deadline, every answer the
 same. On 17 October all fourteen were inside it, with at least three distinct
 answers among them, and so were the eleven of the slow hour, with the same
-three. 18 of the 22 providers serving this model are untested.
+three. On 18 October the endpoint was disabled, now tagged `morph/fp8` where its
+quantization had been undeclared, and every other endpoint of the model was
+tried (below).
 
 ### The distiller corpus under a long deadline — 17 October 2026
 
@@ -118,6 +121,38 @@ time, and the median was three distinct answers per report. 23 of the 107
 answers were empty lists. 12 answers carried a span that is not in the report:
 32 defects against 1,121 claims kept. The probe report never came back empty,
 and gave 25 distinct answers in its 57 runs, the most common of them 11 times.
+
+### Every other endpoint of the model — 18 October 2026
+
+The route's request with only the pinned provider changed, fallbacks still off,
+and a 60s deadline, from 12:33 to 12:40 UTC; $0.23 in all. The fixed report
+above, and in the second stage a synthetic Spanish report written for the run in
+distiller's style, with bold labels, guillemets, code and a negation. No corpus
+report was sent to a new provider.
+
+One call each, to the 33 endpoints besides Morph's:
+
+| Result | Endpoints |
+| --- | --- |
+| answered, and **reasoned** although thinking is off | 25, at 304 (`coreweave/fp8`, 2.0s) to 5,950 thinking tokens (`crusoe/fp8`, 27s); the slowest took 49.4s (`deepinfra/fp8/flex`) |
+| HTTP 404: the route's parameters refused | 6: `alibaba`, `gmicloud/fp8`, `novita/fp8`, `phala`, `siliconflow/fp8`, `streamlake/fp8` |
+| HTTP 429 | `baseten/us` |
+| past 60s | `open-inference/fp4` |
+
+Then five calls per report to the six fastest of those that reason, fp4 left
+out:
+
+| Endpoint | Answered, fixed / synthetic | Distinct answers | Wall, median and max | Notes |
+| --- | --- | --- | --- | --- |
+| `nebius/fp8` | 5 / 5 | 5 / 5 | 7.8s, 13.5s | |
+| `fireworks` | 5 / 5 | 4 / 4 | 19.2s, 40.8s | |
+| `venice/fp8` | 5 / 4 | 5 / 4 | 29.5s, 60s | one past 60s |
+| `baidu/fp8` | 5 / 2 | 3 / 2 | 16.4s, 28.8s | three answers lost: the reasoning used all 8,192 tokens |
+| `relace` | 3 / 4 | 2 / 4 | 30.6s, 60s | two past 60s, one 429 |
+| `coreweave/fp8` | 0 / 0 | — | — | all ten calls 429 |
+
+None answered the same way twice as a rule, so none could carry the route even
+with reasoning allowed.
 
 ## z-ai/glm-5.3-flash — replaced 21 September 2026
 
