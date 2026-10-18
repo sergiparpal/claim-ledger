@@ -299,6 +299,14 @@ same record passes the whole suite, 321 tests on Python 3.12, on 17 October
 referents include hashes, branches and identifiers that no record holds. Which
 way to pin it is the user's; `join.py` is frozen.
 
+A seventh came that afternoon, at 13:16 UTC, in another session: the same two
+`make` targets as referents, verified against `make verify 2>&1 | grep …; echo
+…` alone. `make protected REF=main` had run three times in that session, each
+time as `make protected REF=main; echo …`, so the `;` described under the
+command entry kept it from linking there too. Of the 21 claims with two
+referents or more up to 18 October 2026, all 7 that came back `VERIFIED` rest on
+part of what they name. `tools/daily_use.py verdicts` lists them.
+
 ### A write through Bash is invisible to file claims and to coverage — 17 October 2026
 
 A report in distiller said "nueva D-004 con el contexto, lo elegido, lo
@@ -455,6 +463,12 @@ day's four runs, 2 of the 48 got one answer every time. A report probed 57 times
 between 12:22 and 16:57 UTC never came back empty, and gave 25 distinct answers.
 So it lasted the afternoon, at either speed.
 
+The hook met two more that day: turn 1 of session `6ffb997c` at 14:13 UTC and
+turn 1 of `ed68cf55` at 20:05 UTC, each in under a second and a half. Of the 12
+distiller turns of 17 October whose call answered or ran out of time, 4 came
+back empty and 2 passed the deadline. `tools/daily_use.py latency` counts empty
+answers from the transcripts, the one place they show.
+
 ### No suite claim can be verified in distiller — 17 October 2026
 
 Turn 3 of distiller session `6cc8dfdd`, at 13:16 UTC, reported each step of
@@ -511,3 +525,22 @@ At the user's request the check was declared the same day:
 `verify = ["make verify"]`, scoped `**/*`, since the character check reads
 every file git does not ignore and gitleaks reads the history, and with no
 aliases yet. The bare run, and the aliases, are still open.
+
+### Daily use left no hole in the evidence log — 18 October 2026
+
+The phase-0 check of SPEC § Build order compared one hand-written session, 16
+calls, with its log. On 18 October 2026 `tools/daily_use.py recording` made the
+same comparison for all 21 sessions distiller had logged since 6 October: every
+call the recorder's matcher covers that ran has its record, and every record has
+its call.
+
+Twenty-two covered calls have no record of their own, and none is a hole. Ten
+were refused before they ran, six by the permission settings, two by
+distiller's own PreToolUse hook, one by the auto-mode classifier and one by a
+deny rule, and a refused call fires no hook (R-44). Twelve sit in the transcript
+of session `94212a41`, which resumed `f89f6cd8` and repeats its calls; they are
+recorded under `f89f6cd8`. None was cancelled.
+
+No distiller session ran a subagent, so where a subagent's transcript is kept
+was never seen; the tool reads any transcript in the session's folder, on the
+assumption that it is there.
