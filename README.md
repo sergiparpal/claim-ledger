@@ -24,8 +24,10 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   These are the corpus the extractor will be measured against. Set
   `capture = false` under `[corpus]` to stop it.
 - Then it audits the turn. The report text, and nothing else, goes to the
-  extractor, which returns the claims it holds as verbatim spans with a type
-  each. A table-driven join matches those against the evidence log and gives
+  extractor as numbered sentences, and it names the sentences that hold claims,
+  with a type each; the span of a claim is its sentence, taken from the report,
+  so it is always verbatim. A table-driven join matches those against the
+  evidence log and gives
   each one a verdict; no model is involved in that step and none can produce a
   `VERIFIED`. What the report never mentioned is listed beside them.
 - The result is one line at the end of the turn, and only more than one line
@@ -180,8 +182,9 @@ Tests above for the versions the suite is declared to pass on.
   requirements.
 - **An answer the client cannot read makes the turn `UNKNOWN`.** Nothing is
   repaired. The endpoint is asked to enforce the answer's shape with a JSON
-  schema, which ends code fences and stray keys at the source; it cannot make
-  a span verbatim, so validation still runs and defects are still counted.
+  schema, which ends code fences and stray keys at the source; it cannot know
+  how many sentences the report has, so validation still runs and a number
+  naming no sentence is still counted as a defect.
 - **A slow model costs turns.** The call has a wall-clock deadline that fits
   inside the turn budget, and one that passes it is `UNKNOWN`. One run in
   fourteen passed it when the route was measured; in daily use, 11 turns in 44

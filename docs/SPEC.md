@@ -24,7 +24,7 @@ This spec covers phases 0 and 1 of the requirements document: the evidence log, 
 - `HUMAN`-tier acknowledgement belongs to phase 3.
 - The recall threshold is declared before the first measurement, not before the code.
 
-**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 23 September 2026, in the step-8 session, when the coverage list above was corrected, the Stop hook's timeout was raised clear of the turn budget, the appendix and its pipeline were wired, and two rules the code already followed were written down here rather than left in a handover: the last matching record for every checkable type, and the `LOW` half of the tier rule: a copy of this document without this sentence is stale.
+**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 18 October 2026, when the extractor moved to the sentence contract, the report going out as numbered sentences and the answer naming them by number (§ Extractor contract): a copy of this document without this sentence is stale.
 
 **Revised 19 September 2026**, after the step-1 session verified the hook payloads and measured concurrent appends. What changed: the record dropped its counter and its exit code, gained an outcome and a turn id; freshness moved to join time; `[checks]` takes exact invocations instead of globs; config protection became detection rather than prevention.
 
@@ -254,22 +254,24 @@ One function, one call per turn, no state. Its isolation is the whole point of I
 def extract(report_text: str, *, vocabulary: list[str], settings: Extractor) -> Extraction
 ```
 
-It returns an Extraction, whose claims list is the output and whose defect count is the number of spans dropped, because a defect count with nowhere to live is a defect count that disappears. The signature is also the enforcement: no session id, no transcript, no evidence log, no repository path. `tests/test_isolation.py` asserts that the request body built for the API contains the report text and the vocabulary and nothing else that appears in the fixture session.
+It returns an Extraction, whose claims list is the output and whose defect count is the number of claims dropped, because a defect count with nowhere to live is a defect count that disappears. The signature is also the enforcement: no session id, no transcript, no evidence log, no repository path. `tests/test_isolation.py` asserts that the request body built for the API contains the report, as numbered sentences, and the vocabulary, and nothing else that appears in the fixture session.
+
+**The sentence contract.** The report goes to the model cut into numbered sentences, one a line, `[1]`, `[2]` and so on, by `ledger.sentences`, the same cut `tools/annotate.py` asks the annotator about. The model answers with numbers, and each claim's span is the sentence its number names, taken from the report by the client. So a span is always text the report holds: the model never copies one. Until 18 October 2026 the model copied each span itself, and every model measured dropped markup or quotation marks often enough that phase 1's "no non-verbatim span" could not be met (DECISIONS).
 
 **Output schema**, validated before anything else touches it:
 
 ```json
 {"claims": [
-  {"span": "the tests pass",
+  {"sentence": 2,
    "type": "suite_passed",
    "referents": ["pytest"]},
-  {"span": "I updated the parser",
+  {"sentence": 4,
    "type": "file_changed",
    "referents": ["src/parser.py"]}
 ]}
 ```
 
-- `span` must appear verbatim in the report; a span that does not is dropped and counted as an extraction defect, never repaired.
+- `sentence` is a whole number. One the report does not have is dropped and counted as an extraction defect, never guessed at. Several claims may name one sentence, which is how a sentence holding two assertions is typed twice.
 - `type` is one of the five. Anything else fails validation.
 - `referents` are the names the sentence itself gives: a command, a suite name, a path. The extractor never resolves them against the repository, because it cannot see it.
 - An empty `claims` list is a valid answer and means the report asserts nothing checkable. It is not a failure.
@@ -280,7 +282,7 @@ It returns an Extraction, whose claims list is the output and whose defect count
 
 **`openai/gpt-5.6-luna` was measured and refused**, also on 20 September 2026. It was the fastest and cheapest of the three, with no defects, but it returned three different answers across seven runs, twice with a fourth claim. GPT-5.x accepts neither `temperature` nor `top_p`, so its sampling cannot be pinned, and an unrepeatable extractor cannot carry a recall figure.
 
-**The answer's shape is enforced, not asked for.** `output_config` with a JSON schema works on that endpoint and is what `answer_shape = "json_schema"` sends. It ends code fences and stray keys at the source, and it cannot make a span verbatim, which is why validation still runs and the defect count still means something. `answer_shape = "prefill"` is the fallback for a route that enforces nothing: the assistant turn is opened with a brace so the model continues an object. That fallback does not work here — this route returns a whole object and ignores the prefill — and a route that ignores it makes the turn `UNKNOWN` rather than being quietly repaired.
+**The answer's shape is enforced, not asked for.** `output_config` with a JSON schema works on that endpoint and is what `answer_shape = "json_schema"` sends. It ends code fences and stray keys at the source, and it cannot know how many sentences the report has, which is why validation still runs and the defect count still means something. `answer_shape = "prefill"` is the fallback for a route that enforces nothing: the assistant turn is opened with a brace so the model continues an object. That fallback does not work here — this route returns a whole object and ignores the prefill — and a route that ignores it makes the turn `UNKNOWN` rather than being quietly repaired.
 
 **Thinking is off, and that was checked in the reply.** This model reasons by default, and the `reasoning` parameter does not stop it: the switch is the provider's own chat template, `extra_body.chat_template_kwargs.enable_thinking`. Accepted is not honoured — DeepInfra, Fireworks, Together and AtlasCloud all took the switch and reasoned anyway, at 2,000 to 5,100 thinking tokens and 25 to 67 seconds, while morph returned a reply carrying no thinking block at all. The two providers that declare fp8 are among those that ignore it. So the setting is verified by what comes back, never by the status code, and the client passes over any non-text block regardless.
 
@@ -390,9 +392,10 @@ stable format and parsing it is how a `CONTRADICTED` goes wrong, and the
 timestamps are the full UTC ones the log and the mtimes share, since a scope
 that drops the date cannot be compared against anything. The scope line is
 `join`'s own text, printed as it wrote it and never reformatted (I-4). An
-`EXTRACTION DEFECTS` group follows `UNREPORTED` when a span came back that the
-report does not contain: a dropped claim is a claim that went unjudged, and
-collapsing over one would hide the rate phase 1 exists to measure.
+`EXTRACTION DEFECTS` group follows `UNREPORTED` when the model pointed at a
+sentence the report does not have: a dropped claim is a claim that went
+unjudged, and collapsing over one would hide the rate phase 1 exists to
+measure.
 
 - Entries are grouped by verdict, `CONTRADICTED` always first and alone at the head (R-29).
 - A span longer than 120 characters is elided in the middle; the calibration log keeps it whole.
@@ -416,7 +419,7 @@ Phase 0 collects the material phase 1 needs. The fifty annotated reports of A-12
  "claims": [{"span": "the tests pass", "type": "suite_passed"}]}
 ```
 
-Recall is measured per claim, on checkable types only, and the misses are listed one by one. An average over fifty reports hides exactly the case worth seeing: the claim the extractor never noticed.
+Recall is measured per claim, on checkable types only, and the misses are listed one by one. An average over fifty reports hides exactly the case worth seeing: the claim the extractor never noticed. Since the extractor answers by sentence, a claim is matched by its sentence and its type: an annotated claim is found when the extractor typed the sentence holding it the same way.
 
 ## Test plan
 
@@ -495,7 +498,7 @@ Each of these looks like a reasonable improvement and breaks an invariant withou
 - **Parsing the exit code out of the error string.** The reference says the format is not stable and that some failures omit it. `outcome` comes from the event, never from the text.
 - **Inferring configuration.** Detecting the test command from the repository, or guessing which paths are consequential, moves the consequence table back inside the model's reach (I-8).
 - **Feeding the appendix back to the agent.** It reads as helpful and teaches the agent which claims get caught, which is Goodhart by construction.
-- **Repairing extractor output.** A span that does not appear verbatim in the report is a defect to count, not text to fix. Fixing it hides the error rate that phase 1 exists to measure.
+- **Repairing extractor output.** A sentence number the report does not have is a defect to count, not a number to guess, as a span not in the report was while the model copied spans. Fixing either hides the error rate that phase 1 exists to measure.
 - **Blocking "just for contradictions".** That is phase 2, and it is gated on evidence that the extractor works. Shipping it early costs the clean base rate, which can only be collected once.
 - **Updating a snapshot to green.** The expected number changes only after the cause is understood and dated.
 - **Silent inertness.** A mistyped hook path fails non-blocking, so the session simply runs without a ledger. `test_install` and a visible line on the first turn of a session are what catch it.

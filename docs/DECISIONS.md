@@ -629,3 +629,36 @@ client would take the text from the report itself. That changes the claim
 schema and the prompt, both frozen, and what R-10 asks of the extractor, so it
 is the user's to weigh. It is written down here because nothing measured on 18
 October removes the need for it.
+
+### The extractor points at sentences instead of copying them — 18 October 2026
+
+The same day, with the user's agreement, the extractor's contract changed. The
+report goes to the model cut into numbered sentences, one a line, and the model
+answers with numbers. Each claim's span is the sentence its number names, taken
+from the report by the client. The prompt is now `extract-2`: its typing rules
+are word for word those of `extract-1`, and only what it says about spans
+changed. The answer schema asks for `sentence` where it asked for `span`. The
+cut is `ledger.sentences`, the one `tools/annotate.py` was already asking the
+annotator about, now shared by both.
+
+The reason is in the two entries above and in "A span is dropped when the
+extractor tidies it": every model measured dropped spans by tidying them, the
+route one in twenty-eight and the cheaper models one in six or seven, and
+phase 1 tolerates none. With the client taking the text from the report, a
+span that is not in it cannot happen. What remains a defect is a number the
+report does not have.
+
+It does not touch what the model decides: an empty answer, a claim missed, a
+wrong type, an answer that changes from one call to the next. Choosing a model
+is still open. Two things move with the change. A span is now a whole sentence,
+so a claim inside a long sentence shows all of it in the appendix, and recall
+is matched by sentence and type rather than by text (SPEC § Corpus capture).
+And every recording in `tests/fixtures/extractor` answers with copied spans,
+so the client refuses them all; they are kept as recordings, as the CLI ones
+were, and the pipeline's tests run on answers written by hand until a route is
+chosen and recorded.
+
+The prompt and the answer schema were frozen with the route, since the corpus
+was to be measured against them. No measurement had been taken, so none is
+lost: the corpus will be measured against `extract-2`. The vocabulary did not
+change.

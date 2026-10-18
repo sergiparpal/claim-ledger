@@ -79,6 +79,11 @@ corpus at once, `r` starts the report again, `q` stops without saving it.
    `src/parser.py` y los tests pasan." is two: "He editado `src/parser.py`"
    as `file_changed`, and "los tests pasan" as `suite_passed`.
 
+Since 18 October 2026 the extractor is shown these same sentences, numbered,
+and answers by number, so the measurement matches a claim by its sentence and
+its type. A sentence you split with `s` still counts as two claims: the
+extractor finds both only by naming that sentence twice, once with each type.
+
 ## The rules that decide the hard cases
 
 - **A checkable type (1–3) only when the sentence says so.** "He terminado los
