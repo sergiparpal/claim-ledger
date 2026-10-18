@@ -296,6 +296,34 @@ small, ministral, medium and devstral, and on 1 for llama. After the first byte,
 small on DeepInfra delivered a median of 45 tokens a second, and as few as 15;
 ministral 78, medium 198, devstral 206, llama 351.
 
+### A seed on the Mistral models — 18 October 2026
+
+The four Mistral models of the section above, on the same pins, asked the two
+reports of "Other models" and no corpus report: with `temperature` 0 alone, and
+with `seed` 20261018 or `seed` 7 added, ten calls per report for the first two
+and five for the third, the three taking turns so that they shared the hour.
+From 17:15 to 17:19 UTC, 200 calls, $0.05. OpenRouter lists `seed` among the
+parameters all four endpoints support, and every call was answered, by the
+pinned provider.
+
+The synthetic report's answers in call order, a letter for each distinct
+answer, the same letter the same answer in all three columns:
+
+| Model, endpoint | No seed, 10 calls | Seed 20261018, 10 calls | Seed 7, 5 calls |
+| --- | --- | --- | --- |
+| `mistral-medium-3.1`, `mistral/zdr` | `AABAAAAAAE` | `AAAADBCDDA` | `AACDA` |
+| `devstral-2512`, `mistral/eu` | `AAAADCCAAA` | `AABCCAAAEA` | `BAAAA` |
+| `ministral-14b-2512`, `mistral/zdr` | `ABBBBABBBA` | `ABBBBBBABA` | `ABBBB` |
+| `mistral-small-24b-instruct-2501`, `deepinfra/fp8` | `ABAAAABABB` | `ABAABBAAAA` | `AAABA` |
+
+On the fixed report every model gave one answer in every column, but for one
+call of medium's with the first seed. The seed steadied nothing: over the same
+ten calls the first seed gave no model fewer distinct answers, each model's most
+common answer was the same in all three columns, and the two seeds did not
+settle on different answers.
+Whether it reaches the model and finds nothing to fix at `temperature` 0, or
+never reaches it, the answers cannot say.
+
 ## z-ai/glm-5.3-flash — replaced 21 September 2026
 
 Measured 20 September, `temperature` 0, thinking on (it cannot be switched

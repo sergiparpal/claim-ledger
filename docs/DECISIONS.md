@@ -716,3 +716,16 @@ reports, and the number of claims changed on 30. So none of five carries the
 contract either. The four Mistral models, served by Mistral or by DeepInfra,
 repeated on 10 to 15 of the 48 alike; whether that is the models or how they are
 served is not measured, and the `seed` above is the measurement left.
+
+That evening the seed was tried on the four Mistral models, with the two test
+reports only (`provider-measurements.md`). All four endpoints list `seed` as
+supported and answered every call, but the seed steadied nothing: over the same
+ten calls it gave no model fewer distinct answers, the most common answer stayed
+the same, and two different seeds did not settle on different answers. It is a
+parameter accepted and not visibly honoured, as `enable_thinking` was on four
+providers in September; whether it reaches the model and finds nothing to fix
+at temperature 0, or never reaches it, the answers cannot say. No measured
+lever is left to make these models repeat. So choosing one means accepting
+answers that vary from call to call, as the route's did on 17 October, or, with
+`llama-3.2-3b-instruct`, one turn in eleven `UNKNOWN`; recall on the annotated
+corpus decides either way.
