@@ -705,3 +705,14 @@ for it. Two things are not measured: `devstral-2512`, which met the same bar as
 the four in the screen and has not run on the corpus, and whether a `seed`
 parameter steadies the Mistral models, which would have to be read from the
 answers, since a parameter accepted is not a parameter honoured.
+
+Later the same afternoon `devstral-2512` ran the same test on Mistral's EU
+endpoint, with the user's agreement (`provider-measurements.md`). It came out a
+twin of `mistral-medium-3.1`: 94 of 96 calls inside 12 seconds, with the
+shortest tail of the five, two empty answers, no number out of range, one answer
+refused for a claim type added as a field, as two of medium's were, and about
+the same cost a call. It answered the same way in both passes for 12 of the 48
+reports, and the number of claims changed on 30. So none of five carries the
+contract either. The four Mistral models, served by Mistral or by DeepInfra,
+repeated on 10 to 15 of the 48 alike; whether that is the models or how they are
+served is not measured, and the `seed` above is the measurement left.

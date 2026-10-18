@@ -246,19 +246,19 @@ answer to the fixed report and at most two to the synthetic one in the stage
 before: `mistral-small-24b-instruct-2501` on `deepinfra/fp8`;
 `ministral-14b-2512` and `mistral-medium-3.1` on `mistral/zdr`, Mistral's
 zero-retention endpoint; `devstral-2512` on `mistral/eu`; and
-`llama-3.2-3b-instruct` on `parasail/bf16`. All but `devstral-2512` then ran
-the corpus.
+`llama-3.2-3b-instruct` on `parasail/bf16`. All five then ran the corpus,
+`devstral-2512` two hours after the rest.
 
-### Four of them on the distiller corpus — 18 October 2026
+### Five of them on the distiller corpus — 18 October 2026
 
 The runs of "The distiller corpus under a long deadline" call for call, under
 `extract-2+4e6f09ab`, with the model and the pinned provider changed and
 `temperature` 0 the only parameter: the same 48 reports in the same order, two
 passes, the fixed report every tenth call, the 150s deadline. The user agreed
-to the corpus going to DeepInfra, Mistral's zero-retention endpoint and
-Parasail. The four ran side by side, each one call at a time, from 14:38 to
-14:59 UTC on a Sunday; $0.22 in all. Every answer came from the pinned
-provider, none with a reasoning token.
+to the corpus going to DeepInfra, to Mistral's zero-retention and EU endpoints
+and to Parasail. Four ran side by side, each one call at a time, from 14:38 to
+14:59 UTC on a Sunday, and `devstral-2512` alone from 16:47 to 16:54; $0.35 in
+all. Every answer came from the pinned provider, none with a reasoning token.
 
 DeepInfra refused `mistral-small-24b-instruct-2501` with 429 on thirteen of its
 calls 71 to 84. The run was stopped there, and the 36 calls that had failed or
@@ -266,17 +266,17 @@ not been made were made again in plan order from 14:52, two more 429s clearing
 after a 30s wait. Its column joins the 71 calls the first run answered with the
 36 made again.
 
-| | `mistral-small-24b-instruct-2501`, `deepinfra/fp8` | `ministral-14b-2512`, `mistral/zdr` | `mistral-medium-3.1`, `mistral/zdr` | `llama-3.2-3b-instruct`, `parasail/bf16` |
-| --- | --- | --- | --- | --- |
-| Reports answered the same way in both passes | 10 of 48 | 15 of 48 | 13 of 48 | 35 of 48 |
-| Empty answers | 0 of 107 | 8 of 107 | 2 of 107 | 0 of 107 |
-| Answers the schema refused | 1 | 0 | 2 | 10 |
-| Sentence numbers out of range, against claims kept | 0 against 1,845 | 0 against 1,775 | 0 against 1,702 | 34 against 2,538 |
-| Claims in the median answer | 7 | 11 | 10 | 16 |
-| Wall: median, p95, max | 5.6, 35.0, 68.7s | 4.6, 22.1, 39.2s | 2.2, 9.2, 14.4s | 2.7, 14.2, 29.2s |
-| Inside 12s, of 96 | 69 | 73 | 94 | 90 |
-| $ a call | 0.00010 | 0.00029 | 0.00125 | 0.00039 |
-| Fixed report, distinct answers in 11 calls | 1 | 2 | 1 | 1 |
+| | `mistral-small-24b-instruct-2501`, `deepinfra/fp8` | `ministral-14b-2512`, `mistral/zdr` | `mistral-medium-3.1`, `mistral/zdr` | `llama-3.2-3b-instruct`, `parasail/bf16` | `devstral-2512`, `mistral/eu` |
+| --- | --- | --- | --- | --- | --- |
+| Reports answered the same way in both passes | 10 of 48 | 15 of 48 | 13 of 48 | 35 of 48 | 12 of 48 |
+| Empty answers | 0 of 107 | 8 of 107 | 2 of 107 | 0 of 107 | 2 of 107 |
+| Answers the schema refused | 1 | 0 | 2 | 10 | 1 |
+| Sentence numbers out of range, against claims kept | 0 against 1,845 | 0 against 1,775 | 0 against 1,702 | 34 against 2,538 | 0 against 1,667 |
+| Claims in the median answer | 7 | 11 | 10 | 16 | 10 |
+| Wall: median, p95, max | 5.6, 35.0, 68.7s | 4.6, 22.1, 39.2s | 2.2, 9.2, 14.4s | 2.7, 14.2, 29.2s | 2.1, 7.4, 13.5s |
+| Inside 12s, of 96 | 69 | 73 | 94 | 90 | 94 |
+| $ a call | 0.00010 | 0.00029 | 0.00125 | 0.00039 | 0.00127 |
+| Fixed report, distinct answers in 11 calls | 1 | 2 | 1 | 1 | 1 |
 
 The same runs under `extract-1`, in "gpt-4.1-nano and gpt-4.1-mini on the
 distiller corpus" above: DeepSeek via Morph answered 8 of the 48 reports the
@@ -289,11 +289,12 @@ ten refused answers fall on the other six, and on four of them twice: three
 reports drew referents that are not a list of non-empty strings in both passes,
 and one an answer cut off at the 8,192-token ceiling in both; two more were cut
 off once. The 34 numbers out of range are all in one answer. medium's two
-refusals added a claim type as a field of its own, and small's one had referents
-the schema refuses, like llama's. Between the two passes the number of claims
-changed on 29, 25 and 27 of the 48 reports for small, ministral and medium, and
-on 1 for llama. After the first byte, small on DeepInfra delivered a median of
-45 tokens a second, and as few as 15; ministral 78, medium 198, llama 351.
+refusals and devstral's one added a claim type as a field of its own, and
+small's one had referents the schema refuses, like llama's. Between the two
+passes the number of claims changed on 29, 25, 27 and 30 of the 48 reports for
+small, ministral, medium and devstral, and on 1 for llama. After the first byte,
+small on DeepInfra delivered a median of 45 tokens a second, and as few as 15;
+ministral 78, medium 198, devstral 206, llama 351.
 
 ## z-ai/glm-5.3-flash — replaced 21 September 2026
 
