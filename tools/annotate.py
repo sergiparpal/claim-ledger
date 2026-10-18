@@ -47,7 +47,7 @@ from typing import TextIO
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from ledger import evidence, schema, turn  # noqa: E402
+from ledger import evidence, schema, sentences, turn  # noqa: E402
 
 CORPUS = REPO / "corpus" / "annotations.jsonl"
 
@@ -55,9 +55,9 @@ CORPUS = REPO / "corpus" / "annotations.jsonl"
 KEYS = {str(number): kind for number, kind in enumerate(schema.CLAIM_TYPES, 1)}
 LEGEND = "  ".join(f"{key} {kind}" for key, kind in KEYS.items())
 
-# A list marker, a heading or a quote opening a line is layout, not the claim.
-_MARKER = re.compile(r"(?:[-*+]|\d+[.)]|#{1,6}|>)\s+")
-_SENTENCE_END = re.compile(r"(?<=[.!?…])\s+")
+#: The report cut into sentences: the extractor's own cut, so that an annotated
+#: claim and an extracted one can be compared sentence for sentence.
+pieces = sentences.split
 
 
 class AnnotateError(Exception):
@@ -163,30 +163,6 @@ def _captured(header: Mapping[str, str]) -> datetime | None:
     return moment if moment.tzinfo is not None else None
 
 
-def pieces(text: str) -> list[str]:
-    """The report cut into sentences, each one a verbatim slice of it.
-
-    Lines first, since bullets and paragraphs end claims as often as full stops
-    do, then sentences within a line. A list marker, heading or quote opening
-    a line is left out of the slice, and a code fence or anything with no
-    letter or digit is not offered at all. A cut in the wrong place costs a
-    keystroke, because a span typed by hand can cross it.
-    """
-    out = []
-    for line in text.split("\n"):
-        line = line.strip()
-        if line.startswith("```"):
-            continue
-        marker = _MARKER.match(line)
-        if marker:
-            line = line[marker.end():]
-        for sentence in _SENTENCE_END.split(line):
-            sentence = sentence.strip()
-            if any(char.isalnum() for char in sentence):
-                out.append(sentence)
-    return out
-
-
 def annotate_report(report: Report, *, ask: Callable[[str], str], out: TextIO,
                     place: str) -> list[dict] | None:
     """The claims of one report, as the annotator marks them. None leaves it for another run."""
@@ -194,12 +170,12 @@ def annotate_report(report: Report, *, ask: Callable[[str], str], out: TextIO,
     print(report.text if report.text.strip() else "(the report is empty)", file=out)
     print(f"\n{LEGEND}\nEnter: not a claim   s: spans by hand   n: skip this report   "
           f"q: quit\n", file=out)
-    sentences = pieces(report.text)
+    cut = pieces(report.text)
     while True:
         claims: list[dict] = []
         try:
-            for index, sentence in enumerate(sentences, 1):
-                print(f"[{index}/{len(sentences)}] {sentence}", file=out)
+            for index, sentence in enumerate(cut, 1):
+                print(f"[{index}/{len(cut)}] {sentence}", file=out)
                 claims += _sentence(sentence, report.text, ask=ask, out=out)
         except _Skip:
             return None

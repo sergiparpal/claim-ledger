@@ -400,10 +400,13 @@ def fixture(args) -> int:
     payload = json.loads("".join(block["text"] for block in
                                  json.loads(RECORDING.read_text(encoding="utf-8"))["content"]
                                  if block["type"] == "text"))
-    recorded = [[c["span"], c["type"], c["referents"]] for c in payload["claims"]]
-    print("recorded on 23 September 2026:")
-    for span, kind, referents in recorded:
-        print(f"   {kind:13} {span!r} {referents}")
+    # The recording predates the sentence contract: its spans are phrases the
+    # model copied, where an answer now gets whole sentences. Only the types and
+    # the referents, in order, can be the same.
+    recorded = [[c["type"], c["referents"]] for c in payload["claims"]]
+    print("recorded on 23 September 2026, before the sentence contract:")
+    for claim in payload["claims"]:
+        print(f"   {claim['type']:13} {claim['span']!r} {claim['referents']}")
     for number in range(1, args.runs + 1):
         started = time.monotonic()
         try:
@@ -413,13 +416,13 @@ def fixture(args) -> int:
         except (extract.ExtractError, schema.SchemaError) as e:
             print(f"run {number}: {type(e).__name__}: {e}")
             continue
-        answer = [[c.span, c.type, list(c.referents)] for c in result.claims]
-        same = answer == recorded and not result.defects
+        same = ([[c.type, list(c.referents)] for c in result.claims] == recorded
+                and not result.defects)
         print(f"run {number}: {time.monotonic() - started:.1f}s, {result.provenance.provider}, "
-              f"{len(result.claims)} claims, "
-              f"{'identical to the recording' if same else 'differs from the recording'}")
-        for span, kind, referents in answer:
-            print(f"   {kind:13} {span!r} {referents}")
+              f"{len(result.claims)} claims, " + ("the recording's types and referents"
+                                                  if same else "differs from the recording"))
+        for claim in result.claims:
+            print(f"   {claim.type:13} {claim.span!r} {list(claim.referents)}")
         for defect in result.defects:
             print(f"   DEFECT        {defect.span!r} {defect.reason}")
         time.sleep(PAUSE_S)

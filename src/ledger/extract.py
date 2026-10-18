@@ -48,7 +48,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from ledger import budget, schema
+from ledger import budget, schema, sentences
 
 if TYPE_CHECKING:  # the extractor may hold settings, never open the file they came from
     from ledger.config import Extractor as Settings
@@ -128,6 +128,10 @@ def build_request(report_text: str, *, vocabulary: Sequence[str], settings: "Set
                   prompt: Prompt) -> Request:
     """The whole request: the report, the vocabulary, and the prompt that types them.
 
+    The report goes as numbered sentences, cut by ledger.sentences, and the
+    answer points at them by number: schema.validate takes each span from the
+    report itself, so the model is never asked to copy one.
+
     Two shapes are supported and configuration picks one. `json_schema` asks
     the endpoint to enforce the answer's shape, which ends code fences and
     stray keys at the source. `prefill` is the fallback for a route that does
@@ -143,7 +147,8 @@ def build_request(report_text: str, *, vocabulary: Sequence[str], settings: "Set
         # that refuses temperature leaves the router with no endpoint at all.
         **dict(settings.parameters),
         "system": f"{prompt.text}\n\nThe types, and nothing else:\n{types}",
-        "messages": [{"role": "user", "content": report_text}],
+        "messages": [{"role": "user",
+                      "content": sentences.numbered(sentences.split(report_text))}],
         # One provider, no fallbacks, no training on the report, and it must
         # support everything sent or the call fails rather than degrading.
         "provider": {"order": [settings.provider], "allow_fallbacks": False,

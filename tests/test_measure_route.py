@@ -31,9 +31,15 @@ import measure_route  # noqa: E402
 
 PROMPT = extract.load_prompt()
 STAGES = {"dns": 0.01, "tcp": 0.01, "tls": 0.02, "first_byte": 0.5, "api": 1.0}
+# A real envelope from before the sentence contract: its answer is refused now,
+# but how the reply was made is still read off it.
 RECORDED = doubles.recorded("openrouter-deepseek-v4.1-flash")
+# The recorded route's three claims on CAPTURED_REPORT, as sentence numbers.
+ROUTE = doubles.answer((1, "judgment", []), (2, "suite_passed", ["unit test"]),
+                       (4, "intent", []), provider="Morph")
 SPANS = ["I've completed the first three steps successfully.", "The unit test passed.",
-         "I'll proceed with staging, committing, and pushing the changes."]
+         "Since you explicitly requested the push, I'll proceed with staging, "
+         "committing, and pushing the changes."]
 
 
 def post(*answers):
@@ -53,15 +59,12 @@ def row(*answers, deadline=10.0):
                               deadline=deadline, post=post(*answers))
 
 
-def answer(*claims):
-    return doubles.reply(json.dumps({"claims": [
-        {"span": span, "type": kind, "referents": list(referents)}
-        for span, kind, referents in claims]}))
+answer = doubles.answer
 
 
 class RowTest(unittest.TestCase):
     def test_a_row_names_no_claim(self):
-        made = row(RECORDED)
+        made = row(ROUTE)
         self.assertEqual((made["outcome"], made["claims"], made["defects"]), ("usable", 3, 0))
         written = json.dumps(made, ensure_ascii=False)
         for span in SPANS:
@@ -69,28 +72,27 @@ class RowTest(unittest.TestCase):
         self.assertNotIn("unit test", written)
 
     def test_the_same_answer_has_one_digest_and_another_answer_another(self):
-        first = row(RECORDED)["digest"]
-        self.assertEqual(row(RECORDED)["digest"], first)
-        one = answer((SPANS[1], "suite_passed", ["unit test"]))
+        first = row(ROUTE)["digest"]
+        self.assertEqual(row(ROUTE)["digest"], first)
+        one = answer((2, "suite_passed", ["unit test"]))
         self.assertNotEqual(row(one)["digest"], first)
-        retyped = answer((SPANS[1], "judgment", ["unit test"]))
+        retyped = answer((2, "judgment", ["unit test"]))
         self.assertNotEqual(row(retyped)["digest"], row(one)["digest"])
         empty = row(answer())
         self.assertEqual(empty["claims"], 0)
         self.assertNotEqual(empty["digest"], first)
 
     def test_a_defect_counts_and_changes_the_digest(self):
-        kept = answer((SPANS[1], "suite_passed", ["unit test"]))
-        tidied = answer((SPANS[1], "suite_passed", ["unit test"]),
-                        ("The unit tests passed.", "suite_passed", []))
-        made = row(tidied)
+        kept = answer((2, "suite_passed", ["unit test"]))
+        astray = answer((2, "suite_passed", ["unit test"]), (99, "suite_passed", []))
+        made = row(astray)
         self.assertEqual((made["claims"], made["defects"]), (1, 1))
         self.assertNotEqual(made["digest"], row(kept)["digest"])
 
     def test_a_call_past_its_deadline_is_recorded_as_one(self):
         def slow(request, timeout_s):
             time.sleep(2)
-            return 200, RECORDED.body, dict(STAGES)
+            return 200, ROUTE.body, dict(STAGES)
         started = time.monotonic()
         made = measure_route.call(CAPTURED_REPORT, settings=SETTINGS, prompt=PROMPT,
                                   deadline=0.2, post=slow)
@@ -102,7 +104,7 @@ class RowTest(unittest.TestCase):
     def test_a_failure_becomes_a_row_after_the_clients_one_retry(self):
         made = row(doubles.reply("{}", status=503), doubles.reply("{}", status=503))
         self.assertEqual((made["outcome"], made["status"], made["attempts"]), ("failed", 503, 2))
-        made = row(extract.ExtractError("the model call did not complete: reset"), RECORDED)
+        made = row(extract.ExtractError("the model call did not complete: reset"), ROUTE)
         self.assertEqual((made["outcome"], made["attempts"]), ("usable", 2))
         made = row(doubles.raw("not json"))
         self.assertEqual(made["outcome"], "failed")
@@ -111,8 +113,9 @@ class RowTest(unittest.TestCase):
         made = row(doubles.reply('{"claims": [{"span": "x"}]}'))
         self.assertEqual(made["outcome"], "unusable")
 
-    def test_a_reply_says_how_it_was_made(self):
+    def test_a_reply_says_how_it_was_made_even_when_its_answer_is_refused(self):
         made = row(RECORDED)
+        self.assertEqual(made["outcome"], "unusable")   # copied spans, from before 18 October
         self.assertEqual((made["provider"], made["stop_reason"]), ("Morph", "end_turn"))
         self.assertEqual(made["stages"], STAGES)
         self.assertEqual((made["usage"]["output_tokens"], made["thinking_tokens"]), (88, 0))

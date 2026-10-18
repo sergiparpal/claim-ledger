@@ -309,9 +309,13 @@ class PipelineTest(TurnTest):
                               json.dumps(data).encode(), NOW, time.monotonic()), double
 
     def answer(self, *items):
-        """A model answer in the shape the route in use returns: one whole object."""
-        return doubles.reply(json.dumps(
-            {"claims": [dict(zip(("span", "type", "referents"), item)) for item in items]}))
+        """A model answer under the sentence contract: (number, type, referents)."""
+        return doubles.answer(*items)
+
+    def route_answer(self):
+        """The recorded route's three claims on CAPTURED, as numbers, from Morph."""
+        return doubles.answer((1, "judgment", []), (2, "suite_passed", ["unit test"]),
+                              (4, "intent", []), provider="Morph")
 
     def check(self, *, check_id="python-suite", command="pytest -q", outcome="ok",
               turn_id=PROMPT, turn_number=1, ts_end="2026-09-20T10:00:00.000Z"):
@@ -329,10 +333,10 @@ class PipelineTest(TurnTest):
             "files": [{"path": path, "mtime": "2026-09-20T09:00:00.000Z"}]})
 
 
-class RecordedAnswerTest(PipelineTest):
-    def test_the_real_recorded_answer_goes_all_the_way_to_an_appendix(self):
+class RouteAnswerTest(PipelineTest):
+    def test_the_route_s_answer_goes_all_the_way_to_an_appendix(self):
         self.check()
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertIsNone(audited.unknown)
         self.assertEqual([(j.claim.type, j.verdict) for j in audited.judged],
                          [("judgment", join.NOT_CHECKABLE),
@@ -342,10 +346,25 @@ class RecordedAnswerTest(PipelineTest):
                          "claim-ledger · 1 verified, 2 unchecked · 1 check seen · "
                          "nothing unreported")
 
+    def test_each_span_is_the_captured_report_s_own_sentence(self):
+        audited, _ = self.audit(self.route_answer())
+        self.assertEqual([j.claim.span for j in audited.judged], [
+            "I've completed the first three steps successfully.",
+            "The unit test passed.",
+            "Since you explicitly requested the push, I'll proceed with staging, "
+            "committing, and pushing the changes."])
+
+    def test_the_recording_made_before_the_sentence_contract_is_an_unknown_turn(self):
+        """It answers with copied spans; refused, it reads as UNKNOWN, never as clean."""
+        self.check()
+        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        self.assertIn("SchemaError", audited.unknown)
+        self.assertEqual(audited.judged, ())
+
     def test_the_verified_claim_carries_the_run_that_verified_it(self):
         """I-4: no bare verdict, all the way through to what the user reads."""
         self.check()
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         verified = [j for j in audited.judged if j.verdict == join.VERIFIED]
         self.assertEqual([j.scope for j in verified],
                          ["pytest -q ok at 2026-09-20T10:00:00.000Z"])
@@ -354,7 +373,7 @@ class RecordedAnswerTest(PipelineTest):
         """I-1, at the point the pipeline actually calls out."""
         self.check(command="pytest -q")
         self.mutation("src/secret_engine.py")
-        _, double = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        _, double = self.audit(self.route_answer())
         body = json.dumps(double.requests[0].body)
         for leaked in (SESSION, PROMPT, "src/secret_engine.py", str(self.root)):
             self.assertNotIn(leaked, body)
@@ -363,17 +382,15 @@ class RecordedAnswerTest(PipelineTest):
 class VerdictTest(PipelineTest):
     def test_a_failed_check_contradicts_the_claim_and_leads_the_appendix(self):
         self.check(outcome="failed")
-        audited, _ = self.audit(self.answer(("The unit test passed.", "suite_passed",
-                                             ["unit test"])))
+        audited, _ = self.audit(self.answer((2, "suite_passed", ["unit test"])))
         self.assertEqual([j.verdict for j in audited.judged], [join.CONTRADICTED])
         text = appendix.render(audited)
         self.assertEqual(text.splitlines()[2], "CONTRADICTED")
         self.assertIn("pytest -q failed at", text)
 
     def test_a_claim_about_a_command_nobody_ran_is_unsupported(self):
-        audited, _ = self.audit(self.answer(
-            ("I ran the migration script", "command_run", ["migrate"])),
-            report="I ran the migration script and it went fine.")
+        audited, _ = self.audit(self.answer((1, "command_run", ["migrate"])),
+                                report="I ran the migration script and it went fine.")
         self.assertEqual([j.verdict for j in audited.judged], [join.UNSUPPORTED])
         self.assertIn("no matching command in this session", appendix.render(audited))
 
@@ -389,18 +406,17 @@ class VerdictTest(PipelineTest):
         self.assertIn("UNREPORTED", text)
         self.assertIn("  migrations/0007.sql (HUMAN)", text.splitlines())
 
-    def test_a_span_the_report_does_not_hold_is_a_counted_defect(self):
-        audited, _ = self.audit(self.answer(("a sentence nobody wrote", "judgment", [])),
-                                report="Done.")
+    def test_a_number_the_report_does_not_have_is_a_counted_defect(self):
+        audited, _ = self.audit(self.answer((2, "judgment", [])), report="Done.")
         self.assertEqual(audited.judged, ())
-        self.assertEqual([d.reason for d in audited.defects], ["not verbatim in the report"])
+        self.assertEqual([(d.span, d.reason) for d in audited.defects],
+                         [("sentence 2", "the report has 1 sentence")])
         self.assertIn("EXTRACTION DEFECTS", appendix.render(audited))
 
     def test_the_join_sees_earlier_turns(self):
         """R-6: evidence from earlier turns of the same session is admissible."""
         self.mutation("src/earlier.py", turn_id="an-earlier-prompt", turn_number=1)
-        audited, _ = self.audit(self.answer(("I updated src/earlier.py", "file_changed",
-                                             ["src/earlier.py"])),
+        audited, _ = self.audit(self.answer((1, "file_changed", ["src/earlier.py"])),
                                 report="I updated src/earlier.py")
         self.assertEqual([j.verdict for j in audited.judged], [join.VERIFIED])
 
@@ -442,7 +458,7 @@ class UnknownTurnTest(PipelineTest):
         # not of the change having an effect the loader happens to notice.
         path.write_text(path.read_text().replace("max_command_chars = 2000",
                                                  "max_command_chars = 1999"))
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertUnknown(audited, "claim-ledger.toml changed during this session")
 
     def test_a_config_that_stops_being_valid_mid_session_is_unknown_too(self):
@@ -458,11 +474,11 @@ class UnknownTurnTest(PipelineTest):
     def test_a_config_that_did_not_change_is_not_reported_as_changed(self):
         record.seed_config_baseline(self.root, SESSION,
                                     config.fingerprint(self.root / config.CONFIG_FILENAME))
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertIsNone(audited.unknown)
 
     def test_a_session_with_no_baseline_yet_gets_one_rather_than_a_verdict(self):
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertIsNone(audited.unknown)
         self.assertEqual(record.read_config_baseline(self.root, SESSION),
                          config.fingerprint(self.root / config.CONFIG_FILENAME))
@@ -471,7 +487,7 @@ class UnknownTurnTest(PipelineTest):
         """I-9. A log with a hole in it cannot be joined against honestly."""
         record.report_failure(self.root, "record", json.dumps({"session_id": SESSION}).encode(),
                               ValueError("the disk went away"), NOW)
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertUnknown(audited, "1 recorder failure in this session")
 
     def test_an_errors_log_line_that_cannot_be_read_counts_against_the_turn(self):
@@ -480,7 +496,7 @@ class UnknownTurnTest(PipelineTest):
         path = self.root / record.ERRORS_LOG
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("this is not a JSON line\n", encoding="utf-8")
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertUnknown(audited, "1 recorder failure in this session")
 
     def test_an_earlier_failed_audit_does_not_poison_the_rest_of_the_session(self):
@@ -493,19 +509,19 @@ class UnknownTurnTest(PipelineTest):
         record.report_failure(self.root, turn.COMPONENT,
                               json.dumps({"session_id": SESSION}).encode(),
                               extract.ExtractError("the model call passed its deadline"), NOW)
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertIsNone(audited.unknown)
 
     def test_another_session_s_recorder_failure_is_not_ours(self):
         record.report_failure(self.root, "record", json.dumps({"session_id": "other"}).encode(),
                               ValueError("not our session"), NOW)
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertIsNone(audited.unknown)
 
     def test_an_unreadable_log_makes_the_turn_unknown(self):
         self.log.parent.mkdir(parents=True, exist_ok=True)
         self.log.write_bytes(b'{"v": 2}\nnot a record\n')
-        audited, _ = self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        audited, _ = self.audit(self.route_answer())
         self.assertUnknown(audited, "could not be read")
 
     def test_an_unknown_turn_still_writes_its_capture(self):
@@ -545,7 +561,7 @@ class BudgetTest(PipelineTest):
     def test_the_model_call_gets_what_the_budget_has_left_not_its_own_limit(self):
         """R-43: every timeout inside the pipeline is bounded by the one
         containing it. The configured 12s is the ceiling, not the entitlement."""
-        double = doubles.Transport(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        double = doubles.Transport(self.route_answer())
         payload = self.payload(last_assistant_message=self.CAPTURED)
         with unittest.mock.patch.object(extract, "https_transport", double):
             turn.audit(self.root, payload, SESSION, 1, json.dumps(payload).encode(),
@@ -556,7 +572,7 @@ class BudgetTest(PipelineTest):
 
     def test_a_budget_already_spent_never_starts_the_model_call(self):
         self.shrink_budget()
-        double = doubles.Transport(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        double = doubles.Transport(self.route_answer())
         payload = self.payload(last_assistant_message=self.CAPTURED)
         with unittest.mock.patch.object(extract, "https_transport", double):
             audited = turn.audit(self.root, payload, SESSION, 1,
@@ -569,7 +585,7 @@ class BudgetTest(PipelineTest):
 class CalibrationRowTest(PipelineTest):
     def test_every_claim_of_the_turn_lands_in_the_calibration_log(self):
         self.check()
-        self.audit(doubles.recorded("openrouter-deepseek-v4.1-flash"))
+        self.audit(self.route_answer())
         rows = calibration.read(self.root)
         self.assertEqual([r["verdict"] for r in rows],
                          [join.NOT_CHECKABLE, join.VERIFIED, join.NOT_CHECKABLE])

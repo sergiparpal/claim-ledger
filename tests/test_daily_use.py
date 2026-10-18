@@ -242,7 +242,9 @@ class DefectsTest(DailyUseCase):
                       for n, span in enumerate([
                           "Dice que `selection` contiene «`pair_of`, `judge`.",
                           "La regla va aquí.",
-                          "Las correcciones respecto al plan."])))
+                          "Las correcciones respecto al plan."])),
+                    {"turn_number": 3, "row": "defect", "claim_id": f"{SESSION}-3-d3",
+                     "span": "sentence 9", "reason": "the report has 3 sentences"})
 
     def test_each_difference_is_named_and_sorted_by_kind(self):
         code, shown = self.run_tool("defects")
@@ -250,8 +252,9 @@ class DefectsTest(DailyUseCase):
         self.assertIn("-3-d0: dropped '»'", shown)
         self.assertIn("-3-d1: dropped '**'", shown)
         self.assertIn("-3-d2: 'corrijo' became 'correcciones'", shown)
-        self.assertIn("3 defects; differences by kind:", shown)
-        for kind in ("quotes 1", "markup 1", "words 1"):
+        self.assertIn("-3-d3: sentence 9, but the report has 3 sentences", shown)
+        self.assertIn("4 defects; differences by kind:", shown)
+        for kind in ("quotes 1", "markup 1", "words 1", "no such sentence 1"):
             self.assertIn(kind, shown)
 
     def test_spans_are_shown_only_when_asked_for(self):

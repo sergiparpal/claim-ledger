@@ -10,11 +10,17 @@ built here is one, which is what continuation() is for.
 
 Each fixtures/extractor/openrouter-*.json is a real answer, named for the
 model that gave it. recorded("openrouter-deepseek-v4.1-flash") is the route
-the ledger uses: deepseek/deepseek-v4.1-flash through OpenRouter's Messages
-endpoint, pinned to morph, thinking off, the answer's shape enforced by a JSON
-schema. openrouter-glm-5.3-flash.json is the route it replaced, kept because
-that one reasons before it answers and is the only recording here that carries
-a thinking block.
+the ledger was frozen on: deepseek/deepseek-v4.1-flash through OpenRouter's
+Messages endpoint, pinned to morph, thinking off, the answer's shape enforced
+by a JSON schema. openrouter-glm-5.3-flash.json is the route it replaced, kept
+because that one reasons before it answers and is the only recording here that
+carries a thinking block.
+
+Every recording predates the sentence contract of 18 October 2026: each
+answers with copied spans where the client now asks for sentence numbers, so
+the client refuses them all, and the tests say so. Their envelopes are still
+real, which is what they are kept for. Until a route is chosen and recorded
+under the new contract, its answers are written by hand with answer().
 
 fixtures/extractor/cli-no-prefill-*.json are the exception. They hold the text
 claude-haiku-4-5 really returned for the one report captured on 20 September
@@ -55,7 +61,7 @@ def recorded_without_prefill(name):
     return extract.Response(200, (FIXTURES / f"{name}.json").read_bytes())
 
 
-def reply(answer_text, *, status=200, thinking=False):
+def reply(answer_text, *, status=200, thinking=False, provider="BaseTen"):
     """A handwritten answer: the model's turn, as the route in use returns it.
 
     Under an enforced schema that is a whole object; behind a prefill it is a
@@ -63,13 +69,24 @@ def reply(answer_text, *, status=200, thinking=False):
     which is what this model really sends.
     """
     envelope = {"id": "msg_double", "type": "message", "role": "assistant",
-                "model": "z-ai/glm-5.3-flash", "provider": "BaseTen",
+                "model": "z-ai/glm-5.3-flash", "provider": provider,
                 "content": [{"type": "text", "text": answer_text}],
                 "stop_reason": "end_turn", "usage": {"input_tokens": 0, "output_tokens": 0}}
     if thinking:
         envelope["content"] = [{"type": "thinking", "thinking": "weighing the sentences",
                                 "signature": ""}, *envelope["content"]]
     return extract.Response(status, json.dumps(envelope).encode())
+
+
+def claims(*items):
+    """The text of an answer under the sentence contract: (number, type, referents)."""
+    return json.dumps({"claims": [{"sentence": number, "type": kind, "referents": list(names)}
+                                  for number, kind, names in items]})
+
+
+def answer(*items, **envelope):
+    """A whole answer under the sentence contract, wrapped as reply() wraps one."""
+    return reply(claims(*items), **envelope)
 
 
 def raw(body, *, status=200):

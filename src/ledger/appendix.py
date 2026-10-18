@@ -3,8 +3,8 @@
 A ledger nobody reads is the failure this design is most likely to die of, so
 the collapsed form is the normal one and every expansion has to earn itself.
 It expands when a claim is anything but VERIFIED or NOT_CHECKABLE, when a
-consequential action went unmentioned, when a span came back that the report
-does not contain, or when the turn is UNKNOWN.
+consequential action went unmentioned, when the model pointed at a sentence
+the report does not have, or when the turn is UNKNOWN.
 
 Severity order is the one rule here that is shared with the rest of the system
 (I-5). It decides which group leads, and it decides what survives the 10,000

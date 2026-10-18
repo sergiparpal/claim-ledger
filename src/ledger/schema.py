@@ -4,16 +4,21 @@ FROZEN. The five types below are the closed vocabulary of the requirements'
 Definitions. Nothing outside them may be assigned by any component, and a
 change here changes what every measurement taken against it means.
 
+The model is shown the report as numbered sentences and answers with numbers.
+A claim's span is the sentence its number names, taken from the report here,
+so a span is always text the report holds: the model never copies one out.
+
 Two things can be wrong with a model's answer, and they end differently:
 
 - The shape is wrong: not an object, no claims list, a claim that is not an
-  object, a missing or extra field, a type outside the vocabulary. That is a
-  schema failure. It raises, and the turn is UNKNOWN (R-12). Nothing is
-  salvaged from an answer whose shape cannot be trusted, because a partial
-  claim list read as complete is how coverage goes quietly blind.
-- The shape is right, but a span is not in the report word for word. That one
-  claim is dropped and counted as a defect, and the rest stands. A span that
-  does not appear verbatim is an error rate to measure, never text to repair.
+  object, a missing or extra field, a sentence that is not a whole number, a
+  type outside the vocabulary. That is a schema failure. It raises, and the
+  turn is UNKNOWN (R-12). Nothing is salvaged from an answer whose shape
+  cannot be trusted, because a partial claim list read as complete is how
+  coverage goes quietly blind.
+- The shape is right, but a number names no sentence of the report. That one
+  claim is dropped and counted as a defect, and the rest stands. It is an
+  error rate to measure, never a number to guess at.
 """
 
 from __future__ import annotations
@@ -21,11 +26,13 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from ledger import sentences
+
 #: The closed vocabulary. The first three join against the evidence log; the
 #: last two carry no evidence contract and are always NOT_CHECKABLE (R-20).
 CLAIM_TYPES = ("command_run", "suite_passed", "file_changed", "judgment", "intent")
 CHECKABLE_TYPES = ("command_run", "suite_passed", "file_changed")
-CLAIM_FIELDS = frozenset({"span", "type", "referents"})
+CLAIM_FIELDS = frozenset({"sentence", "type", "referents"})
 
 
 class SchemaError(Exception):
@@ -46,7 +53,7 @@ class Provenance:
 
 @dataclass(frozen=True)
 class Claim:
-    """One assertion, as the report words it."""
+    """One assertion, and the sentence of the report that makes it."""
 
     span: str
     type: str
@@ -56,7 +63,10 @@ class Claim:
 
 @dataclass(frozen=True)
 class Defect:
-    """A claim that was dropped, and why. Counted, never repaired."""
+    """A claim that was dropped, and why. Counted, never repaired.
+
+    The span names what the model pointed at, a sentence number the report
+    does not have, since there is no text of the report to show for it."""
 
     span: str
     reason: str
@@ -73,14 +83,15 @@ def json_schema(vocabulary: Sequence[str] = CLAIM_TYPES) -> dict:
     """The shape an endpoint can be asked to enforce, from the same vocabulary.
 
     Enforcement is worth having — it ends code fences and stray keys — but it
-    cannot make a span verbatim, which is why validate() still runs and the
-    defect count still means something.
+    cannot know how many sentences the report has, which is why validate()
+    still runs and the defect count still means something. No minimum is set
+    on the number, since not every endpoint enforces one.
     """
     return {"type": "object", "additionalProperties": False, "required": ["claims"],
             "properties": {"claims": {"type": "array", "items": {
                 "type": "object", "additionalProperties": False,
                 "required": sorted(CLAIM_FIELDS),
-                "properties": {"span": {"type": "string"},
+                "properties": {"sentence": {"type": "integer"},
                                "type": {"type": "string", "enum": list(vocabulary)},
                                "referents": {"type": "array",
                                              "items": {"type": "string"}}}}}}}
@@ -88,7 +99,10 @@ def json_schema(vocabulary: Sequence[str] = CLAIM_TYPES) -> dict:
 
 def validate(payload: object, report_text: str, *, provenance: Provenance,
              vocabulary: Sequence[str] = CLAIM_TYPES) -> Extraction:
-    """The claims of a validated answer, and the claims it cost to get there."""
+    """The claims of a validated answer, and the claims it cost to get there.
+
+    The report is cut here exactly as it was cut for the request, so a number
+    means here what it meant to the model."""
     if not isinstance(payload, dict):
         raise SchemaError(f"the answer is {type(payload).__name__}, not an object")
     if set(payload) != {"claims"}:
@@ -97,26 +111,28 @@ def validate(payload: object, report_text: str, *, provenance: Provenance,
     if not isinstance(listed, list):
         raise SchemaError(f"claims is {type(listed).__name__}, not a list")
 
+    cut = sentences.split(report_text)
     claims, defects = [], []
     for position, item in enumerate(listed):
-        span, claim_type, referents = _fields(item, position, vocabulary)
-        if span not in report_text:
-            defects.append(Defect(span, "not verbatim in the report"))
+        number, claim_type, referents = _fields(item, position, vocabulary)
+        if not 1 <= number <= len(cut):
+            defects.append(Defect(f"sentence {number}", f"the report has {len(cut)} "
+                                  f"sentence{'' if len(cut) == 1 else 's'}"))
             continue
-        claims.append(Claim(span, claim_type, referents, provenance))
+        claims.append(Claim(cut[number - 1], claim_type, referents, provenance))
     return Extraction(tuple(claims), tuple(defects), provenance)
 
 
-def _fields(item: object, position: int, vocabulary: Sequence[str]) -> tuple[str, str, tuple]:
+def _fields(item: object, position: int, vocabulary: Sequence[str]) -> tuple[int, str, tuple]:
     where = f"claims[{position}]"
     if not isinstance(item, dict):
         raise SchemaError(f"{where} is {type(item).__name__}, not an object")
     if set(item) != CLAIM_FIELDS:
         raise SchemaError(f"{where} holds {sorted(item)}, not {sorted(CLAIM_FIELDS)}")
 
-    span = item["span"]
-    if not isinstance(span, str) or not span.strip():
-        raise SchemaError(f"{where}.span is not a non-empty string")
+    number = item["sentence"]
+    if not isinstance(number, int) or isinstance(number, bool):
+        raise SchemaError(f"{where}.sentence is not a whole number")
     claim_type = item["type"]
     if claim_type not in vocabulary:
         raise SchemaError(f"{where}.type is {claim_type!r}, not one of {list(vocabulary)}")
@@ -124,4 +140,4 @@ def _fields(item: object, position: int, vocabulary: Sequence[str]) -> tuple[str
     if not isinstance(referents, list) or not all(
             isinstance(referent, str) and referent.strip() for referent in referents):
         raise SchemaError(f"{where}.referents is not a list of non-empty strings")
-    return span, claim_type, tuple(referents)
+    return number, claim_type, tuple(referents)

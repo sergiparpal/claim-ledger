@@ -15,7 +15,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from ledger import config, extract, schema
+from ledger import config, extract, schema, sentences
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "hooks"
 REPORT = "I updated the parser, ran the suite, and it is green. Next I would add a cache."
@@ -55,7 +55,11 @@ class IsolationTest(unittest.TestCase):
         self.sent = json.dumps(self.request.body)
 
     def test_the_request_carries_the_report_and_the_vocabulary(self):
-        self.assertEqual(self.request.body["messages"], [{"role": "user", "content": REPORT}])
+        """The report as numbered sentences, every one of them, and no more."""
+        content = "\n".join(f"[{n}] {s}" for n, s in enumerate(sentences.split(REPORT), 1))
+        self.assertEqual(self.request.body["messages"], [{"role": "user", "content": content}])
+        self.assertEqual(content, "[1] I updated the parser, ran the suite, and it is green.\n"
+                                  "[2] Next I would add a cache.")
         for name in schema.CLAIM_TYPES:
             self.assertIn(name, self.request.body["system"])
             self.assertIn(name, json.dumps(self.request.body["output_config"]))

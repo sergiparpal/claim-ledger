@@ -29,7 +29,9 @@ verified by the write it denies. Both are candidates, not findings, and the
 negative words are a short list in Spanish and English.
 
 `defects` shows how each span the extractor returned and the report does not
-contain differs from the nearest text in the report.
+contain differs from the nearest text in the report. Since the sentence
+contract of 18 October 2026 the model returns numbers, not text, and a defect
+is a number naming no sentence; those are listed as such.
 
 Transcripts are read from where Claude Code keeps them for PROJECT, or from
 --transcripts. Nothing is written anywhere.
@@ -246,6 +248,12 @@ def defects(args) -> int:
     for row in rows:
         path = (args.root / evidence.STATE_DIR / turn.REPORTS
                 / f"{row['session']}-{row['turn_number']}.md")
+        if row.get("reason", "").startswith("the report has"):
+            # Under the sentence contract a defect is a number naming no sentence:
+            # there is no copied text to set beside the report.
+            kinds["no such sentence"] += 1
+            print(f"  {row['claim_id']}: {row['span']}, but {row['reason']}")
+            continue
         try:
             _, report = turn.read_capture(path)
         except (OSError, turn.TurnError):

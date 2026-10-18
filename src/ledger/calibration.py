@@ -12,9 +12,10 @@ written and the later knowledge sits beside it. That is why every claim row
 carries an id that can be written down: <session>-<turn_number>-<index>.
 
 What the extractor route was travels with each row, because recall measured
-under one route says nothing under another (R-45). So does a defect: a span
-the model returned that the report does not contain is part of the error rate
-phase 1 exists to measure, and a defect count with nowhere to live disappears.
+under one route says nothing under another (R-45). So does a defect: a
+sentence number the report does not have, or before 18 October 2026 a span
+the report did not contain, is part of the error rate phase 1 exists to
+measure, and a defect count with nowhere to live disappears.
 
 The same append discipline as the evidence log: one write() per row on an
 O_APPEND descriptor, no read-modify-write, no lock.
