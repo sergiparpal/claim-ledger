@@ -35,6 +35,13 @@ time went, and how far the answers agree, within a run and across runs. With
 `fixture` asks about the fixed report --runs times (default 3) and prints each
 answer beside the one recorded on 23 September 2026.
 
+`run` and `watch` also count, for each answer, the checkable claims whose
+referents the join could match at all, judged against PROJECT's configuration
+(`usable`): a path relative to the project, a command whose first word runs, a
+suite the configuration declares. Recall, matched by sentence and type, cannot
+see a claim that names nothing a log could hold, which stays UNSUPPORTED
+whatever the log says; `summary` reports the share (SPEC § Corpus capture).
+
 Each call is timed in stages, DNS, TCP, TLS, first byte and whole body, by a
 POST made as urllib makes it, since urllib times none of them. The key comes
 from the variable `[extractor] key_env` names, as for the hook; see
@@ -55,6 +62,8 @@ import http.client
 import json
 import os
 import random
+import re
+import shutil
 import socket
 import ssl
 import statistics
@@ -69,7 +78,7 @@ from urllib.parse import urlsplit
 REPO = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(REPO / "src"), str(REPO)]
 
-from ledger import budget, config, evidence, extract, schema, turn  # noqa: E402
+from ledger import budget, config, evidence, extract, join, schema, turn  # noqa: E402
 from tests.test_extract import CAPTURED_REPORT  # noqa: E402  the fixed report
 
 FIXED = "fixed-442"
@@ -81,6 +90,10 @@ PAUSE_S = 1.0
 # n output tokens took about FAST_S + FAST_PER_TOKEN_S * n seconds.
 FAST_S, FAST_PER_TOKEN_S = 0.65, 0.0047
 LIMITS = (12, 15, 20, 25, 30, 45, 60, 90)
+CHECKABLE = ("command_run", "file_changed", "suite_passed")
+BUILTINS = frozenset({"cd", "export", "source", ".", "set", "unset", "exec", "eval", "test", "["})
+ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=\S*")    # VAR=value before the command
+EXTENSION = re.compile(r"\.[A-Za-z0-9]{1,8}$")
 
 #: What `call` hands its POST, and what it gets back: status, body, stages.
 Post = Callable[[extract.Request, float], tuple[int, bytes, dict]]
@@ -123,13 +136,16 @@ def staged_post(request: extract.Request, timeout_s: float) -> tuple[int, bytes,
 
 
 def call(text: str, *, settings, prompt: extract.Prompt, deadline: float,
-         post: Post = staged_post) -> dict:
+         post: Post = staged_post, cfg: config.Config | None = None,
+         root: Path = Path("."), commands: frozenset[str] = frozenset()) -> dict:
     """One extraction, made as the hook makes it but under `deadline`, and what it cost.
 
     The row holds no span: a digest of the answer stands in for it, so that two
     answers can be compared without anyone reading either. The digest covers the
     answer as the ledger reads it, its claims and its defects, so two answers
-    that differ only in the type a dropped span was given count as one.
+    that differ only in the type a dropped span was given count as one. Given
+    the project's configuration, the row also counts the checkable claims the
+    join could match (`usable`), by type, and names none of them.
     """
     tries, replies = [], []
 
@@ -162,6 +178,8 @@ def call(text: str, *, settings, prompt: extract.Prompt, deadline: float,
         row.update(claims=len(result.claims), defects=len(result.defects),
                    digest=hashlib.sha256(json.dumps(answer, ensure_ascii=False)
                                          .encode("utf-8")).hexdigest()[:12])
+        if cfg is not None:
+            row["usable"] = referent_counts(result.claims, cfg, root, commands)
     return row
 
 
@@ -218,6 +236,72 @@ def reports_of(run: Path) -> set[str]:
     return {row["report"] for row in _rows(run) if row.get("pass")}
 
 
+def usable(claim_type: str, referents: Sequence[str], cfg: config.Config, root: Path,
+           commands: frozenset[str] = frozenset()) -> bool:
+    """Whether the join could match this claim to some record at all.
+
+    Read from the shape of what it names, as the join's own rules take it: for a
+    file, a path relative to the project; for a command, a first word that runs;
+    for a suite, a check, an invocation or an alias the configuration declares,
+    or no referent, which the join reads as the one check a session ran. A usable
+    claim can still find nothing in a log; one that is not usable never can.
+    """
+    if claim_type == "suite_passed":
+        wanted, named = join.check_ids_for(referents, cfg)
+        return bool(wanted) or not named
+    names = [n[2:] if n.startswith("./") else n
+             for n in (r.strip().strip("`'\"").strip() for r in referents)]
+    names = [n for n in names if n]
+    if claim_type == "file_changed":
+        return any(_path_like(name, root) for name in names)
+    if claim_type == "command_run":
+        return any(_runs(name.split()[0], root, commands) for name in names)
+    return False
+
+
+def referent_counts(claims: Sequence, cfg: config.Config, root: Path,
+                    commands: frozenset[str]) -> dict[str, list[int]]:
+    """For each checkable type an answer used: [its claims, those the join could match]."""
+    counts: dict[str, list[int]] = {}
+    for claim in claims:
+        if claim.type in CHECKABLE:
+            pair = counts.setdefault(claim.type, [0, 0])
+            pair[0] += 1
+            pair[1] += usable(claim.type, claim.referents, cfg, root, commands)
+    return counts
+
+
+def recorded_commands(root: Path) -> frozenset[str]:
+    """Every word that has started a command in PROJECT's evidence logs."""
+    words = set()
+    for path in (root / evidence.STATE_DIR / "sessions").glob("*.jsonl"):
+        for line in path.read_text(encoding="utf-8").split("\n"):
+            try:
+                command = json.loads(line).get("command")
+            except (ValueError, AttributeError):
+                continue
+            if isinstance(command, str) and command.split():
+                words.add(command.split()[0])
+    return frozenset(words)
+
+
+def _path_like(name: str, root: Path) -> bool:
+    """A path a log could hold: relative and one word, with a folder or an extension
+    in it, or a file the project has at its top, such as a Makefile."""
+    if any(c.isspace() for c in name) or name.startswith("/"):
+        return False
+    return "/" in name or bool(EXTENSION.search(name)) or (root / name).is_file()
+
+
+def _runs(word: str, root: Path, commands: frozenset[str]) -> bool:
+    """A first word a shell would run: a builtin, an assignment before the command,
+    an executable on PATH or in the project's environment, a file in the project,
+    or a word the project's logs have seen start a command."""
+    return (word in BUILTINS or word in commands or bool(ASSIGNMENT.fullmatch(word))
+            or shutil.which(word) is not None or (root / ".venv" / "bin" / word).is_file()
+            or (root / word).is_file())
+
+
 def slowdown(row: Mapping) -> float | None:
     """How many times the fast run's time for this answer it took; None for no answer."""
     tokens = (row.get("usage") or {}).get("output_tokens")
@@ -233,14 +317,17 @@ def slow_now(row: Mapping, previous_slow: bool, *, slow: float, route_deadline: 
 
 
 def measure(out: Path, reports: Mapping[str, str], *, passes: int, seed: int,
-            settings, prompt: extract.Prompt, deadline: float, post: Post = staged_post) -> None:
+            settings, prompt: extract.Prompt, deadline: float, post: Post = staged_post,
+            cfg: config.Config | None = None, root: Path = Path("."),
+            commands: frozenset[str] = frozenset()) -> None:
     """Make a run's calls one at a time, appending a row for each as it comes."""
     calls = plan(list(reports), passes=passes, seed=seed)
     with out.open("a", encoding="utf-8") as rows:
         for number, (pass_number, report) in enumerate(calls, 1):
             text = CAPTURED_REPORT if report == FIXED else reports[report]
             row = {"pass": pass_number, "report": report,
-                   **call(text, settings=settings, prompt=prompt, deadline=deadline, post=post)}
+                   **call(text, settings=settings, prompt=prompt, deadline=deadline, post=post,
+                          cfg=cfg, root=root, commands=commands)}
             rows.write(json.dumps(row) + "\n")
             rows.flush()
             print(f"{_now()[:19]} {number:3}/{len(calls)} {_line(row)}", flush=True)
@@ -258,7 +345,7 @@ def run(args) -> int:
     print(f"{len(reports)} reports, {args.passes} passes, deadline {args.deadline:g}s, "
           f"prompt {prompt.version}, {settings.model} via {settings.provider}", flush=True)
     measure(args.out, reports, passes=args.passes, seed=args.seed, settings=settings,
-            prompt=prompt, deadline=args.deadline)
+            prompt=prompt, deadline=args.deadline, **_project(args.root))
     return 0
 
 
@@ -287,7 +374,8 @@ def watch(args) -> int:
             if slow_now(row, previous_slow, slow=args.slow, route_deadline=settings.timeout_s):
                 print("the route is slow: starting the run", flush=True)
                 measure(args.outdir / "run.jsonl", reports, passes=args.passes, seed=args.seed,
-                        settings=settings, prompt=prompt, deadline=args.deadline)
+                        settings=settings, prompt=prompt, deadline=args.deadline,
+                        **_project(args.root))
                 return 0
             previous_slow = row["slowdown"] is None or row["slowdown"] >= args.slow
             next_probe = time.monotonic() + args.every
@@ -389,6 +477,18 @@ def _summarise(rows: Sequence[Mapping]) -> None:
           f"answers were empty; {sum(1 for row in with_claims if row['defects'])} carried a "
           f"defect ({sum(row['defects'] for row in with_claims)} against "
           f"{sum(row['claims'] for row in with_claims)} claims kept)")
+    counted = [row["usable"] for row in rows if row.get("usable")]
+    if counted:
+        totals: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+        for counts in counted:
+            for kind, (claims, matched) in counts.items():
+                totals[kind][0] += claims
+                totals[kind][1] += matched
+        claims = sum(c for c, _ in totals.values())
+        matched = sum(m for _, m in totals.values())
+        print(f"  referents the join could match: {matched} of {claims} checkable claims "
+              f"({matched / claims:.0%}); "
+              + ", ".join(f"{kind} {m} of {c}" for kind, (c, m) in sorted(totals.items())))
     if fixed:
         print(f"  fixed report: {len(fixed)} calls, "
               f"{len({row.get('digest') for row in fixed})} distinct answers, "
@@ -448,6 +548,12 @@ def _r(xs: Sequence[float], ys: Sequence[float]) -> str:
 
 def _route(root: Path):
     return config.load(root / config.CONFIG_FILENAME).extractor, extract.load_prompt()
+
+
+def _project(root: Path) -> dict:
+    """What `usable` judges a run's claims against: PROJECT's configuration and logs."""
+    return {"cfg": config.load(root / config.CONFIG_FILENAME), "root": root,
+            "commands": recorded_commands(root)}
 
 
 def _rows(path: Path) -> list[dict]:

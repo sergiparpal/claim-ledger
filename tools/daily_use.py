@@ -5,6 +5,7 @@
     python3 tools/daily_use.py latency [--root PROJECT] [--transcripts DIR]
     python3 tools/daily_use.py verdicts [--root PROJECT] [--spans]
     python3 tools/daily_use.py defects [--root PROJECT] [--spans]
+    python3 tools/daily_use.py referents [--root PROJECT]
 
 `recording` sets every tool call in a session's Claude Code transcript beside
 the session's evidence log. A call the recorder's matcher covers that left no
@@ -33,6 +34,12 @@ contain differs from the nearest text in the report. Since the sentence
 contract of 18 October 2026 the model returns numbers, not text, and a defect
 is a number naming no sentence; those are listed as such.
 
+`referents` counts, for each route in claims.jsonl, the checkable claims whose
+referents the join could match at all (`usable` in tools/measure_route.py),
+judged against PROJECT's configuration as it is now, and how many of the
+UNSUPPORTED ones could match nothing. Such a claim stays UNSUPPORTED whatever
+the log holds, and recall, matched by sentence and type, does not see it.
+
 Transcripts are read from where Claude Code keeps them for PROJECT, or from
 --transcripts. Nothing is written anywhere.
 
@@ -58,7 +65,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(REPO / "src"), str(REPO / "tools")]
 
-from ledger import evidence, join, turn  # noqa: E402
+from ledger import config, evidence, join, turn  # noqa: E402
 import measure_route  # noqa: E402  the fast run, the yardstick for "x fast"
 
 CHARS_PER_TOKEN = 3.2      # characters of answer per output token, 17 October 2026
@@ -239,6 +246,31 @@ def verdicts(args) -> int:
     for row in negated:
         print(f"  {row['claim_id']}  {row['type']}  referents {row['referents']}")
         _show(row, args.spans)
+    return 0
+
+
+def referents(args) -> int:
+    cfg = config.load(args.root / config.CONFIG_FILENAME)
+    commands = measure_route.recorded_commands(args.root)
+    routes = defaultdict(list)
+    for row in _claim_rows(args.root):
+        if row.get("row") == "claim" and row.get("type") in measure_route.CHECKABLE:
+            route = row.get("route") or {}
+            routes[(route.get("model", "?"), route.get("prompt_version", "?"))].append(row)
+    print(f"checkable claims whose referents the join could match, against "
+          f"{config.CONFIG_FILENAME} as it is now")
+    for (model, prompt), rows in sorted(routes.items()):
+        matches = [measure_route.usable(row["type"], row.get("referents") or [], cfg,
+                                        args.root, commands) for row in rows]
+        turns = {(row["session"], row["turn_number"]) for row in rows}
+        cells = [f"{kind} {sum(m for row, m in zip(rows, matches) if row['type'] == kind)} of "
+                 f"{sum(1 for row in rows if row['type'] == kind)}"
+                 for kind in measure_route.CHECKABLE]
+        unsupported = [m for row, m in zip(rows, matches) if row.get("verdict") == "UNSUPPORTED"]
+        print(f"  {model}, {prompt}, {len(turns)} turn{'s' if len(turns) != 1 else ''}: "
+              f"{sum(matches)} of {len(rows)} "
+              f"({sum(matches) / len(rows):.0%}); {', '.join(cells)}; of {len(unsupported)} "
+              f"UNSUPPORTED, {unsupported.count(False)} could match nothing")
     return 0
 
 
@@ -483,12 +515,13 @@ def main(argv: Sequence[str]) -> int:
            spans=True)
     common(commands.add_parser("defects", help="how dropped spans differ from the report"),
            spans=True)
+    common(commands.add_parser("referents", help="claims naming what the join can match"))
 
     args = parser.parse_args(list(argv[1:]))
     try:
         return {"recording": recording, "latency": latency, "verdicts": verdicts,
-                "defects": defects}[args.command](args)
-    except (OSError, evidence.EvidenceError, turn.TurnError) as e:
+                "defects": defects, "referents": referents}[args.command](args)
+    except (OSError, config.ConfigError, evidence.EvidenceError, turn.TurnError) as e:
         print(e, file=sys.stderr)
         return 2
 

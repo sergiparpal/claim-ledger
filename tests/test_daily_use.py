@@ -11,6 +11,7 @@ for spans. Every project and transcript here is built in a temporary folder.
 import contextlib
 import io
 import json
+import shutil
 import sys
 import tempfile
 import unittest
@@ -227,6 +228,44 @@ class VerdictsTest(DailyUseCase):
         _, shown = self.run_tool("verdicts", "--spans")
         self.assertIn(self.SPANS[0], shown)
         self.assertIn(self.SPANS[2], shown)
+
+
+class ReferentsTest(DailyUseCase):
+    OLD = {"model": "deepseek/deepseek-v4.1-flash", "prompt_version": "extract-1+74af1596"}
+    NEW = {"model": "mistralai/mistral-medium-3.1", "prompt_version": "extract-2+4e6f09ab"}
+    SPANS = ["Cambié docs/SPEC.md.", "Pasé zzz-tool sin errores.", "Llamé a set_context.",
+             "281 passed."]
+
+    def setUp(self):
+        super().setUp()
+        shutil.copy(REPO / "claim-ledger.toml", self.project / "claim-ledger.toml")
+        self.record(SESSION, "toolu_1", command="zzz-tool --all")
+        claim = {"row": "claim", "verdict": "UNSUPPORTED"}
+        self.claims(
+            {**claim, "turn_number": 1, "route": self.OLD, "type": "file_changed",
+             "referents": ["docs/SPEC.md"], "verdict": "VERIFIED", "span": self.SPANS[0]},
+            {**claim, "turn_number": 1, "route": self.OLD, "type": "judgment",
+             "referents": [], "verdict": "NOT_CHECKABLE", "span": "Va bien."},
+            {**claim, "turn_number": 2, "route": self.NEW, "type": "command_run",
+             "referents": ["zzz-tool"], "span": self.SPANS[1]},
+            {**claim, "turn_number": 2, "route": self.NEW, "type": "command_run",
+             "referents": ["set_context"], "span": self.SPANS[2]},
+            {**claim, "turn_number": 2, "route": self.NEW, "type": "suite_passed",
+             "referents": ["281 passed"], "span": self.SPANS[3]})
+
+    def test_each_route_gets_its_share_and_its_unsupported_that_match_nothing(self):
+        code, shown = self.run_tool("referents")
+        self.assertEqual(code, 0)
+        self.assertIn("deepseek/deepseek-v4.1-flash, extract-1+74af1596, 1 turn: 1 of 1 (100%)",
+                      shown)
+        self.assertIn("mistralai/mistral-medium-3.1, extract-2+4e6f09ab, 1 turn: 1 of 3 (33%); "
+                      "command_run 1 of 2, file_changed 0 of 0, suite_passed 0 of 1; "
+                      "of 3 UNSUPPORTED, 2 could match nothing", shown)
+
+    def test_no_span_and_no_referent_is_shown(self):
+        _, shown = self.run_tool("referents")
+        for text in [*self.SPANS, "set_context", "docs/SPEC.md"]:
+            self.assertNotIn(text, shown)
 
 
 class DefectsTest(DailyUseCase):

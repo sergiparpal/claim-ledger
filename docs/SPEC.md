@@ -24,7 +24,7 @@ This spec covers phases 0 and 1 of the requirements document: the evidence log, 
 - `HUMAN`-tier acknowledgement belongs to phase 3.
 - The recall threshold is declared before the first measurement, not before the code.
 
-**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 18 October 2026, when the corpus measurement came to run each candidate three times and judge it by its worst pass (§ Corpus capture), the day the extractor moved to the sentence contract, the report going out as numbered sentences and the answer naming them by number (§ Extractor contract): a copy of this document without this sentence is stale.
+**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 19 October 2026, when the corpus measurement came to report, beside recall, the share of checkable claims whose referents the join could match (§ Corpus capture); the day before, it came to run each candidate three times and judge it by its worst pass, and the extractor moved to the sentence contract, the report going out as numbered sentences and the answer naming them by number (§ Extractor contract): a copy of this document without this sentence is stale.
 
 **Revised 19 September 2026**, after the step-1 session verified the hook payloads and measured concurrent appends. What changed: the record dropped its counter and its exit code, gained an outcome and a turn id; freshness moved to join time; `[checks]` takes exact invocations instead of globs; config protection became detection rather than prevention.
 
@@ -421,7 +421,7 @@ Phase 0 collects the material phase 1 needs. The fifty annotated reports of A-12
 
 Recall is measured per claim, on checkable types only, and the misses are listed one by one. An average over fifty reports hides exactly the case worth seeing: the claim the extractor never noticed. Since the extractor answers by sentence, a claim is matched by its sentence and its type: an annotated claim is found when the extractor typed the sentence holding it the same way.
 
-A route whose answers vary from call to call has a different recall on every pass, so each candidate runs the corpus three times. Each pass's recall and spurious share are reported beside its share of `UNKNOWN` turns, and a candidate is judged by its worst pass: a miss that one pass makes is a miss, not a third of one.
+A route whose answers vary from call to call has a different recall on every pass, so each candidate runs the corpus three times. Each pass's recall and spurious share are reported beside its share of `UNKNOWN` turns, and a candidate is judged by its worst pass: a miss that one pass makes is a miss, not a third of one. Beside them goes the share of checkable claims whose referents the join could match at all, by type (`usable` in `tools/measure_route.py`): a path relative to the project, a command whose first word runs, a suite the configuration declares. Recall does not see referents, and a claim that names nothing a log could hold stays `UNSUPPORTED` whatever the log says.
 
 ## Test plan
 

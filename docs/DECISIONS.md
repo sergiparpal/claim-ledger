@@ -763,3 +763,45 @@ names DeepSeek, is brought up to date. Choosing a route whose answers vary
 departs from R-45's own reasoning in September, which refused a candidate whose
 answers varied run to run; no candidate measured since repeats without failing
 turns, DeepSeek included.
+
+### Half of what the provisional route leaves unsupported names nothing a log could hold — 19 October 2026
+
+In its first four turns in distiller, on 18 and 19 October, `mistral-medium-3.1`
+ran as measured: no turn `UNKNOWN`, the hook done in 3.0 to 7.6 seconds, no hole
+in the evidence log. But 42 of its 57 checkable claims came back `UNSUPPORTED`,
+10.5 a turn against DeepSeek's 2.6, and it types nine claims in ten as checkable
+where DeepSeek typed fewer than four in ten. Each of the 42 was set beside the
+join's own rule for its type, without being read:
+
+- 22 name nothing the join could match whatever the log held: 5 file claims
+  with no referent and 2 with nothing shaped like a path, 7 command claims
+  whose referents are identifiers or words rather than commands, and 8 suite
+  claims naming a test file, counts, exception names or words rather than a
+  suite.
+- 9 the configuration could reach: 5 named tools that `make verify` runs, in
+  the session where it had passed, with no alias to it; 4 named a `make`
+  target, in a session that ran `make` commands, and none is a declared check.
+- 3 are right as they stand: the commands they claim were blocked by
+  distiller's own hook and never ran.
+- 8 cannot be told apart without reading them: 4 name a file with the name of
+  one written but in another folder, 2 a file no log holds, 1 a file only read,
+  and 1 suite claim has no referent in a turn that ran no check.
+
+Phase 1 cannot see the first group. Recall matches a claim by its sentence and
+its type (SPEC § Corpus capture), so a route could clear the threshold with
+referents that never match anything, and its appendix would fill with
+`UNSUPPORTED` lines that say nothing about the work. So the corpus measurement
+now reports, beside recall, the share of checkable claims whose referents the
+join could match at all (`usable` in `tools/measure_route.py`), and
+`tools/daily_use.py referents` gives the same share for daily use. On
+distiller's claims so far, judged against its configuration with the aliases
+below, DeepSeek reaches 151 of 201 (75%, over 33 turns) and medium 30 of 57
+(53%, over 4). Files and suites make the difference, 84% against 62% and 55%
+against 37%; commands are alike. Four turns are few, and the reports differ.
+
+At the user's request, distiller's configuration gained aliases to its one
+check from the tools `make verify` runs, in the forms reports had used:
+`pyright`, `import-linter`, `gitleaks`, and `ruff` with `ruff check`, `ruff
+format` and `ruff format --check`. pytest, named once, was left out. A claim
+that one of them passed now reads the last run of `make verify`, which runs
+them all.

@@ -20,7 +20,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from ledger import extract, schema
+from ledger import config, extract, schema
 from tests import doubles
 from tests.test_extract import CAPTURED_REPORT, SETTINGS
 
@@ -30,7 +30,9 @@ sys.path.insert(0, str(REPO / "tools"))
 import measure_route  # noqa: E402
 
 PROMPT = extract.load_prompt()
-STAGES = {"dns": 0.01, "tcp": 0.01, "tls": 0.02, "first_byte": 0.5, "api": 1.0}
+# The committed sample: a python-suite check with its invocations and aliases.
+SAMPLE = config.load(REPO / config.CONFIG_FILENAME)
+STAGES ={"dns": 0.01, "tcp": 0.01, "tls": 0.02, "first_byte": 0.5, "api": 1.0}
 # A real envelope from before the sentence contract: its answer is refused now,
 # but how the reply was made is still read off it.
 RECORDED = doubles.recorded("openrouter-deepseek-v4.1-flash")
@@ -70,6 +72,19 @@ class RowTest(unittest.TestCase):
         for span in SPANS:
             self.assertNotIn(span, written)
         self.assertNotIn("unit test", written)
+
+    def test_a_row_counts_the_claims_the_join_could_match_and_names_none(self):
+        given = answer((1, "judgment", []), (2, "suite_passed", ["unit test"]),
+                       (3, "command_run", ["set_context"]),
+                       (4, "file_changed", ["docs/SPEC.md"]), provider="Morph")
+        made = measure_route.call(CAPTURED_REPORT, settings=SETTINGS, prompt=PROMPT,
+                                  deadline=10.0, post=post(given), cfg=SAMPLE)
+        self.assertEqual(made["usable"], {"suite_passed": [1, 1], "command_run": [1, 0],
+                                          "file_changed": [1, 1]})
+        written = json.dumps(made, ensure_ascii=False)
+        for referent in ("unit test", "set_context", "docs/SPEC.md"):
+            self.assertNotIn(referent, written)
+        self.assertNotIn("usable", row(ROUTE))       # no configuration, nothing counted
 
     def test_the_same_answer_has_one_digest_and_another_answer_another(self):
         first = row(ROUTE)["digest"]
@@ -128,6 +143,49 @@ class RowTest(unittest.TestCase):
             os.environ.pop(SETTINGS.key_env, None)
             with self.assertRaises(extract.ExtractError):
                 measure_route.staged_post(request, 1.0)
+
+
+class UsableTest(unittest.TestCase):
+    """What the join's own rules could ever match, read from the shape of a referent."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        (self.root / "Makefile").write_text("verify:\n", encoding="utf-8")
+        (self.root / ".venv" / "bin").mkdir(parents=True)
+        (self.root / ".venv" / "bin" / "lint-imports").write_text("", encoding="utf-8")
+
+    def usable(self, kind, *referents, commands=()):
+        return measure_route.usable(kind, list(referents), SAMPLE, self.root,
+                                    frozenset(commands))
+
+    def test_a_file_claim_needs_a_path_a_log_could_hold(self):
+        for name in ("docs/SPEC.md", "`./parser.py`", "Makefile"):
+            self.assertTrue(self.usable("file_changed", name), name)
+        for name in ("the parser", "SPEC", "/etc/hosts", " "):
+            self.assertFalse(self.usable("file_changed", name), name)
+        self.assertFalse(self.usable("file_changed"))
+        self.assertTrue(self.usable("file_changed", "the parser", "src/parser.py"))
+
+    def test_a_command_claim_needs_a_first_word_that_runs(self):
+        self.assertTrue(self.usable("command_run", "cd src && make"))           # a builtin
+        self.assertTrue(self.usable("command_run", "lint-imports"))             # the project's
+        self.assertTrue(self.usable("command_run", "PYTHONPATH=src lint-imports"))
+        self.assertTrue(self.usable("command_run", "zzz-tool --all", commands={"zzz-tool"}))
+        for name in ("set_context", "CoverageData", "análisis del informe", "281 passed"):
+            self.assertFalse(self.usable("command_run", name), name)
+
+    def test_a_suite_claim_needs_a_declared_check_or_no_referent(self):
+        for name in ("python-suite", "uv run pytest", "The tests"):
+            self.assertTrue(self.usable("suite_passed", name), name)
+        self.assertTrue(self.usable("suite_passed"))      # the one check a session ran
+        for name in ("281 passed", "pyright", "NotImplementedError"):
+            self.assertFalse(self.usable("suite_passed", name), name)
+
+    def test_only_checkable_claims_are_judged(self):
+        self.assertFalse(self.usable("judgment", "docs/SPEC.md"))
+        self.assertFalse(self.usable("intent", "make"))
 
 
 class PlanTest(unittest.TestCase):
@@ -213,6 +271,21 @@ class SummaryTest(unittest.TestCase):
         self.assertIn("the claim count differed in 2, by two times or more in 2", text)
         self.assertIn("1 of 6 answers were empty", text)
         self.assertIn("inside 12s 5,", text)
+        self.assertNotIn("referents the join could match", text)   # no row counted them
+
+    def test_a_run_reports_the_referents_the_join_could_match(self):
+        rows = [{"pass": number, "report": "a-1", "chars": 1000, "wall": 1.0,
+                 "started": f"2026-10-19T10:0{number}:00.000+00:00", "outcome": "usable",
+                 "usage": {"output_tokens": 100, "cost": 0.001}, "provider": "Mistral",
+                 "claims": 3, "defects": 0, "digest": "aaa", "usable": counted}
+                for number, counted in ((1, {"file_changed": [2, 1], "suite_passed": [1, 1]}),
+                                        (2, {"command_run": [1, 0]}))]
+        shown = io.StringIO()
+        with contextlib.redirect_stdout(shown):
+            measure_route._summarise(rows)
+        self.assertIn("referents the join could match: 2 of 4 checkable claims (50%); "
+                      "command_run 0 of 1, file_changed 1 of 2, suite_passed 1 of 1",
+                      shown.getvalue())
 
 
 if __name__ == "__main__":
