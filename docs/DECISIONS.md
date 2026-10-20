@@ -526,6 +526,28 @@ At the user's request the check was declared the same day:
 every file git does not ignore and gitleaks reads the history, and with no
 aliases yet. The bare run, and the aliases, are still open.
 
+Both were acted on at the user's request, and on 20 October the first turns
+showed it. On 19 October distiller's configuration gained aliases from the
+tools `make verify` runs to the check, and its CLAUDE.md a rule to run `make
+verify` alone, which gives the exit status as its reason and does not name the
+ledger; on 20 October the targets `make verify` is made of became checks of
+their own ("The freshness test reads the working tree once a join"). In
+session `66c9649b`, opened that evening, the agent ran `make verify` bare three
+times, each recorded as a run of the check, and 4 of the 8 suite claims of its
+first two turns came back `VERIFIED`: one naming the invocation, one naming it
+and three tools through their aliases, one naming only tools through their
+aliases, and one with no referent, read as the one check the session had run.
+The other 4 named no check.
+
+The rule touches what this entry warned against. The bare run was the agent's
+habit, and changing it for the ledger's sake stops the corpus representing
+real use (ANNOTATING § While using the plugin). Its stated reason holds without
+the ledger, since a piped line exits with the status of whatever ran last, but
+it was the ledger's figures that called for it, and it was proposed without
+this entry being pointed out. Of the 70 reports captured by 20 October, 5 come
+from sessions opened after it. Whether they may stand in the corpus beside the
+others, and whether the rule stays, are the user's to decide.
+
 ### Daily use left no hole in the evidence log — 18 October 2026
 
 The phase-0 check of SPEC § Build order compared one hand-written session, 16
@@ -836,3 +858,9 @@ any verdict: the same turn replayed with and without the cache gave the same
 verdicts and the same scopes, and its join took 0.76 to 0.94 seconds. The one
 walk still lists the virtual environment before git's filter drops it;
 listing only what git keeps would cut it further, and is not done.
+
+That evening, once the session then open had closed, the checks were applied,
+at 19:23 UTC, and the next session started with them; its first turns are
+recorded under "No suite claim can be verified in distiller". It ran `make
+verify` whole and none of the targets on its own, so the new checks have not
+been exercised yet.
