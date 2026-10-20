@@ -546,7 +546,9 @@ the ledger, since a piped line exits with the status of whatever ran last, but
 it was the ledger's figures that called for it, and it was proposed without
 this entry being pointed out. Of the 70 reports captured by 20 October, 5 come
 from sessions opened after it. Whether they may stand in the corpus beside the
-others, and whether the rule stays, are the user's to decide.
+others, and whether the rule stays, were the user's to decide, and the user
+decided the same day: the rule stays, and those reports may stand in the
+corpus with the rest.
 
 ### Daily use left no hole in the evidence log — 18 October 2026
 
