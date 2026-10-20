@@ -805,3 +805,34 @@ check from the tools `make verify` runs, in the forms reports had used:
 format` and `ruff format --check`. pytest, named once, was left out. A claim
 that one of them passed now reads the last run of `make verify`, which runs
 them all.
+
+### The freshness test reads the working tree once a join — 20 October 2026
+
+Distiller entered its `tests` phase on 20 October, where the tests are red on
+purpose and `make verify` cannot pass, and the agent ran `make format`, `make
+lint` and `make types` on their own instead, bare and passing. Six referents
+of turn 2 of session `699b8797` named them, and their claims came back
+`UNSUPPORTED`, since `verify` was the only declared check. At the user's
+request distiller's configuration gains the targets `make verify` is made of
+as checks of their own, `format`, `lint`, `imports`, `types`, `test` and
+`secrets`, each with its exact invocation and a scope taken from
+`pyproject.toml` and the Makefile, to be applied between sessions. `make
+test-red` is left out: it fails on purpose, and a claim that it failed as
+expected, typed as a suite that passed, would come back `CONTRADICTED`.
+
+Replayed with those checks, that turn reached passing checks for 4 suite
+claims, and its join went from no time at all to 3.05 seconds. The freshness
+test of R-18 walked the whole working tree for every claim that reached a
+passing check: 9,627 files in distiller, nearly all in the virtual environment
+and the caches git ignores, from 0.75 to 1.5 seconds a walk, all of it inside
+the 15-second turn budget, where an overrun makes the turn `UNKNOWN`.
+
+With the user's leave, since `join.py` is frozen with the verdict table, one
+join now walks the tree once, the first time a claim needs it, and works out
+each scope's newest file once, so that every claim of the turn is judged
+against one listing. A join that needs no freshness test walks nothing, and
+the next join walks again. The verdict table did not change, and neither did
+any verdict: the same turn replayed with and without the cache gave the same
+verdicts and the same scopes, and its join took 0.76 to 0.94 seconds. The one
+walk still lists the virtual environment before git's filter drops it;
+listing only what git keeps would cut it further, and is not done.

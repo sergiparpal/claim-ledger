@@ -20,7 +20,10 @@ Two rules keep the join from manufacturing a verification:
 The second test reads the working tree, so it reads what a person would call
 the project: not .git, not the ledger's own writing, and nothing git ignores.
 A scope of `**/*` would otherwise be staled by a `git add`, or by a build
-directory, neither of which is a change to a file the check covers.
+directory, neither of which is a change to a file the check covers. One join
+walks the tree once, the first time a claim needs it, and judges every claim
+against that one listing: the walk is the slow part, a second or more where a
+virtual environment sits in the project, and it runs inside the turn budget.
 """
 
 from __future__ import annotations
@@ -76,15 +79,48 @@ class Judged:
 def judge(claims: Iterable[schema.Claim], entries: Sequence[evidence.Entry], *,
           cfg: config.Config, root: Path) -> tuple[Judged, ...]:
     """A verdict for every claim, in the order they were made."""
-    return tuple(_judge(claim, entries, cfg, root) for claim in claims)
+    tree = _Tree(root)
+    return tuple(_judge(claim, entries, cfg, tree) for claim in claims)
+
+
+class _Tree:
+    """The working tree as one join reads it.
+
+    Walked once, the first time a freshness test needs it, and each scope's
+    newest file worked out once, so that a turn with many claims on its checks
+    pays for one walk rather than one per claim, and every claim is judged
+    against the same view of the tree. The next join walks it again.
+    """
+
+    def __init__(self, root: Path):
+        self.root = root
+        self._files: list[str] | None = None
+        self._newest: dict[tuple[config.Glob, ...], tuple[str, str] | None] = {}
+
+    def files(self) -> list[str]:
+        if self._files is None:
+            self._files = []
+            for folder, folders, files in os.walk(self.root):
+                here = Path(folder)
+                folders[:] = [f for f in folders if f != ".git"     # git's own bookkeeping
+                              and here / f != self.root / evidence.STATE_DIR]  # our writing
+                self._files += [(here / name).relative_to(self.root).as_posix()
+                                for name in files]
+        return self._files
+
+    def newest(self, globs: Sequence[config.Glob]) -> tuple[str, str] | None:
+        key = tuple(globs)
+        if key not in self._newest:
+            self._newest[key] = _newest(self, globs)
+        return self._newest[key]
 
 
 def _judge(claim: schema.Claim, entries: Sequence[evidence.Entry],
-           cfg: config.Config, root: Path) -> Judged:
+           cfg: config.Config, tree: _Tree) -> Judged:
     if claim.type in ("judgment", "intent"):
         return Judged(claim, VERDICT_TABLE[(claim.type, NONE)], None, None)
     if claim.type == "suite_passed":
-        entry, state, note = _suite(claim, entries, cfg, root)
+        entry, state, note = _suite(claim, entries, cfg, tree)
     elif claim.type == "command_run":
         entry, state, note = _command(claim, entries)
     else:
@@ -107,7 +143,7 @@ def check_ids_for(referents: Sequence[str], cfg: config.Config) -> tuple[set[str
     return resolved, bool(referents)
 
 
-def _suite(claim, entries, cfg, root):
+def _suite(claim, entries, cfg, tree):
     wanted, named = check_ids_for(claim.referents, cfg)
     if named and not wanted:
         return None, NONE, None          # it named a suite we do not know: never a fallback
@@ -125,7 +161,7 @@ def _suite(claim, entries, cfg, root):
     outcome = entry.record.get("outcome")
     if outcome != "ok":
         return entry, FAILED if outcome == "failed" else UNCLEAR, None
-    stale_because = _stale_because(entry, entries, cfg, root)
+    stale_because = _stale_because(entry, entries, cfg, tree)
     return entry, (OUTDATED if stale_because else OK), stale_because
 
 
@@ -168,7 +204,7 @@ def names_path(referents: Sequence[str], written: Mapping) -> bool:
 
 
 def _stale_because(check: evidence.Entry, entries: Sequence[evidence.Entry],
-                   cfg: config.Config, root: Path) -> str | None:
+                   cfg: config.Config, tree: _Tree) -> str | None:
     """Why the check is out of date, by either test of R-18, or None."""
     globs = cfg.scopes.get(check.record.get("check_id"), ())
     for entry in entries:
@@ -178,7 +214,7 @@ def _stale_because(check: evidence.Entry, entries: Sequence[evidence.Entry],
             path = written.get("path")
             if isinstance(path, str) and _covered(path, globs):
                 return f"{path} was written after it, at log position {entry.position}"
-    newest = _newest(root, globs)
+    newest = tree.newest(globs)
     ran_at = check.record.get("ts_end") or ""
     if newest and newest[1] > ran_at:
         return f"{newest[0]} was modified at {newest[1]}, after it ran at {ran_at}"
@@ -189,19 +225,13 @@ def _covered(path: str, globs: Sequence[config.Glob]) -> bool:
     return any(glob.matches(path) for glob in globs)
 
 
-def _newest(root: Path, globs: Sequence[config.Glob]) -> tuple[str, str] | None:
+def _newest(tree: _Tree, globs: Sequence[config.Glob]) -> tuple[str, str] | None:
     """The most recently modified file a check covers, and when, read from disk."""
-    covered = []
-    for folder, folders, files in os.walk(root):
-        here = Path(folder)
-        folders[:] = [f for f in folders if f != ".git"           # git's own bookkeeping
-                      and here / f != root / evidence.STATE_DIR]  # and our own writing
-        covered += [path for path in ((here / name).relative_to(root).as_posix()
-                                      for name in files) if _covered(path, globs)]
+    covered = [path for path in tree.files() if _covered(path, globs)]
     newest = None
-    for relative in _not_ignored(root, covered):
+    for relative in _not_ignored(tree.root, covered):
         try:
-            stamped = record.mtime_of(root / relative)
+            stamped = record.mtime_of(tree.root / relative)
         except OSError:
             continue              # it went away while we looked; the log still holds its record
         if newest is None or stamped > newest[1]:

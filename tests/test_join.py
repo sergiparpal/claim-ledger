@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 from ledger import config, evidence, join, record, schema
@@ -235,6 +236,60 @@ class FreshnessTest(JoinTest):
         self.assertEqual(self.verdicts(self.claim("lint is clean", "suite_passed", "lint")),
                          [join.VERIFIED])
         self.assertTrue(self.log.exists())  # written now, and inside the scope glob
+
+
+class CountingOs:
+    """The os module as join sees it, counting the walks it starts."""
+
+    def __init__(self):
+        self.walks = 0
+
+    def walk(self, top, *args, **kwargs):
+        self.walks += 1
+        return os.walk(top, *args, **kwargs)
+
+    def __getattr__(self, name):
+        return getattr(os, name)
+
+
+class OneWalkTest(JoinTest):
+    """The walk is the slow part, and it runs inside the turn budget: once a join."""
+
+    write = FreshnessTest.write                 # its helpers, not its tests again
+    age = staticmethod(FreshnessTest.age)
+
+    def walks(self, *claims):
+        counting = CountingOs()
+        with unittest.mock.patch.object(join, "os", counting):
+            verdicts = self.verdicts(*claims)
+        return verdicts, counting.walks
+
+    def test_one_join_walks_the_tree_once_for_all_its_claims(self):
+        self.write("src/engine.py", mtime="old")
+        self.age(self.root / config.CONFIG_FILENAME)   # the other file lint covers
+        self.check(ts_end=LATER)
+        self.check(check_id="lint", command="ruff check .", ts_end=LATER)
+        verdicts, walks = self.walks(self.claim("the tests pass", "suite_passed", "pytest"),
+                                     self.claim("all green", "suite_passed", "the tests"),
+                                     self.claim("lint is clean", "suite_passed", "lint"))
+        self.assertEqual(verdicts, [join.VERIFIED] * 3)
+        self.assertEqual(walks, 1)
+
+    def test_the_next_join_walks_it_again(self):
+        self.write("src/engine.py", mtime="old")
+        self.check(ts_end=LATER)
+        claim = self.claim("the tests pass", "suite_passed", "pytest")
+        self.assertEqual(self.verdicts(claim), [join.VERIFIED])
+        self.write("src/engine.py")                    # written now, after the check ran
+        self.assertEqual(self.verdicts(claim), [join.STALE])
+
+    def test_a_join_no_freshness_test_needs_walks_nothing(self):
+        self.mutation("src/engine.py")
+        verdicts, walks = self.walks(
+            self.claim("I changed the engine", "file_changed", "src/engine.py"),
+            self.claim("the tests pass", "suite_passed", "pytest"))   # no check ran
+        self.assertEqual(verdicts, [join.VERIFIED, join.UNSUPPORTED])
+        self.assertEqual(walks, 0)
 
 
 class WorkingTreeTest(JoinTest):

@@ -1,6 +1,6 @@
 {
   "name": "claim-ledger",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Gives every factual claim in an agent's end-of-turn report a verdict taken from the harness's own execution record.",
   "author": {
     "name": "sergiparpal"
