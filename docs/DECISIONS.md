@@ -897,3 +897,13 @@ needs rules of its own: the containment declared in the configuration, since
 the ledger may not read it off the Makefile; a failing `verify`, which does not
 say which target failed, never contradicting a claim about one of them; and
 freshness judged by the target's scope, not by `verify`'s.
+
+Later that day the other phase came round. In the first turn of session
+`794b9f80` the agent ran `make verify` bare once, and 5 of the turn's 6 suite
+claims came back `VERIFIED` against that run: one naming the invocation, three
+with no referent, read as the one check the session ran, and one naming a tool
+through its alias and `format` and `lint` by their ids, read against the last
+run among the checks it named, which was `verify`'s, and rightly here, since
+`make verify` runs both. Of the turn's 13 checkable claims, 11 came back
+`VERIFIED` and 11 named something the join could match; the hook took 5.2
+seconds.
