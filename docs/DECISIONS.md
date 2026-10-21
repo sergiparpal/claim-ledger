@@ -907,3 +907,14 @@ run among the checks it named, which was `verify`'s, and rightly here, since
 `make verify` runs both. Of the turn's 13 checkable claims, 11 came back
 `VERIFIED` and 11 named something the join could match; the hook took 5.2
 seconds.
+
+That evening, back in the `tests` phase, turn 2 of session `6ea8d45c` ran
+`make format`, `make lint` and `make types` bare and passing, each recorded as
+its own check, and none of the turn's 8 suite claims came back `VERIFIED`:
+none had a referent, and with three checks run the join gives such a claim to
+none of them, as I-2 asks. Over the two `tests`-phase turns that ran checks,
+18 of 26 suite claims had no referent, 10 of 18 and then 8 of 8. No
+configuration can reach them, nor should: if they speak of `make test-red`,
+which is no check, `UNSUPPORTED` is right; if they say the targets passed
+without naming them, the referent is the extractor's to give, and the share
+of usable referents is what measures that.
