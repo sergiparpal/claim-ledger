@@ -866,3 +866,34 @@ at 19:23 UTC, and the next session started with them; its first turns are
 recorded under "No suite claim can be verified in distiller". It ran `make
 verify` whole and none of the targets on its own, so the new checks have not
 been exercised yet.
+
+On 21 October they were. In turn 2 of session `c9387804` the agent ran `make
+format`, `make lint` and `make types` bare, seven runs recorded as runs of
+their own checks, `types` failing once before it passed twice; `make
+test-red`, run eleven times, stayed a command. The hook took 9.7 seconds with
+the seven in its log. Of 18 suite claims, 1 came back `VERIFIED`, naming the
+three invocations and read against the last run of any of them, as the join
+reads every claim with several referents ("A claim is verified when any one of
+its referents is"). Ten had no referent and came back `UNSUPPORTED`, since the
+join gives a claim with no referent to the session's check only when one
+check ran, and three had: the downgrade I-2 asks for, and the right one if
+they speak of `make test-red`, which a single check would have verified
+against something else. Six named no check, and one named a tool whose alias
+points to `verify`, which this session never ran.
+
+That put the aliases' direction to the user, and the same day the user kept
+them pointing to `verify`. Of the 7 suite claims that had named a tool through
+an alias since 19 October, 2 reached a run the way they point, both in a
+session that ran `make verify`; 2 would have reached one had each tool pointed
+to its own target, both in the `tests` phase; and 3 reached none either way.
+Moving them would trade two claims for two. The claims that say a piece of
+work is done come where the agent runs `make verify`, and a miss either way
+lands `UNSUPPORTED`, the safe direction.
+
+Letting a passing `verify` count as a run of each target it runs would have
+reached 4 of the 7, and is left until misses like these matter more. It is a
+change to the frozen join and to SPEC rather than to a configuration, and it
+needs rules of its own: the containment declared in the configuration, since
+the ledger may not read it off the Makefile; a failing `verify`, which does not
+say which target failed, never contradicting a claim about one of them; and
+freshness judged by the target's scope, not by `verify`'s.
