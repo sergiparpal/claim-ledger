@@ -918,3 +918,10 @@ configuration can reach them, nor should: if they speak of `make test-red`,
 which is no check, `UNSUPPORTED` is right; if they say the targets passed
 without naming them, the referent is the extractor's to give, and the share
 of usable referents is what measures that.
+
+Later that evening, in the first turn of session `45e7ba3f`, the agent ran
+`make verify` bare once, and 7 of the turn's 10 suite claims came back
+`VERIFIED` against that run: one naming the invocation, and six naming tools
+through their aliases alone, more than in all the turns before it together.
+The other 3 named no check. The hook took 4.9 seconds, and the appendix listed
+one action the report left unmentioned.
