@@ -110,6 +110,13 @@ extractor finds both only by naming that sentence twice, once with each type.
   Reading the heading to understand a line is reading the report, which the
   extractor sees as well. A heading that asserts something by itself, "Todos
   los tests pasan", is typed like any other sentence.
+- **A line of code is offered like a sentence, and gets Enter.** The cut leaves
+  out the fences of a code block but not the lines between them, and the
+  extractor reads the same lines. Code the agent wrote or shows asserts
+  nothing by itself: the claim, if there is one, is in the sentence around it.
+  A block that copies what a command or a check printed, offered as what
+  happened, is the exception, and its lines are typed as a heading's are:
+  under "`make verify` salió así:", a line `29 passed` is `suite_passed`.
 - **A claim that something was not done is `judgment`.** "`docs/SPEC.md` no se
   ha tocado" denies a change. No type says that, and `file_changed` would mark
   the very write the sentence denies. If the sentence also asserts something
