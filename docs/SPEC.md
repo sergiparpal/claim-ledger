@@ -24,7 +24,7 @@ This spec covers phases 0 and 1 of the requirements document: the evidence log, 
 - `HUMAN`-tier acknowledgement belongs to phase 3.
 - The recall threshold is declared before the first measurement, not before the code.
 
-**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 19 October 2026, when the corpus measurement came to report, beside recall, the share of checkable claims whose referents the join could match (§ Corpus capture); the day before, it came to run each candidate three times and judge it by its worst pass, and the extractor moved to the sentence contract, the report going out as numbered sentences and the answer naming them by number (§ Extractor contract): a copy of this document without this sentence is stale.
+**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 23 October 2026, when the corpus came to be annotated by a model and anchored by a few reports annotated by hand (§ Corpus capture, REQUIREMENTS A-12); on 19 October the measurement came to report the share of usable referents beside recall, and on the 18th to run each candidate three times, judged by its worst pass, the day the extractor moved to the sentence contract (§ Extractor contract): a copy of this document without this sentence is stale.
 
 **Revised 19 September 2026**, after the step-1 session verified the hook payloads and measured concurrent appends. What changed: the record dropped its counter and its exit code, gained an outcome and a turn id; freshness moved to join time; `[checks]` takes exact invocations instead of globs; config protection became detection rather than prevention.
 
@@ -409,7 +409,7 @@ Phase 0 collects the material phase 1 needs. The fifty annotated reports of A-12
 
 - From phase 0 onwards, every turn writes `reports/<session>-<n>.md`: the report text, the session id, the turn id, a per-session sequence number under the name turn\_number, and the slice of the evidence log for that turn.
 - Capture is on by default and switched off by one config key, since a report may carry material the user does not want on disk.
-- Annotation is by hand into `corpus/annotations.jsonl`, one object per report: the spans, their types, and the annotator's initials and date.
+- Annotation is by a reference annotator into `corpus/annotations.jsonl` (REQUIREMENTS A-12), one object per report: the spans, their types, who annotated it, a model with its version or a person's initials, and the date. A few reports annotated by hand are the anchor the model's annotations are checked against.
 - The corpus is frozen before the first measurement, and any change to it is dated in place rather than applied silently.
 
 ```json

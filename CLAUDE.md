@@ -64,4 +64,4 @@ it holds the invariants.
 | Claim-type vocabulary | `src/ledger/schema.py` | frozen (written at build step 6) |
 | Verdict table | `src/ledger/join.py` | frozen (written at build step 7) |
 | Extractor route and prompt | `claim-ledger.toml` § `[extractor]`, `src/ledger/prompts/extract.md` | prompt `extract-2`, the sentence contract, since 18 October 2026, the day the route pinned on 23 September went down; the next route is to be chosen by recall on the annotated corpus: the corpus is measured against both |
-| Phase-1 recall threshold | `docs/REQUIREMENTS.md` § Rollout phases | frozen: declared before the extractor existed, and does not move |
+| Phase-1 recall threshold | `docs/REQUIREMENTS.md` § Rollout phases | frozen: declared before the extractor existed, and does not move; since 23 October 2026 it is measured against a model's annotations, anchored by a few reports annotated by hand (A-12) |

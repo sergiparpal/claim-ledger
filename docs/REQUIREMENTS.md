@@ -10,7 +10,7 @@ Today the same model produces the work, the report and the confidence. A sentenc
 
 This is a requirements document. It states what the system must do and what it must never do. The technical design follows separately.
 
-**Name.** `claim-ledger` is provisional. Last edited 23 September 2026, when the phase-1 recall threshold was marked settled in § Open questions, the extractor corpus was renumbered A-12, freeing A-11 for the acceptance row that already had it, and I-5 was reworded to bind aggregation rather than sentences, which the system does not have: a copy of this document without this sentence is stale.
+**Name.** `claim-ledger` is provisional. Last edited 23 October 2026, when the extractor corpus came to be annotated by a model of another family than the routes it measures, anchored by a few reports annotated by hand (A-12), and § Rollout phases said what the phase-1 numbers measure against it: a copy of this document without this sentence is stale.
 
 **Validity.** The approach covers claims about what the agent did inside a recorded environment. It does not cover claims about the world or about the quality of a design, and no amount of engineering here will make it.
 
@@ -201,7 +201,7 @@ Each row is a scenario the implementation must reproduce, as an automated test w
 | A-10 | Report claims a command was run that appears nowhere in the log | `UNSUPPORTED` | appendix, blocks only at `HUMAN` tier |
 | A-11 | Every claim verified and nothing unreported | — | appendix collapses to one line |
 
-**A-12 Extractor corpus.** A fixed set of at least 50 real reports with their claims annotated by hand. Recall on checkable claims is the headline number, and misses are listed individually rather than averaged away. The corpus is frozen before the first measurement, and any change to it is dated.
+**A-12 Extractor corpus.** A fixed set of at least 50 real reports with their claims annotated by a reference annotator: a model of another family than any route measured against it, given each report as the extractor gets it and the rules of `docs/ANNOTATING.md`, and nothing else. A few reports the user annotates by hand are its anchor, and the annotator's agreement with them is reported beside every recall figure. Who annotated each report, a model with its version or a person's initials, and when, travels with its annotation. Against this reference, recall is agreement with the annotator: a claim the annotator and the extractor both miss goes unseen. Recall on checkable claims is the headline number, and misses are listed individually rather than averaged away. The corpus is frozen before the first measurement, and any change to it is dated.
 
 ## Measurement and anti-metrics
 
@@ -234,6 +234,8 @@ Each phase declares, before it runs, what result would stop it. Nothing blocks a
 | 4 | calibration figures per claim type | the calibration log reaches the sample size declared in phase 1 |
 
 **Declared 20 September 2026, before the extractor existed.** Phase 1 clears when recall on checkable claims reaches 0.90 or better over a frozen corpus of at least 50 reports, spurious extractions stay at or below 0.10 of everything extracted, and no non-verbatim span is tolerated. A shortfall sends us to the misses, never to the number.
+
+**Changed 23 October 2026, at the user's request.** The corpus is annotated by a model rather than by hand (A-12). The numbers do not move; against that reference they measure agreement with the annotator, reported beside the annotator's agreement with the reports annotated by hand.
 
 Phase 0 is the equivalent of loading the correct answer into the engine before measuring anything else. If the log misses calls, every verdict above it is uninterpretable, and no amount of work on the extractor will show it.
 

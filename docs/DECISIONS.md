@@ -925,3 +925,36 @@ Later that evening, in the first turn of session `45e7ba3f`, the agent ran
 through their aliases alone, more than in all the turns before it together.
 The other 3 named no check. The hook took 4.9 seconds, and the appendix listed
 one action the report left unmentioned.
+
+### The corpus is annotated by a model, anchored by a few reports by hand — 23 October 2026
+
+The user tried `tools/annotate.py` on 23 October. A median report has 41
+sentences and the longest 381, so fifty reports come to some 2,000 sentences,
+two to five hours of keys; the first report it showed had 130, and its hard
+cases called for three new rules in ANNOTATING that afternoon, on headings,
+on what the agent may or can do, and on lines of code. The user chose a model
+as the reference instead, and A-12 and § Rollout phases now say so, with the
+user's leave for the frozen row in CLAUDE.md.
+
+The annotator chosen is `claude-fable-5-1`, to run through the Claude Code CLI
+on the user's subscription, since Claude through the API costs too much. It is
+of another family than the three routes it will measure, Mistral's two and
+Meta's Llama, so it does not share their blind spots by construction, and the
+reports were written by Claude in distiller, so sending them to Anthropic
+reaches no one who did not have them. It gets each report as the extractor
+does, as numbered sentences cut by `ledger.sentences`, with ANNOTATING's rules,
+and nothing else: not the extractor's answers, not the evidence. It runs
+outside distiller, whose installed plugin would otherwise capture its answers
+as reports. The CLI was rejected as the extractor's transport on 20 September
+because it cannot prefill an answer; an annotator needs no prefill. A first
+report is to show that the CLI reaches the model and answers in shape before
+the rest are sent.
+
+What the choice gives up is in ANNOTATING § Why a person, and not a model:
+against this reference, recall is agreement with the annotator, and a claim
+both miss goes unseen. The anchor measures how much: five short reports the
+user annotates by hand, with the annotator's agreement on them reported beside
+every recall figure. Short ones were chosen for the user's time, so the
+agreement may flatter the annotator on long reports. The phase-1 numbers do
+not move. README and OPERATING are to say how to run the annotator once the
+tool exists.

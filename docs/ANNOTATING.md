@@ -179,10 +179,11 @@ student's answers.
   which is where this started.
 - **It is what the design avoids.** Everything here separates what does the
   work from what judges it, and a model as the measure of a model brings that
-  back at the one point where the system is calibrated. A-12 asks for
-  annotation by hand, and the 0.90 threshold is declared over a corpus
-  annotated that way; against a model's annotations the same number would mean
-  something else. Changing it is a change to the requirements.
+  back at the one point where the system is calibrated. A-12 asked for
+  annotation by hand until 23 October 2026, and the 0.90 threshold was
+  declared over a corpus annotated that way; against a model's annotations the
+  same number means something else. Changing it was a change to the
+  requirements, and it was made (below).
 
 Where a model can help without becoming the reference:
 
@@ -194,6 +195,14 @@ Where a model can help without becoming the reference:
   It has a cost: the claims it recovers are ones a model can see, so the
   reference tilts slightly toward the extractor, and the ones you both miss
   stay missing.
+
+On 23 October 2026 the user chose a model as the reference instead, since
+annotating fifty reports by hand would take too long. A-12 now asks for a
+model of another family than the routes it measures, given each report as the
+extractor gets it and the rules of this page, and nothing else, with a few
+reports annotated by hand as its anchor. Everything above is what that choice
+gives up, and the anchor measures how much of it. The rules of this page are
+the model's instructions, and the user's for the anchor.
 
 ## Method
 
