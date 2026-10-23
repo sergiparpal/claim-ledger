@@ -43,15 +43,23 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   is appended to `.claude/claim-ledger/claims.jsonl`. Nothing computes a rate
   from it until the sample size declared in the requirements is reached.
 - `python3 tools/dump_session.py [SESSION_ID]` prints a session log as a table.
-- `python3 tools/annotate.py --by <initials> [--older-than 1d] <project>...`
-  annotates the corpus by hand. It walks the captured reports of those
-  projects that `corpus/annotations.jsonl` does not hold yet and asks about
-  each one a sentence at a time: a key per claim type, Enter for none, spans
-  typed by hand where one sentence holds two claims. It shows the report and
-  nothing else, neither the evidence nor the extractor's claims, and appends
-  one line per finished report. `--older-than` keeps back the reports captured
-  too recently, while the line that ended each turn is still in mind. What to
-  mark is in [docs/ANNOTATING.md](docs/ANNOTATING.md).
+- `python3 tools/annotate_model.py [--only <report>]... [--limit N] [--dry-run] <project>...`
+  annotates the corpus with a model, the reference REQUIREMENTS A-12 allows
+  since 23 October 2026: `claude-fable-5-1` through the Claude Code CLI, on the
+  account the CLI is logged into. Each report the corpus does not hold yet goes
+  to it as the extractor gets it, numbered sentences, after the rules of
+  [docs/ANNOTATING.md](docs/ANNOTATING.md), and nothing else; the answer is
+  checked as a person's would be and appended to `corpus/annotations.jsonl`,
+  signed with the model that gave it. `--dry-run` prints what would be sent.
+- `python3 tools/annotate.py --by <initials> [--only <report>]... [--older-than 1d] [--corpus <file>] <project>...`
+  annotates by hand, which since 23 October serves for the anchor: a few
+  reports annotated by a person into `corpus/anchor.jsonl`, which the model's
+  annotations are checked against. It asks about each report a sentence at a
+  time: a key per claim type, Enter for none, spans typed by hand where one
+  sentence holds two claims. It shows the report and nothing else, neither the
+  evidence nor the extractor's claims, and appends one line per finished
+  report. `--older-than` keeps back the reports captured too recently, while
+  the line that ended each turn is still in mind.
 - `python3 tools/extract_report.py <report.md>` runs the extractor over one
   captured report and prints the claims it finds, to compare against the
   report's annotation once that is written. It needs whichever variable

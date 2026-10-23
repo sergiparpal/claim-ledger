@@ -411,6 +411,27 @@ class SessionTest(AnnotateTestCase):
         self.assertFalse(self.corpus.exists())
 
 
+class OnlyTest(AnnotateTestCase):
+    """--only: the anchor of a model-annotated corpus is a few reports chosen by
+    id, and no others are asked about."""
+
+    def test_only_the_named_reports_are_asked(self):
+        first, second, third = (capture(self.project, n, f"Ran it {n} times.") for n in (1, 2, 3))
+        code, out, _, script = self.run_tool("1", "", "2", "",
+                                             options=("--only", third, "--only", first))
+        self.assertEqual((code, script.answers), (0, []))
+        self.assertEqual([line["report"] for line in self.lines()], [first, third])
+        self.assertNotIn(second, out)
+
+    def test_a_named_report_that_is_not_to_do_is_named(self):
+        done = capture(self.project, 1, "Ran it.")
+        self.run_tool("1", "")
+        code, _, err, script = self.run_tool(options=("--only", done, "--only", "nope-1"))
+        self.assertEqual((code, script.prompts), (0, []))
+        self.assertIn(f"{done} is not a report still to do", err)
+        self.assertIn("nope-1 is not a report still to do", err)
+
+
 class AgeTest(AnnotateTestCase):
     """--older-than: a report annotated with its turn fresh in mind is annotated
     against the line that ended the turn, which lists some of the extractor's

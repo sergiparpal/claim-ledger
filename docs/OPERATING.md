@@ -125,19 +125,33 @@ find ~ -path '*/.claude/claim-ledger/reports/*.md' 2>/dev/null | wc -l
 
 The target is **50 annotated reports**, clearing recall 0.90 on checkable claims,
 spurious extractions at or below 0.10, and no non-verbatim span. Declared before
-the extractor existed; it does not move. Annotate by hand with:
+the extractor existed; it does not move, and since 23 October 2026 it is
+measured against a model's annotations (REQUIREMENTS A-12). The model annotates
+with:
 
 ```bash
-python3 ~/code/claim-ledger/tools/annotate.py --by <initials> --older-than 1d <project> [<project>...]
+python3 ~/code/claim-ledger/tools/annotate_model.py <project> [<project>...]
 ```
 
-It takes up where `corpus/annotations.jsonl` left off and asks a sentence at a
-time: `1`–`5` for the type, Enter for no claim, `s` to type the spans when one
-sentence holds two claims, `n` to leave a report for another run, `q` to stop.
-A report is written only once it is finished. It shows the report and nothing
-else, and `--older-than 1d` keeps back the last day's reports, while the line
-that ended each turn is still in mind. What to mark, and the rules for the hard
-cases, are in [ANNOTATING](ANNOTATING.md). Run
+It sends each report the corpus does not hold yet to `claude-fable-5-1` through
+the Claude Code CLI, on the account the CLI is logged into, and appends the
+checked answer to `corpus/annotations.jsonl`. A report it cannot trust the
+answer for is named and left for the next run; `--dry-run` prints what would
+be sent and sends nothing.
+
+A few reports annotated by hand are the model's anchor, kept in a file of their
+own:
+
+```bash
+python3 ~/code/claim-ledger/tools/annotate.py --by <initials> --corpus ~/code/claim-ledger/corpus/anchor.jsonl --only <report> [--only <report>]... <project>
+```
+
+It asks a sentence at a time: `1`–`5` for the type, Enter for no claim, `s` to
+type the spans when one sentence holds two claims, `n` to leave a report for
+another run, `q` to stop. A report is written only once it is finished. It
+shows the report and nothing else. What to mark, and the rules for the hard
+cases, are in [ANNOTATING](ANNOTATING.md). Do not read the model's annotations
+of the anchor's reports before annotating them, for the reason that follows. Run
 `python3 tools/extract_report.py <report.md>` on a report after annotating it,
 never before: an annotator who has seen the extractor's list confirms it, and
 the claims it missed are the ones recall counts.

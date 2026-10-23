@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Annotate captured reports by hand into the corpus, one report at a time.
 
-    python3 tools/annotate.py --by INITIALS [--older-than AGE] PROJECT [PROJECT ...]
+    python3 tools/annotate.py --by INITIALS [--older-than AGE] [--only REPORT]...
+                              [--corpus PATH] PROJECT [PROJECT ...]
 
 Walks the reports the Stop handler captured under each
 PROJECT/.claude/claim-ledger/reports/, skips those the corpus already holds,
@@ -23,6 +24,11 @@ more recently than that. The line at the end of a turn lists some of the claims
 the extractor found, and a report annotated while that line is fresh in mind
 is annotated against it. The recent ones are counted, and asked about in a
 later run once they are old enough.
+
+--only REPORT, given once per report, asks about those reports and no others:
+since 23 October 2026 a model annotates the corpus (tools/annotate_model.py),
+and a person annotates a few reports by hand as its anchor, into a file of
+their own given with --corpus, corpus/anchor.jsonl.
 
 A span must appear in the report word for word, as the extractor's must. The
 corpus is only ever appended to, and a file that cannot be appended to safely
@@ -268,6 +274,9 @@ def main(argv: list[str], *, ask: Callable[[str], str] = input, out: TextIO | No
     parser.add_argument("--older-than", type=age, metavar="AGE",
                         help="only reports captured at least this long ago, as 12h or 2d; "
                              "the rest are counted and left for a later run")
+    parser.add_argument("--only", action="append", metavar="REPORT",
+                        help="ask about this report and no others, by id; "
+                             "give it once per report")
     parser.add_argument("--corpus", type=Path, default=CORPUS,
                         help="the file annotations are appended to "
                              "(default: corpus/annotations.jsonl in this repository)")
@@ -285,6 +294,11 @@ def main(argv: list[str], *, ask: Callable[[str], str] = input, out: TextIO | No
         print(f"left out, it does not read as a captured report: {problem}", file=sys.stderr)
 
     pending = [report for report in reports if report.report_id not in done]
+    if args.only:
+        wanted = set(args.only)
+        for missing in sorted(wanted - {report.report_id for report in pending}):
+            print(f"{missing} is not a report still to do", file=sys.stderr)
+        pending = [report for report in pending if report.report_id in wanted]
     later = ""
     if args.older_than is not None:
         cutoff = now() - args.older_than.delta
