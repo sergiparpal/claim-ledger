@@ -115,6 +115,13 @@ extractor finds both only by naming that sentence twice, once with each type.
   the very write the sentence denies. If the sentence also asserts something
   done, split it with `s`: in "He editado `src/parser.py`; `docs/SPEC.md` no se
   ha tocado", the first part is `file_changed` and the second `judgment`.
+- **What the agent may or can do is not a claim.** A claim is an assertion
+  about the state of the work (REQUIREMENTS § Definitions). "En esta fase no
+  puedo leer `src/`, así que no podría editar el fichero después" says what
+  the phase allows and what would follow from it, not how the work stands, so
+  it gets Enter. Saying that something was not done is different: "No pude
+  ejecutar los tests porque falta una dependencia" says the tests did not run
+  in this turn, which is the work's state, and it is `judgment`.
 
 ## What you do not check
 
