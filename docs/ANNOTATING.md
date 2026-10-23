@@ -101,6 +101,15 @@ extractor finds both only by naming that sentence twice, once with each type.
 - **A sentence that points outside itself is typed by what it asserts.** "He
   arreglado el fichero que mencionaste" is `file_changed`: it says a file was
   changed, and which file does not matter here.
+- **A heading gets Enter, and the lines under it carry what it says.** "Lo que
+  ejecuté" or "Qué cambia" does say something, that what follows was done,
+  but it names nothing that can be checked, and marking it by its section
+  would count each claim of the section twice. Each line under it is typed by
+  what it asserts where it stands: under "Lo que ejecuté", a line that says
+  only "`make verify`" is `command_run`, since there it says the command ran.
+  Reading the heading to understand a line is reading the report, which the
+  extractor sees as well. A heading that asserts something by itself, "Todos
+  los tests pasan", is typed like any other sentence.
 - **A claim that something was not done is `judgment`.** "`docs/SPEC.md` no se
   ha tocado" denies a change. No type says that, and `file_changed` would mark
   the very write the sentence denies. If the sentence also asserts something
