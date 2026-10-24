@@ -1011,3 +1011,62 @@ a digest of its file, so a measurement says what it was measured against.
 Checked on the corpus without a call: all 2,117 of its claims fall in a
 sentence of their report, 377 of them as part of one, and the corpus scored
 against itself gives recall 1.0 and nothing spurious.
+
+### No candidate clears phase 1 against the model's annotations — 24 October 2026
+
+With the user's go, medium, devstral and llama ran the 81 reports of the corpus
+three times each, side by side and call for call, from 07:29 to 08:31 UTC on 24
+October. Each ran from a copy of distiller's `claim-ledger.toml` that differs
+only in model and provider (`corpus/routes/`), with the rows in `corpus/runs/`,
+$0.84 in all, and every answer from the pinned provider. Scored against
+`corpus/annotations.jsonl` (sha256 `8173ac03cffb`), with no report of the
+anchor annotated yet:
+
+| | `mistral-medium-3.1`, `mistral/zdr` | `devstral-2512`, `mistral/eu` | `llama-3.2-3b-instruct`, `parasail/bf16` |
+| --- | --- | --- | --- |
+| Recall on checkable claims, by pass | 0.70, 0.72, 0.71 | 0.70, 0.72, 0.70 | 0.23, 0.24, 0.23 |
+| Spurious share, worst pass | 0.51 | 0.49 | 0.84 |
+| Turns `UNKNOWN`, worst pass | 5 of 81 | 3 of 81 | 31 of 81 |
+| Sentence numbers naming no sentence | 0 | 0 | 741, in 10 answers |
+| Checkable claims missed in at least one pass | 270 | 277 | 504 |
+| Reports answered alike in all three passes | 11 of 81 | 9 of 81 | 34 of 81 |
+| Calls inside 12s, of 243 | 240 | 243 | 176 |
+| Cost | $0.32 | $0.34 | $0.18 |
+
+None clears the threshold of REQUIREMENTS § Rollout phases, so the rule of 18
+October, the candidate that clears it with the fewest `UNKNOWN` turns, chooses
+none. medium and devstral are as near each other as on 18 October; llama
+misses three checkable claims in four and would lose a third of its turns. A
+shortfall sends us to the misses, so they were counted by the kind of line
+each sentence comes from, prose, list item, heading, bold line, table row or
+code line, and by type, over the three passes and without a sentence being
+read: the anchor is still to be annotated by hand, and the list of misses shows
+what the annotator marked in its reports. For medium, with devstral within a
+few claims of it:
+
+- Seven misses in ten, 505 of the 724 of the three passes, are sentences the
+  route typed nothing at all. Table rows are 9% of the corpus's sentences and
+  hold 29% of the misses:
+  the annotator types a quarter of them as checkable, and the route misses 207
+  of those 297 claims. Code lines go the same way, typed checkable by the
+  annotator in 28% of cases and missed about half the time.
+- Half the spurious claims, 1,123 of 2,211, are in sentences the annotator left
+  unmarked, and 85% of those are list items, which are 63% of the corpus's
+  sentences. Headings, bold lines and code lines together carry 8% of the
+  spurious claims. The guess of the same morning, that the gap comes from
+  ANNOTATING's rules for headings and code, which the extractor's prompt does
+  not carry, does not hold for these two routes: they type 9% of headings and
+  4% of bold lines.
+- The other half are typed otherwise, and two in three of those are sentences
+  the annotator typed as judgment or intent and the route as checkable: 727 of
+  1,088, and 734 of 1,073 for devstral. It is what daily use showed on 19
+  October, nine claims in ten typed checkable.
+- llama types nearly everything, 71% of headings and 85% of bold lines among
+  it, and most of it otherwise than the annotator.
+
+These figures are agreement with `claude-fable-5-1`, whose own agreement with
+a person is not known until the anchor is annotated (A-12). The annotator works
+from ANNOTATING's 2,187 words and the extractor from a prompt of 352, and
+neither says how to read a table row. The prompt and the threshold are frozen,
+and the provisional route stays as it is in distiller. The list of misses is
+left unread until the anchor is annotated.
