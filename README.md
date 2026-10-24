@@ -173,10 +173,12 @@ Tests above for the versions the suite is declared to pass on.
   unaffected, because it reads mtimes from disk.
 - **Subagent tool calls are recorded like the main thread's**, with no
   `agent_id` to tell them apart.
-- **The freshness scan walks the whole working tree, once per `suite_passed`
-  claim.** It has never been run against a large repository. It is bounded by
-  the turn budget, so where it is slow the turn goes `UNKNOWN` rather than over
-  time — visible, but not fast.
+- **The freshness scan walks the whole working tree, once a turn.** The first
+  claim that needs it pays for the walk, a second or more where a virtual
+  environment sits in the project, and every other claim of the turn is judged
+  against the same listing. It has never been run against a large repository.
+  It is bounded by the turn budget, so where it is slow the turn goes `UNKNOWN`
+  rather than over time — visible, but not fast.
 - **Windows paths have never been exercised.**
 - **The session must start at the project root.** `.claude/settings.json` and
   the deny rule are read from the directory Claude Code starts in.
