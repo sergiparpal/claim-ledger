@@ -1070,3 +1070,73 @@ from ANNOTATING's 2,187 words and the extractor from a prompt of 352, and
 neither says how to read a table row. The prompt and the threshold are frozen,
 and the provisional route stays as it is in distiller. The list of misses is
 left unread until the anchor is annotated.
+
+### The annotator agrees with a person on three checkable claims in four — 24 October 2026
+
+The user annotated the six reports of the anchor by hand on 24 October, 103
+sentences in all. One of them, `794b9f80-…-1`, was annotated twice. The first
+annotation was taken out at the user's request, so that the results of a
+command could follow the pauta agreed while annotating: what a command or a
+tool returned is `command_run`, and the agent's verdict on it is `judgment`.
+Before the sixth was done, the sentences of the five short reports that the
+two had typed differently were printed by mistake; the user was asked not to
+read them.
+
+Against the morning's corpus (sha256 `8173ac03cffb`), the annotator found 18
+of the user's 27 checkable claims, 0.67, and the user made 19 of its 25, 0.76.
+Of the 103 sentences, 29 were typed differently. Five of the nine claims it
+missed were sentences that say how a document changed without saying it was
+edited, of the kind of "el primer punto ya no dice…", which the user typed
+`file_changed` and the annotator `judgment`. On three lines that name a check
+with its result, the annotator put `command_run` beside `suite_passed`, and
+the user `suite_passed` alone.
+
+The user settled both, and ANNOTATING has two rules since. A sentence that
+lets you know, read in its report, that a file's content changed is
+`file_changed`, with an editing verb or without one. A line that names a check
+with its result is `suite_passed` alone, since a check only comes out by
+running a command. The rules' examples are invented and appear in no captured
+report: the guide is part of the annotator's prompt, and an example taken from
+the anchor would hand it the answer. Two sentences of the anchor that the user
+had typed before the rule, on the reading given then, took `file_changed`
+beside their `judgment` at the user's request (anchor sha256 `630420c9fdbd`).
+
+The annotator then annotated the same 81 reports again, from 17:25 that
+evening, in about an hour and with no answer refused, into a new
+`corpus/annotations.jsonl` (sha256 `1014621cb4d1`, through Claude Code
+2.1.310). The morning's corpus is kept as `corpus/annotations-2026-10-24.jsonl`.
+Four reports captured since were left out, so that the morning's runs score
+against the same reports.
+
+| Against the anchor | Morning corpus | After the two rules |
+| --- | --- | --- |
+| The user's checkable claims the annotator found | 18 of 27 (0.67) | 22 of 29 (0.76) |
+| The annotator's checkable claims the user made | 19 of 25 (0.76) | 23 of 29 (0.79) |
+| Sentences typed differently, of 103 | 29 | 26 |
+
+| The runs, rescored without a call: worst pass, recall and spurious share | Morning corpus | After the two rules |
+| --- | --- | --- |
+| `mistral-medium-3.1`, `mistral/zdr` | 0.70, 0.51 | 0.67, 0.52 |
+| `devstral-2512`, `mistral/eu` | 0.70, 0.49 | 0.67, 0.49 |
+| `llama-3.2-3b-instruct`, `parasail/bf16` | 0.23, 0.84 | 0.24, 0.83 |
+
+What the two still type differently is the result of a tool or a script,
+which the user types `command_run` by the pauta, never written into
+ANNOTATING, and the annotator `suite_passed` or `judgment`; and what a commit
+is said to have changed, `file_changed` for the user and `judgment` for the
+annotator. A reference nearer the person did not bring the routes nearer the
+threshold. They miss most of the `file_changed` claims the annotator added,
+from 301 to 362, and they type a check's line as `command_run`, which counts
+against them now that the line is `suite_passed` alone.
+
+The annotator does not repeat itself either. Of the checkable claims of its
+first annotation, the second has 759 of 843, 0.90, and the first has 754 of
+the second's 857, 0.88. Of the 4,088 sentences, 385 were typed differently:
+34 gained `file_changed` beside a `judgment`, 67 lost a `command_run` beside a
+`suite_passed`, and 284 changed otherwise, by the new guide's reach into other
+sentences or by the annotator's own variation, which nothing has measured
+under one guide. A recall figure moves with its reference: medium's 0.70
+against the morning's corpus is 0.67 against the evening's. The routes stand
+at 0.67 against 0.90, a gap far wider than anything the reference was seen to
+move, so none clears phase 1 under either reading. What is open is on the
+extractor's side, and its prompt is frozen.

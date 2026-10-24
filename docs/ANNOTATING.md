@@ -101,6 +101,17 @@ extractor finds both only by naming that sentence twice, once with each type.
 - **A sentence that points outside itself is typed by what it asserts.** "He
   arreglado el fichero que mencionaste" is `file_changed`: it says a file was
   changed, and which file does not matter here.
+- **A sentence that says how a file's content changed is `file_changed`, with
+  an editing verb or without one.** "El README ya no menciona `--fast`" or
+  "la tabla de errores está ahora en `docs/ERRORS.md`" says that what a file
+  holds is not what it held, and that is a change of the file. What decides is
+  not whether the sentence says "he editado", but whether, read where it
+  stands in its report, it lets you know that a file was edited. A change you
+  would know of only from outside the report is still not marked.
+- **A line that names a check with its result is `suite_passed`, and only
+  that.** "`pytest -q`: 29 passed" or "`make lint`: sin errores" says that the
+  check ran and how it came out. A check only comes out by running a command,
+  so `command_run` beside it would count the same run twice.
 - **A heading gets Enter, and the lines under it carry what it says.** "Lo que
   ejecuté" or "Qué cambia" does say something, that what follows was done,
   but it names nothing that can be checked, and marking it by its section
@@ -129,6 +140,10 @@ extractor finds both only by naming that sentence twice, once with each type.
   it gets Enter. Saying that something was not done is different: "No pude
   ejecutar los tests porque falta una dependencia" says the tests did not run
   in this turn, which is the work's state, and it is `judgment`.
+
+The rules on a file's content and on a check with its result were added on 24
+October 2026, at the user's request, when the reports annotated by hand
+showed the annotator and the user typing such sentences differently.
 
 ## What you do not check
 
