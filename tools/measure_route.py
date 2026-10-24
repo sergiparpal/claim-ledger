@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Measure the extraction route: how long it takes, and whether it answers alike.
 
-    python3 tools/measure_route.py run [--root PROJECT] [--passes N] [--deadline S]
-                                       [--same-reports RUN.jsonl] OUT.jsonl
-    python3 tools/measure_route.py watch --probe REPORT [--root PROJECT] [--every S]
-                                         [--slow X] [--hours H] OUTDIR
+    python3 tools/measure_route.py run [--root PROJECT] [--config ROUTE.toml] [--passes N]
+                                       [--deadline S] [--same-reports RUN.jsonl]
+                                       [--corpus CORPUS.jsonl] OUT.jsonl
+    python3 tools/measure_route.py watch --probe REPORT [--root PROJECT] [--config ROUTE.toml]
+                                         [--every S] [--slow X] [--hours H] OUTDIR
     python3 tools/measure_route.py summary [--root PROJECT] RUN.jsonl [RUN.jsonl ...]
-    python3 tools/measure_route.py fixture [--root PROJECT] [--runs N]
+    python3 tools/measure_route.py fixture [--root PROJECT] [--config ROUTE.toml] [--runs N]
 
 `run` sends the request the Stop hook sends, built by the same code from
 PROJECT/claim-ledger.toml, for every report PROJECT has captured under
@@ -18,7 +19,15 @@ because a call abandoned at the deadline says nothing about how long it would
 have taken; the client's single retry stays, as in the hook. --same-reports
 takes the reports of an earlier run instead of what PROJECT holds now, so that
 two runs compare report for report and, with the same --seed, call for call.
-The default seed is the one the runs of 17 October 2026 used.
+The default seed is the one the runs of 17 October 2026 used. --corpus asks
+only about the reports a corpus annotates, and keeps each answer for
+tools/measure_recall.py to score; SPEC § Corpus capture runs each candidate
+over it three times, with --passes 3.
+
+The route measured is the [extractor] table of PROJECT/claim-ledger.toml, or
+of --config, a copy of that file with another route in it, so that a
+candidate is measured without touching the file the project's turns read.
+Every row of a run names the route that answered it.
 
 `watch` sends one --probe report every --every seconds (default 300) and starts
 `run` when the route turns slow: two probes in a row at --slow times (default
@@ -47,10 +56,14 @@ POST made as urllib makes it, since urllib times none of them. The key comes
 from the variable `[extractor] key_env` names, as for the hook; see
 docs/OPERATING.md for where it lives.
 
-Nothing kept or printed names a claim of a captured report: the corpus is
-annotated by hand, and an annotator who has seen the extractor's list confirms
-it. A run keeps timings, sizes, a digest of each answer, and counts. `fixture`
-prints claims because its report is a test fixture, not part of the corpus.
+Nothing kept or printed names a claim of a captured report unless --corpus
+asks for it, since an annotator who has seen the extractor's list confirms it.
+A run keeps timings, sizes, a digest of each answer, and counts; with --corpus
+it also keeps each answer as sentence numbers and types, and still no span.
+The corpus has been annotated by a model since 23 October 2026, and the few
+reports a person annotates by hand, the anchor, are annotated before such a
+run. `fixture` prints claims because its report is a test fixture, not part of
+the corpus.
 """
 
 from __future__ import annotations
@@ -76,9 +89,10 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(REPO / "src"), str(REPO)]
+sys.path[:0] = [str(REPO / "src"), str(REPO / "tools"), str(REPO)]
 
-from ledger import budget, config, evidence, extract, join, schema, turn  # noqa: E402
+import annotate  # noqa: E402
+from ledger import budget, config, evidence, extract, join, schema, sentences, turn  # noqa: E402
 from tests.test_extract import CAPTURED_REPORT  # noqa: E402  the fixed report
 
 FIXED = "fixed-442"
@@ -137,7 +151,8 @@ def staged_post(request: extract.Request, timeout_s: float) -> tuple[int, bytes,
 
 def call(text: str, *, settings, prompt: extract.Prompt, deadline: float,
          post: Post = staged_post, cfg: config.Config | None = None,
-         root: Path = Path("."), commands: frozenset[str] = frozenset()) -> dict:
+         root: Path = Path("."), commands: frozenset[str] = frozenset(),
+         keep_answer: bool = False) -> dict:
     """One extraction, made as the hook makes it but under `deadline`, and what it cost.
 
     The row holds no span: a digest of the answer stands in for it, so that two
@@ -145,7 +160,10 @@ def call(text: str, *, settings, prompt: extract.Prompt, deadline: float,
     answer as the ledger reads it, its claims and its defects, so two answers
     that differ only in the type a dropped span was given count as one. Given
     the project's configuration, the row also counts the checkable claims the
-    join could match (`usable`), by type, and names none of them.
+    join could match (`usable`), by type, and names none of them. With
+    keep_answer it holds the answer too, as the number and type of each claim's
+    sentence beside how many sentences the report was cut into, which is what
+    recall is scored from.
     """
     tries, replies = [], []
 
@@ -180,6 +198,11 @@ def call(text: str, *, settings, prompt: extract.Prompt, deadline: float,
                                          .encode("utf-8")).hexdigest()[:12])
         if cfg is not None:
             row["usable"] = referent_counts(result.claims, cfg, root, commands)
+        if keep_answer:
+            cut = sentences.split(text)
+            first = {sentence: n for n, sentence in reversed(list(enumerate(cut, 1)))}
+            row["sentences"] = len(cut)
+            row["answer"] = [[first[claim.span], claim.type] for claim in result.claims]
     return row
 
 
@@ -316,18 +339,25 @@ def slow_now(row: Mapping, previous_slow: bool, *, slow: float, route_deadline: 
     return (this_slow and previous_slow) or row["wall"] >= route_deadline
 
 
+def route_of(settings, prompt: extract.Prompt) -> dict:
+    """The route a row was answered by, so that a run file names its candidate."""
+    return {"model": settings.model, "provider": settings.provider, "prompt": prompt.version,
+            "timeout_s": settings.timeout_s}
+
+
 def measure(out: Path, reports: Mapping[str, str], *, passes: int, seed: int,
             settings, prompt: extract.Prompt, deadline: float, post: Post = staged_post,
             cfg: config.Config | None = None, root: Path = Path("."),
-            commands: frozenset[str] = frozenset()) -> None:
+            commands: frozenset[str] = frozenset(), keep_answers: bool = False) -> None:
     """Make a run's calls one at a time, appending a row for each as it comes."""
     calls = plan(list(reports), passes=passes, seed=seed)
+    route = route_of(settings, prompt)
     with out.open("a", encoding="utf-8") as rows:
         for number, (pass_number, report) in enumerate(calls, 1):
             text = CAPTURED_REPORT if report == FIXED else reports[report]
-            row = {"pass": pass_number, "report": report,
+            row = {"pass": pass_number, "report": report, "route": route,
                    **call(text, settings=settings, prompt=prompt, deadline=deadline, post=post,
-                          cfg=cfg, root=root, commands=commands)}
+                          cfg=cfg, root=root, commands=commands, keep_answer=keep_answers)}
             rows.write(json.dumps(row) + "\n")
             rows.flush()
             print(f"{_now()[:19]} {number:3}/{len(calls)} {_line(row)}", flush=True)
@@ -335,22 +365,30 @@ def measure(out: Path, reports: Mapping[str, str], *, passes: int, seed: int,
 
 
 def run(args) -> int:
-    settings, prompt = _route(args.root)
+    settings, prompt = _route(_config_path(args))
     only = reports_of(args.same_reports) if args.same_reports else None
+    if args.corpus:
+        held = annotate.annotated(args.corpus)
+        if not held:
+            print(f"{args.corpus} annotates no report", file=sys.stderr)
+            return 2
+        only = held if only is None else only & held
     reports = captured(args.root, settings.max_report_chars, only)
     if only is not None and set(reports) != only:
-        print(f"{len(only - set(reports))} reports of {args.same_reports} are not captured "
-              f"under {args.root} any more", file=sys.stderr)
+        print(f"{len(only - set(reports))} reports of {args.same_reports or args.corpus} are "
+              f"not captured under {args.root} any more, or not within max_report_chars",
+              file=sys.stderr)
         return 2
     print(f"{len(reports)} reports, {args.passes} passes, deadline {args.deadline:g}s, "
           f"prompt {prompt.version}, {settings.model} via {settings.provider}", flush=True)
     measure(args.out, reports, passes=args.passes, seed=args.seed, settings=settings,
-            prompt=prompt, deadline=args.deadline, **_project(args.root))
+            prompt=prompt, deadline=args.deadline, keep_answers=bool(args.corpus),
+            **_project(args.root, _config_path(args)))
     return 0
 
 
 def watch(args) -> int:
-    settings, prompt = _route(args.root)
+    settings, prompt = _route(_config_path(args))
     only = reports_of(args.same_reports) if args.same_reports else None
     reports = captured(args.root, settings.max_report_chars, only)
     if args.probe not in reports:
@@ -375,7 +413,7 @@ def watch(args) -> int:
                 print("the route is slow: starting the run", flush=True)
                 measure(args.outdir / "run.jsonl", reports, passes=args.passes, seed=args.seed,
                         settings=settings, prompt=prompt, deadline=args.deadline,
-                        **_project(args.root))
+                        **_project(args.root, _config_path(args)))
                 return 0
             previous_slow = row["slowdown"] is None or row["slowdown"] >= args.slow
             next_probe = time.monotonic() + args.every
@@ -496,7 +534,7 @@ def _summarise(rows: Sequence[Mapping]) -> None:
 
 
 def fixture(args) -> int:
-    settings, prompt = _route(args.root)
+    settings, prompt = _route(_config_path(args))
     payload = json.loads("".join(block["text"] for block in
                                  json.loads(RECORDING.read_text(encoding="utf-8"))["content"]
                                  if block["type"] == "text"))
@@ -546,14 +584,18 @@ def _r(xs: Sequence[float], ys: Sequence[float]) -> str:
         return "-"
 
 
-def _route(root: Path):
-    return config.load(root / config.CONFIG_FILENAME).extractor, extract.load_prompt()
+def _config_path(args) -> Path:
+    """The claim-ledger.toml whose route is measured: --config, or PROJECT's own."""
+    return args.config or args.root / config.CONFIG_FILENAME
 
 
-def _project(root: Path) -> dict:
-    """What `usable` judges a run's claims against: PROJECT's configuration and logs."""
-    return {"cfg": config.load(root / config.CONFIG_FILENAME), "root": root,
-            "commands": recorded_commands(root)}
+def _route(path: Path):
+    return config.load(path).extractor, extract.load_prompt()
+
+
+def _project(root: Path, path: Path) -> dict:
+    """What `usable` judges a run's claims against: the configuration and PROJECT's logs."""
+    return {"cfg": config.load(path), "root": root, "commands": recorded_commands(root)}
 
 
 def _rows(path: Path) -> list[dict]:
@@ -604,6 +646,9 @@ def main(argv: list[str]) -> int:
     def common(sub, *, runs_reports: bool = True):
         sub.add_argument("--root", type=Path, default=Path("."),
                          help="project whose claim-ledger.toml and captured reports are used")
+        sub.add_argument("--config", type=Path,
+                         help="the claim-ledger.toml whose [extractor] route is measured "
+                              "(default: PROJECT's); a copy with another route measures that one")
         sub.add_argument("--deadline", type=float, default=150.0,
                          help="wall clock per call, in seconds (default 150)")
         if runs_reports:
@@ -615,6 +660,9 @@ def main(argv: list[str]) -> int:
 
     measure_one = commands.add_parser("run", help="ask about every captured report")
     common(measure_one)
+    measure_one.add_argument("--corpus", type=Path,
+                             help="ask only about the reports this corpus annotates, and keep "
+                                  "each answer as sentence numbers and types, for recall")
     measure_one.add_argument("out", type=Path, help="JSONL file the rows are appended to")
     wait = commands.add_parser("watch", help="probe until the route is slow, then run")
     common(wait)
@@ -635,7 +683,7 @@ def main(argv: list[str]) -> int:
     try:
         return {"run": run, "watch": watch, "summary": summary,
                 "fixture": fixture}[args.command](args)
-    except (config.ConfigError, OSError) as e:
+    except (config.ConfigError, annotate.AnnotateError, OSError) as e:
         print(e, file=sys.stderr)
         return 2
 

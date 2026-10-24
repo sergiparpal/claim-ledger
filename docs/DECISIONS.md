@@ -958,3 +958,56 @@ every recall figure. Short ones were chosen for the user's time, so the
 agreement may flatter the annotator on long reports. The phase-1 numbers do
 not move. README and OPERATING are to say how to run the annotator once the
 tool exists.
+
+On 24 October the annotator ran over the rest: 79 reports in 52 minutes,
+about 40 seconds each, and every answer passed its checks. With one report
+captured while it ran, the corpus holds all 81 of distiller's reports that the
+extractor reads, signed `claude-fable-5-1 via Claude Code 2.1.309`; the one
+over `max_report_chars` is left out, as the extractor leaves it. The same day
+the user widened the anchor to six reports. Those of 8 to 15 sentences hold
+105 of the corpus's 4,088 sentences, 2.6%, and those of more than 30 hold
+88.6%, so five short ones would have checked the annotator where it is used
+least. The six are five of 8 to 15 sentences, one to a session, from 6 to 17
+October, and one of 44 sentences from 21 October, 103 sentences in all. The
+report the CLI was first tried on was left out, since how many claims the
+model found in it had come up in the conversation.
+
+### Recall is scored from kept answers, and spurious counts every type — 24 October 2026
+
+`tools/measure_recall.py` scores what SPEC § Corpus capture asks of a
+candidate, from answers that `tools/measure_route.py run --corpus` gathers: it
+asks only about the reports the corpus annotates, and keeps each answer as the
+number and type of each claim's sentence, still without a span. A run used to
+keep a digest and counts only, because the corpus was to be annotated by hand
+and a person who had seen the extractor's list would confirm it. The corpus is
+a model's now, and the anchor is annotated before any run. Each row names the
+route that answered it, and `--config` measures a candidate from a copy of the
+project's `claim-ledger.toml`, so the file distiller's turns read is never
+touched for a measurement.
+
+Three things the requirements leave open were settled in the code and
+confirmed by the user, and SPEC § Corpus capture now says them:
+
+- An extracted claim is spurious when no annotated claim of its type lies in
+  its sentence, and the share is of everything extracted, every type counted:
+  a sentence typed otherwise is a miss and a spurious claim at once. Counting
+  only the claims in sentences the annotator left unmarked would not see what
+  the provisional route was seen doing on 19 October, typing nine claims in
+  ten as checkable. Both parts are printed, so either reading can be taken
+  from the output.
+- Recall and the spurious share are taken over every answer a pass got, a late
+  one included, and the `UNKNOWN` share counts the turns the hook would have
+  lost, with no answer or one after the route's own deadline. A long report
+  asks for a long answer, and a long answer takes longer, so scoring only the
+  answers inside the deadline would score a slow route on its short reports.
+- A claim in a turn that got no answer is not a miss. Its turn is in the
+  `UNKNOWN` share, which is the measure of a turn that never reaches the claim
+  at all (REQUIREMENTS § Measurement and anti-metrics).
+
+The annotator's agreement with the anchor is counted the same way in both
+directions: how many of the person's checkable claims the annotator found, and
+how many of the annotator's the person made. Every figure names the corpus by
+a digest of its file, so a measurement says what it was measured against.
+Checked on the corpus without a call: all 2,117 of its claims fall in a
+sentence of their report, 377 of them as part of one, and the corpus scored
+against itself gives recall 1.0 and nothing spurious.

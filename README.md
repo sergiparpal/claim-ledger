@@ -69,10 +69,20 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   extraction route over a project's captured reports: how long each call takes,
   stage by stage, and whether the same report gets the same answer twice.
   `watch` probes until the route turns slow and measures it then. It keeps
-  timings and a digest of each answer, never a claim of a report still to be
-  annotated, and needs the same key as `extract_report.py`. What it found on
-  17 October 2026 is in
+  timings and a digest of each answer, and with `run --corpus` the answers too,
+  as sentence numbers and types, for the reports the corpus annotates.
+  `--config` measures another route from a copy of the project's
+  `claim-ledger.toml`. It needs the same key as `extract_report.py`. What it
+  found on 17 October 2026 is in
   [docs/provider-measurements.md](docs/provider-measurements.md).
+- `python3 tools/measure_recall.py agreement|recall` scores, and makes no call.
+  `agreement` sets the model's annotations against the anchor in both
+  directions, on checkable claims, and names every sentence the two typed
+  differently. `recall` scores runs made with `run --corpus`, one file to a
+  candidate: each pass's recall, spurious share and `UNKNOWN` share, the
+  candidate judged by its worst pass against the phase-1 threshold, and every
+  claim a pass missed. A line names a report, a sentence number and types;
+  `--spans` adds the sentence.
 - `python3 tools/daily_use.py recording|latency|verdicts|defects` reads back
   what daily use recorded: whether every tool call in a session's transcript
   has its record, how long each Stop took and how its turn ended, an empty
@@ -82,8 +92,9 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
 
 ## What it does not do yet
 
-- **The extractor has not been measured.** There is no annotated corpus and no
-  recall figure, so the appendix should be read as an instrument still being
+- **The extractor has not been measured.** A model annotated the corpus on 23
+  and 24 October 2026, but no route has run it yet, so there is no recall
+  figure, and the appendix should be read as an instrument still being
   calibrated. Phase 1 clears when recall on checkable claims reaches 0.90 over
   at least 50 annotated reports.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and

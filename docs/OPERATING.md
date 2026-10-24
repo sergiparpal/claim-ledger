@@ -156,5 +156,17 @@ of the anchor's reports before annotating them, for the reason that follows. Run
 never before: an annotator who has seen the extractor's list confirms it, and
 the claims it missed are the ones recall counts.
 
-Until that corpus exists there is no recall figure, and the appendix is an
-instrument nobody has calibrated. Read it as one.
+Once the anchor is annotated, `agreement` says how far the model agrees with
+it. Each candidate route then runs the corpus three times, from a copy of the
+project's `claim-ledger.toml` with that route under `[extractor]`, and
+`recall` scores the runs against the corpus:
+
+```bash
+python3 ~/code/claim-ledger/tools/measure_recall.py agreement --root <project>
+python3 ~/code/claim-ledger/tools/measure_route.py run --root <project> --config <route.toml> --corpus ~/code/claim-ledger/corpus/annotations.jsonl --passes 3 <run.jsonl>
+python3 ~/code/claim-ledger/tools/measure_recall.py recall --root <project> <run.jsonl> [<run.jsonl>...]
+```
+
+The run calls the route three times a report and needs the key; the other two
+call nothing. Until a route has run the corpus there is no recall figure, and
+the appendix is an instrument nobody has calibrated. Read it as one.

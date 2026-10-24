@@ -13,6 +13,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 import time
@@ -21,7 +22,7 @@ import unittest.mock
 from pathlib import Path
 
 from ledger import config, extract, schema
-from tests import doubles
+from tests import doubles, test_annotate
 from tests.test_extract import CAPTURED_REPORT, SETTINGS
 
 REPO = Path(__file__).resolve().parent.parent
@@ -85,6 +86,17 @@ class RowTest(unittest.TestCase):
         for referent in ("unit test", "set_context", "docs/SPEC.md"):
             self.assertNotIn(referent, written)
         self.assertNotIn("usable", row(ROUTE))       # no configuration, nothing counted
+
+    def test_a_kept_answer_is_sentence_numbers_and_types_and_still_no_span(self):
+        made = measure_route.call(CAPTURED_REPORT, settings=SETTINGS, prompt=PROMPT,
+                                  deadline=10.0, post=post(ROUTE), keep_answer=True)
+        self.assertEqual(made["answer"], [[1, "judgment"], [2, "suite_passed"], [4, "intent"]])
+        self.assertEqual(made["sentences"], 6)
+        written = json.dumps(made, ensure_ascii=False)
+        for span in SPANS:
+            self.assertNotIn(span, written)
+        self.assertNotIn("unit test", written)
+        self.assertNotIn("answer", row(ROUTE))       # not asked for, not kept
 
     def test_the_same_answer_has_one_digest_and_another_answer_another(self):
         first = row(ROUTE)["digest"]
@@ -217,6 +229,91 @@ class PlanTest(unittest.TestCase):
             path = Path(folder) / "run.jsonl"
             path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
             self.assertEqual(measure_route.reports_of(path), {"a-1", "b-2"})
+
+
+class RunTest(unittest.TestCase):
+    """Which reports a run asks about, by which route, and what its rows keep."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.config = self.root / config.CONFIG_FILENAME
+        self.config.write_text((REPO / config.CONFIG_FILENAME).read_text(encoding="utf-8"),
+                               encoding="utf-8")
+        texts = (test_annotate.REPORT, CAPTURED_REPORT, "The parser is simpler now.")
+        self.ids = [test_annotate.capture(self.root, number, text)
+                    for number, text in enumerate(texts, 1)]
+        self.corpus = self.root / "annotations.jsonl"
+        self.annotate(*self.ids[:2])
+
+    def annotate(self, *reports):
+        self.corpus.write_text("".join(
+            json.dumps({"report": report, "annotated": "2026-10-24", "by": "claude-fable-5-1",
+                        "claims": []}) + "\n" for report in reports), encoding="utf-8")
+
+    def run_tool(self, *options):
+        err = io.StringIO()
+        with (unittest.mock.patch.object(measure_route, "measure") as measure,
+              contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err)):
+            code = measure_route.main(["measure_route.py", "run", "--root", str(self.root),
+                                       *options, str(self.root / "run.jsonl")])
+        return code, measure, err.getvalue()
+
+    def test_a_run_on_a_corpus_asks_about_what_it_annotates_and_keeps_the_answers(self):
+        code, measure, _ = self.run_tool("--corpus", str(self.corpus))
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(measure.call_args.args[1]), sorted(self.ids[:2]))
+        self.assertTrue(measure.call_args.kwargs["keep_answers"])
+
+    def test_a_run_without_one_asks_about_every_report_and_keeps_no_answer(self):
+        code, measure, _ = self.run_tool()
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(measure.call_args.args[1]), sorted(self.ids))
+        self.assertFalse(measure.call_args.kwargs["keep_answers"])
+
+    def test_a_corpus_naming_a_report_not_captured_here_stops_the_run(self):
+        self.annotate(*self.ids[:2], "0f8fad5b-elsewhere-1")
+        code, measure, err = self.run_tool("--corpus", str(self.corpus))
+        self.assertEqual(code, 2)
+        measure.assert_not_called()
+        self.assertIn("not captured under", err)
+
+    def test_a_corpus_that_annotates_nothing_stops_the_run(self):
+        self.annotate()
+        code, measure, err = self.run_tool("--corpus", str(self.corpus))
+        self.assertEqual(code, 2)
+        measure.assert_not_called()
+        self.assertIn("annotates no report", err)
+
+    def test_another_route_is_measured_from_a_copy_of_the_configuration(self):
+        route = self.root / "medium.toml"
+        route.write_text(re.sub(r"^model\s*=.*$", 'model = "mistralai/mistral-medium-3.1"',
+                                self.config.read_text(encoding="utf-8"), count=1,
+                                flags=re.MULTILINE), encoding="utf-8")
+        _, measure, _ = self.run_tool("--config", str(route))
+        self.assertEqual(measure.call_args.kwargs["settings"].model,
+                         "mistralai/mistral-medium-3.1")
+        _, measure, _ = self.run_tool()
+        self.assertEqual(measure.call_args.kwargs["settings"].model,
+                         config.load(self.config).extractor.model)
+
+    def test_every_row_names_its_route_and_a_corpus_run_keeps_its_answers(self):
+        out = self.root / "run.jsonl"
+        with (unittest.mock.patch.object(measure_route, "PAUSE_S", 0),
+              contextlib.redirect_stdout(io.StringIO())):
+            measure_route.measure(out, {"a-1": CAPTURED_REPORT}, passes=1, seed=1,
+                                  settings=SETTINGS, prompt=PROMPT, deadline=10.0,
+                                  post=post(ROUTE, ROUTE, ROUTE), keep_answers=True)
+        rows = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual([made["pass"] for made in rows], [0, 1, 0])
+        for made in rows:
+            self.assertEqual(made["route"], {"model": SETTINGS.model,
+                                             "provider": SETTINGS.provider,
+                                             "prompt": PROMPT.version,
+                                             "timeout_s": SETTINGS.timeout_s})
+        self.assertEqual(rows[1]["answer"], [[1, "judgment"], [2, "suite_passed"],
+                                             [4, "intent"]])
 
 
 class ProbeTest(unittest.TestCase):
