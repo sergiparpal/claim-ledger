@@ -136,9 +136,10 @@ missing one with `uv python install <version>`; uv is only needed for versions
 that are not on PATH, and the script never downloads one behind your back.
 
 **3.11, the floor the project supports, is declared like the rest.** It used to
-be left to a CI job of its own, but this repository has never had a remote, so
-that job never ran and the floor was claimed without being tested. The
-pre-commit hook runs on every commit; CI runs only where something is pushed.
+be left to a CI job of its own, but this repository had no remote until
+25 October 2026, so that job never ran and the floor was claimed without being
+tested. The pre-commit hook runs on every commit; CI runs only where something
+is pushed.
 
 Enable the hook once per clone:
 

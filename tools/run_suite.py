@@ -18,10 +18,10 @@ asked with `python find`, which never downloads, so a missing version stays
 missing and says so instead of turning a commit into a download.
 
 3.11, the floor the project claims to support, is declared like the rest. It
-was left to a CI job of its own until 5 October 2026, and this repository has
-never had a remote, so that job never ran: the floor was claimed and tested
-nowhere. The pre-commit hook runs on every commit; CI runs only where something
-is pushed.
+was left to a CI job of its own until 5 October 2026, and this repository had
+no remote until 25 October 2026, so that job never ran: the floor was claimed
+and tested nowhere. The pre-commit hook runs on every commit; CI runs only
+where something is pushed.
 """
 
 from __future__ import annotations

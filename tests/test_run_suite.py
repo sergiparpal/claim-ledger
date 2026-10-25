@@ -183,9 +183,9 @@ class WiringTest(unittest.TestCase):
 
     def test_the_floor_the_project_claims_is_the_lowest_declared_version(self):
         """CLAUDE.md claims 3.11. Until 5 October 2026 it was left to a CI job,
-        and this repository has no remote, so that job never ran and the claim
-        rested on nothing. The floor belongs in the set the pre-commit hook
-        runs, with nothing below it."""
+        and this repository had no remote until 25 October 2026, so that job
+        never ran and the claim rested on nothing. The floor belongs in the set
+        the pre-commit hook runs, with nothing below it."""
         claimed = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
         floor = "3.11"
         self.assertIn(f"Python {floor}+", claimed)

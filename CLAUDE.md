@@ -24,8 +24,8 @@ report a verdict taken from the harness's own execution record.
   The hook runs `tools/run_suite.py`; a failing suite, or a declared version
   that is missing, blocks the commit.
 - CI: `.github/workflows/ci.yml` runs `tools/run_suite.py` on the declared set,
-  but only where something is pushed, and this repository has no remote. The
-  pre-commit hook is what gates.
+  but only where something is pushed, and this repository had no remote until
+  25 October 2026. The pre-commit hook is what gates.
 
 ## Constraints
 
