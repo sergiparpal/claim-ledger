@@ -97,15 +97,22 @@ class ValidConfigTest(ConfigTest):
         self.assertEqual(cfg.default_tier, REVIEW)
         self.assertEqual(cfg.extractor, config.Extractor(
             base_url="https://openrouter.ai/api/v1", auth="x-api-key",
-            key_env="OPENROUTER_API_KEY", model="deepseek/deepseek-v4.1-flash",
-            provider="morph", answer_shape="json_schema",
-            parameters={"temperature": 0,
-                        "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}},
-            timeout_s=12.0, max_report_chars=20000))
+            key_env="OPENROUTER_API_KEY", model="mistralai/mistral-medium-3.1",
+            provider="mistral/zdr", answer_shape="json_schema",
+            parameters={"temperature": 0}, timeout_s=12.0, max_report_chars=20000))
         self.assertEqual(cfg.budget, config.Budget(15.0))
         self.assertEqual(cfg.log, config.Log(2000))
         self.assertEqual(cfg.gate, config.Gate(False))
         self.assertEqual(cfg.corpus, config.Corpus(True))
+
+    def test_a_route_may_send_a_table_of_its_own(self):
+        """The route of 23 September switched its thinking off through a nested table."""
+        cfg = self.load_text(edited("temperature = 0\n", "temperature = 0\n\n"
+                                    "[extractor.parameters.extra_body.chat_template_kwargs]\n"
+                                    "enable_thinking = false\n"))
+        self.assertEqual(cfg.extractor.parameters,
+                         {"temperature": 0,
+                          "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}})
 
     def test_valid_but_unusual_globs_are_accepted(self):
         for glob in ["**", "a]b", "docs/[!_]*.md", "[]]x", "?.txt", "src/**/**/x"]:
@@ -235,7 +242,7 @@ class NoFallbackTest(ConfigTest):
             ("temperature = 0", "temperature = [0]", "extractor.parameters.temperature"),
             ("max_report_chars = 20000", "max_report_chars = 2.5e4",
              "extractor.max_report_chars"),
-            ('model            = "deepseek/deepseek-v4.1-flash"', 'model = ""',
+            ('model            = "mistralai/mistral-medium-3.1"', 'model = ""',
              "extractor.model"),
             ('base_url         = "https://openrouter.ai/api/v1"',
              'base_url = "http://openrouter.ai/api/v1"', "extractor.base_url"),
@@ -247,8 +254,9 @@ class NoFallbackTest(ConfigTest):
              "extractor.key_env"),
             ('key_env          = "OPENROUTER_API_KEY"', 'key_env = "sk-or-v1-EXAMPLE-NOT-A-KEY"',
              "extractor.key_env"),
-            ('provider         = "morph"', 'provider = ""', "extractor.provider"),
-            ('provider         = "morph"', 'provider = " morph"', "extractor.provider"),
+            ('provider         = "mistral/zdr"', 'provider = ""', "extractor.provider"),
+            ('provider         = "mistral/zdr"', 'provider = " mistral/zdr"',
+             "extractor.provider"),
             ('answer_shape     = "json_schema"', 'answer_shape = "yaml"',
              "extractor.answer_shape"),
             ("turn_timeout_s = 15", "turn_timeout_s = -1", "budget.turn_timeout_s"),

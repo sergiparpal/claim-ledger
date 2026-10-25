@@ -109,12 +109,12 @@ default = "REVIEW"
 base_url         = "https://openrouter.ai/api/v1"
 auth             = "x-api-key"
 key_env          = "OPENROUTER_API_KEY"
-model            = "deepseek/deepseek-v4.1-flash"
-# Twenty-two providers serve this model. Exactly one, with fallbacks off, is
-# what makes a recall figure mean anything. Morph is the only one found that
-# honours the thinking switch below; its quantization is undeclared, which is
-# the price of the switch working.
-provider         = "morph"
+# Provisional since 18 October 2026, when Morph's endpoint for the route pinned
+# on 23 September, deepseek/deepseek-v4.1-flash, went down (§ Extractor
+# contract). Exactly one provider, with fallbacks off, is what makes a recall
+# figure mean anything: here Mistral's zero-retention endpoint.
+model            = "mistralai/mistral-medium-3.1"
+provider         = "mistral/zdr"
 answer_shape     = "json_schema"
 # A deadline over the whole call, not a socket timeout, and it has to fit
 # inside [budget] below, which the loader checks.
@@ -127,11 +127,6 @@ max_report_chars = 20000
 # top_p, and with require_parameters on, one it refuses leaves the router with
 # no endpoint at all — a 404 before the model is ever reached.
 temperature = 0
-
-# Thinking off, through the provider's own chat template rather than the
-# reasoning parameter, and verified against the reply rather than the status.
-[extractor.parameters.extra_body.chat_template_kwargs]
-enable_thinking = false
 
 [budget]
 # The pipeline's own wall clock. Strictly longer than [extractor] timeout_s,
@@ -280,7 +275,7 @@ It returns an Extraction, whose claims list is the output and whose defect count
 
 **Call.** A direct HTTPS request with `temperature` 0 to the address `[extractor]` names, carrying the key from the variable it names, in the header it names. OpenRouter serves an Anthropic-shaped `/api/v1/messages` that takes the same request schema; both `x-api-key` and `Authorization: Bearer` were verified to work there on 20 September 2026. The prompt lives in its own file and travels as a declared version plus a hash of its text, so an edit without a version bump cannot inherit an earlier measurement. Claude Code's built-in `prompt` hook type is the tempting alternative, but its output is shaped for hook decisions, not for returning a claim list, so the client stays ours.
 
-**The route is pinned, and moving the pin is dated.** One provider, `allow_fallbacks` false, `data_collection` deny, `require_parameters` true. Since 18 October 2026 the route is provisional: Morph's endpoint for the route pinned on 23 September went down that day, and the project's configuration names `mistralai/mistral-medium-3.1` on `mistral/zdr`, Mistral's zero-retention endpoint, with `temperature` 0; the model does not reason, and its replies carry no thinking tokens. Since 25 October it is sent `extract-3`. It stays provisional because no route measured clears phase 1, the stronger models screened with `extract-3` included, and the next route is the one that does (R-45, DECISIONS). The repository's sample configuration, shown above, keeps the route pinned on 23 September, which is frozen. That route was `deepseek/deepseek-v4.1-flash` — the exact id, since several V4 Flash variants differ in price and provider count — served by `morph`. It replaced `z-ai/glm-5.3-flash` on 21 September 2026 for one measured reason: glm spends about 5,000 tokens reasoning on a 442-character report and took 49.8 seconds against a 15-second turn budget, where this route answers in 6 to 9 seconds with thinking off. Before that, the glm pin moved from `phala/fp8` to `baseten/fp8` when phala twice returned HTTP 400 to a body that had worked. A pin may be moved before a corpus is measured and not during one: the provider is part of what the figure means. What answered travels with every claim, beside the model, the address and the prompt version (R-45).
+**The route is pinned, and moving the pin is dated.** One provider, `allow_fallbacks` false, `data_collection` deny, `require_parameters` true. Since 18 October 2026 the route is provisional: Morph's endpoint for the route pinned on 23 September went down that day, and the project's configuration names `mistralai/mistral-medium-3.1` on `mistral/zdr`, Mistral's zero-retention endpoint, with `temperature` 0; the model does not reason, and its replies carry no thinking tokens. Since 25 October it is sent `extract-3`. It stays provisional because no route measured clears phase 1, the stronger models screened with `extract-3` included, and the next route is the one that does (R-45, DECISIONS). The repository's sample configuration, shown above, names the provisional route too since 25 October, at the user's leave. The route pinned on 23 September was `deepseek/deepseek-v4.1-flash` — the exact id, since several V4 Flash variants differ in price and provider count — served by `morph`. It replaced `z-ai/glm-5.3-flash` on 21 September 2026 for one measured reason: glm spends about 5,000 tokens reasoning on a 442-character report and took 49.8 seconds against a 15-second turn budget, where this route answers in 6 to 9 seconds with thinking off. Before that, the glm pin moved from `phala/fp8` to `baseten/fp8` when phala twice returned HTTP 400 to a body that had worked. A pin may be moved before a corpus is measured and not during one: the provider is part of what the figure means. What answered travels with every claim, beside the model, the address and the prompt version (R-45).
 
 **`openai/gpt-5.6-luna` was measured and refused**, also on 20 September 2026. It was the fastest and cheapest of the three, with no defects, but it returned three different answers across seven runs, twice with a fourth claim. GPT-5.x accepts neither `temperature` nor `top_p`, so its sampling cannot be pinned, and an unrepeatable extractor cannot carry a recall figure.
 

@@ -1306,3 +1306,16 @@ The 0.3.0 install copied the working tree into the plugin cache, the
 untracked `corpus/` with it, since a directory marketplace takes the directory
 as it is. That copy, a stale snapshot, was deleted at the user's request. An
 install from a tree with untracked data in it carries the data along.
+
+### The sample configuration names the provisional route — 25 October 2026
+
+At the user's leave, the `[extractor]` of the repository's sample
+`claim-ledger.toml`, a frozen section, and its copy in SPEC moved from
+`deepseek/deepseek-v4.1-flash` on `morph` to `mistralai/mistral-medium-3.1` on
+`mistral/zdr`, with `temperature` 0 and nothing else. The thinking switch went
+with the old route, since this model does not reason. A sample that names an
+endpoint answering 404 since 18 October helps no one who copies it. The route
+is as provisional in the sample as in distiller, and the frozen row of
+CLAUDE.md says so. The test that the sample loads as written now expects the
+new route, and a new one keeps the nested parameter table of the old route
+loading.

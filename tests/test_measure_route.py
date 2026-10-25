@@ -287,16 +287,16 @@ class RunTest(unittest.TestCase):
         self.assertIn("annotates no report", err)
 
     def test_another_route_is_measured_from_a_copy_of_the_configuration(self):
-        route = self.root / "medium.toml"
-        route.write_text(re.sub(r"^model\s*=.*$", 'model = "mistralai/mistral-medium-3.1"',
+        route = self.root / "devstral.toml"
+        route.write_text(re.sub(r"^model\s*=.*$", 'model = "mistralai/devstral-2512"',
                                 self.config.read_text(encoding="utf-8"), count=1,
                                 flags=re.MULTILINE), encoding="utf-8")
+        own = config.load(self.config).extractor.model
+        self.assertNotEqual(own, "mistralai/devstral-2512")   # or the test proves nothing
         _, measure, _ = self.run_tool("--config", str(route))
-        self.assertEqual(measure.call_args.kwargs["settings"].model,
-                         "mistralai/mistral-medium-3.1")
+        self.assertEqual(measure.call_args.kwargs["settings"].model, "mistralai/devstral-2512")
         _, measure, _ = self.run_tool()
-        self.assertEqual(measure.call_args.kwargs["settings"].model,
-                         config.load(self.config).extractor.model)
+        self.assertEqual(measure.call_args.kwargs["settings"].model, own)
 
     def test_another_prompt_is_measured_from_its_file(self):
         candidate = self.root / "candidate.md"

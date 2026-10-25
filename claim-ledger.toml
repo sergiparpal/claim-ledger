@@ -39,13 +39,15 @@ default = "REVIEW"
 base_url         = "https://openrouter.ai/api/v1"
 auth             = "x-api-key"
 key_env          = "OPENROUTER_API_KEY"
-model            = "deepseek/deepseek-v4.1-flash"
-# Exactly one provider, fallbacks off: 22 of them serve this model, and a
-# recall figure measured across a shifting set of them means nothing. Morph is
-# the only one found that honours enable_thinking below; the two that declare
-# fp8 ignore it and spend 30-45s reasoning. Its own quantization is undeclared,
-# which is the price of the switch working.
-provider         = "morph"
+# Provisional since 18 October 2026, when Morph's endpoint for the route pinned
+# on 23 September, deepseek/deepseek-v4.1-flash, went down. No route measured
+# clears phase 1, stronger models included. With the prompt extract-3 this one
+# reaches recall 0.72 over the annotated corpus and loses 2 turns in 81, and
+# its answers vary from call to call (DECISIONS).
+model            = "mistralai/mistral-medium-3.1"
+# Exactly one provider, fallbacks off: a recall figure measured across a
+# shifting set of them means nothing. This is Mistral's zero-retention endpoint.
+provider         = "mistral/zdr"
 answer_shape     = "json_schema"
 # A deadline, not a socket timeout, and it has to fit inside the turn budget
 # below. glm's tail does not fit: its slowest measured answer took 49.8s.
@@ -54,14 +56,10 @@ max_report_chars = 20000
 
 [extractor.parameters]
 # What this route takes, sent as written; a parameter a model refuses leaves
-# the router with no endpoint at all, so the set belongs to the route.
+# the router with no endpoint at all, so the set belongs to the route. This
+# model does not reason, so there is no thinking to switch off, and a seed was
+# accepted and steadied nothing, so there is none.
 temperature = 0
-
-# This model reasons by default, and the reasoning parameter does not stop it:
-# the switch is the provider's own chat template. Accepted is not honoured, so
-# it was checked against the reply, which now carries no thinking block at all.
-[extractor.parameters.extra_body.chat_template_kwargs]
-enable_thinking = false
 
 [budget]
 # The pipeline's own wall clock: longer than the extractor's deadline above,
