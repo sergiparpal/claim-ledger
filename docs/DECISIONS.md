@@ -1238,3 +1238,33 @@ open is adopting `extract-3` in the hook, which recovers more claims and loses
 fewer turns for about 30% more a turn and a slower tail, 10 seconds at the
 95th percentile against 6; stronger models, of another family than the
 annotator's; or phase 1 as an observer only.
+
+### extract-3 goes into the hook, and phase 1 stays an observer — 25 October 2026
+
+On 25 October the user accepted three things: `extract-3` in the hook, a
+screen of stronger models with it, and phase 1 as an observer while no route
+clears its threshold.
+
+Before the swap, the isolation test of I-1 refused the prompt. Its example
+"`pytest -q`: 41 passed" held `pytest -q`, a command of the test's fixture
+session, and the test cannot tell a prompt's example from a leak. The example
+became "`pytest`: 41 passed", which no captured report holds, and the prompt
+`extract-3+32d58f9c`. A changed prompt does not inherit a measurement, so
+medium ran the corpus again with it, three passes from 09:00 to 09:20 UTC, for
+$0.47. Its worst pass gives recall 0.72 and a spurious share of 0.47, against
+0.74 and 0.49 with `extract-3+47a8c259` and 0.67 and 0.52 with `extract-2`.
+Two turns of 81 are `UNKNOWN` in its worst pass, both late, with no answer
+missing and none refused, and 239 of its 243 calls came inside 12 seconds,
+the median at 3.1.
+
+`prompts/extract.md` is now `extract-3`, and `prompts/extract-2.md` keeps the
+sentence contract alone, for measurement. The frozen row of CLAUDE.md says so,
+with the user's leave, and SPEC § Extractor contract says how the rules travel
+with the vocabulary. The plugin goes to 0.3.0 with this change and is
+installed in distiller from this commit; a session already open keeps 0.2.1
+until it closes.
+
+Phase 1 goes on as an observer. Nothing blocks a turn in phase 1, and phase 2
+waits for a route that clears the threshold. Until then the appendix reads as
+an instrument that misses about a quarter of the checkable claims the
+annotator marks.

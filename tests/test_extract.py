@@ -102,7 +102,7 @@ class AnswerTest(ExtractTest):
     def test_the_provenance_travels_with_every_claim(self):
         result, _ = self.run_extract(doubles.answer(*REAL_CLAIMS, provider="Morph"))
         version = extract.load_prompt().version
-        self.assertTrue(version.startswith("extract-2+"), version)
+        self.assertTrue(version.startswith("extract-3+"), version)
         expected = schema.Provenance(prompt_version=version,
                                      model="deepseek/deepseek-v4.1-flash",
                                      base_url="https://openrouter.ai/api/v1",
@@ -280,7 +280,7 @@ class PromptTest(unittest.TestCase):
     def test_the_version_is_the_declared_one_plus_a_hash_of_the_prompt(self):
         prompt = extract.load_prompt()
         declared, _, digest = prompt.version.partition("+")
-        self.assertEqual(declared, "extract-2")
+        self.assertEqual(declared, "extract-3")
         self.assertRegex(digest, r"^[0-9a-f]{8}$")
 
     def test_a_candidate_prompt_declares_the_version_its_file_is_named_for(self):

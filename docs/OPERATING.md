@@ -168,7 +168,7 @@ python3 ~/code/claim-ledger/tools/measure_recall.py recall --root <project> <run
 ```
 
 The run calls the route three times a report and needs the key; the other two
-call nothing. The first figures, of 24 October 2026, are in
-[DECISIONS](DECISIONS.md): no route measured clears phase 1, and the best
-misses a third of the checkable claims the annotator marks. Read the appendix
-as an instrument that does.
+call nothing. The figures are in [DECISIONS](DECISIONS.md): no route measured
+clears phase 1, and with the prompt the hook sends since 25 October 2026 the
+route in use misses a quarter of the checkable claims the annotator marks.
+Read the appendix as an instrument that does.

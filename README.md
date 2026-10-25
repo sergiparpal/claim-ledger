@@ -93,13 +93,14 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
 
 ## What it does not do yet
 
-- **The extractor does not clear phase 1.** Three candidate routes ran the
-  corpus three times each on 24 October 2026, and the best reached recall 0.67
-  on checkable claims, where phase 1 needs 0.90 over at least 50 annotated
-  reports. The reference is a model's annotation, which agrees with the
-  reports a person annotated by hand on about three checkable claims in four
+- **The extractor does not clear phase 1, and phase 1 stays an observer.**
+  With the prompt the hook sends since 25 October 2026, `extract-3`, the route
+  in use reaches recall 0.72 on checkable claims over the annotated corpus,
+  where phase 1 needs 0.90 over at least 50 annotated reports. The reference
+  is a model's annotation, which agrees with the reports a person annotated by
+  hand on about three checkable claims in four
   ([docs/DECISIONS.md](docs/DECISIONS.md)). Read the appendix as an instrument
-  that, measured so, misses a third of the checkable claims.
+  that, measured so, misses a quarter of the checkable claims.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
   3, and each is gated on evidence from the phase before it.
 - Nothing aggregates several claims in one sentence into one verdict. Each
