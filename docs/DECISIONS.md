@@ -1268,3 +1268,41 @@ Phase 1 goes on as an observer. Nothing blocks a turn in phase 1, and phase 2
 waits for a route that clears the threshold. Until then the appendix reads as
 an instrument that misses about a quarter of the checkable claims the
 annotator marks.
+
+### No stronger model screened does better than medium — 25 October 2026
+
+The screen the user accepted ran from 09:02 to 09:31 UTC on 25 October: one
+pass each with `extract-3+32d58f9c` over the frozen corpus (sha256
+`1014621cb4d1`), of models that do not reason, take a schema and a
+temperature, and are of another family than the annotator's. The same day the
+user agreed to the corpus going to Azure, Novita and SiliconFlow, beyond the
+providers agreed on 18 October. `mistral-large-2512` answered 429 to every
+call on Mistral's zero-retention endpoint and ran on its EU one. Each was
+first asked the fixed report once, and answered in shape.
+
+| Model, provider | Recall | Spurious share | Turns `UNKNOWN` | Median call | A pass |
+| --- | --- | --- | --- | --- | --- |
+| `mistral-medium-3.1`, `mistral/zdr`, the route, worst of 3 passes | 0.72 | 0.47 | 2 of 81 | 3.1s | $0.16 |
+| `mistral-large-2512`, `mistral/eu` | 0.64 | 0.32 | 3 of 81 | 3.6s | $0.11 |
+| `kimi-k2-0905`, `novita/fp8` | 0.61 | 0.43 | 37 of 81 | 10.9s | $0.26 |
+| `deepseek-chat-v3-0324`, `siliconflow/fp8` | 0.58 | 0.33 | 44 of 81 | 13.1s | $0.09 |
+| `qwen3-235b-a22b-2507`, `deepinfra/fp8` | 0.57 | 0.31 | 21 of 81 | 7.2s | $0.03 |
+| `gpt-4.1`, `azure` | 0.53 | 0.24 | 2 of 81 | 3.8s | $0.46 |
+
+The stronger models are more cautious, not more right: they mark fewer claims,
+which lowers their spurious share and their recall together. `gpt-4.1`
+extracted 865 claims in its pass, where medium extracts about 2,200 and the
+annotator marks about 2,050. `kimi-k2-0905` and `deepseek-chat-v3-0324` would
+lose half their turns to the 12 seconds as well. None reached the 0.85 of one
+pass that was to earn three, so none ran three. The route stays medium with
+`extract-3`, and phase 1 stays an observer. The screen cost $0.95.
+
+Not measured: models that reason, with the reasoning switched off, since a
+parameter accepted has more than once not been a parameter honoured; Claude's
+models, which A-12 rules out against an annotator of their family; and more
+than one pass of any candidate, so each figure may move by a few hundredths.
+
+The 0.3.0 install copied the working tree into the plugin cache, the
+untracked `corpus/` with it, since a directory marketplace takes the directory
+as it is. That copy, a stale snapshot, was deleted at the user's request. An
+install from a tree with untracked data in it carries the data along.
