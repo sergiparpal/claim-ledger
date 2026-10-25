@@ -1140,3 +1140,39 @@ against the morning's corpus is 0.67 against the evening's. The routes stand
 at 0.67 against 0.90, a gap far wider than anything the reference was seen to
 move, so none clears phase 1 under either reading. What is open is on the
 extractor's side, and its prompt is frozen.
+
+### The annotator repeats itself within the threshold — 24 October 2026
+
+At the user's request, the annotator annotated the same 81 reports a second
+time, from 19:15 to about 20:15 on 24 October, with no answer refused, into
+`corpus/annotations-repeat.jsonl` (sha256 `fe8b772d2131`). It used the same
+guide as the evening's annotation, ANNOTATING unchanged since 16:35, and the
+same CLI, Claude Code 2.1.310. The reference stays `corpus/annotations.jsonl`
+(sha256 `1014621cb4d1`).
+
+Scored against the first as an extractor would be, the second pass reaches
+recall 0.95 on checkable claims, 818 of 857, with a spurious share of 0.07,
+149 of 2,041: 108 claims in sentences the first left unmarked and 41 typed
+otherwise. The other way round, it is 0.96 and 0.08. Phase 1 asks for 0.90 and
+at most 0.10, so an extractor as good as the annotator would clear it against
+one annotation of it, with five hundredths to spare on recall and two or three
+on the spurious share. The routes' 0.67 is the extractor's gap, not the
+reference's noise.
+
+Of the 4,088 sentences, 286 were typed differently, 7%. That is about as many
+as the 284 the previous entry could put down to neither rule, which were then
+most likely the annotator's own variation. The counts by type barely move:
+`file_changed` 362 and 361, `judgment` 1,033 and 1,034. What varies is the
+border between `judgment`, `intent` and no claim at all, and that border is
+what makes the spurious share the tighter half of the threshold. The 0.88 to
+0.90 of the previous entry came from the change of guide, not from the
+annotator.
+
+The second pass agrees with the anchor as the first did: it finds 22 of the
+user's 29 checkable claims, 0.76, and the user made 22 of its 27, 0.81. None
+of the twenty quoted examples of ANNOTATING is a sentence of a captured report,
+only the command name `make verify` appears in reports, so the guide hands the
+annotator no answer. What was not measured is a reference made by the majority
+of three passes or more. What is open is a prompt that carries ANNOTATING's
+rules, which needs the user's leave for the frozen prompt and a reading of
+I-1.
