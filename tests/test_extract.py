@@ -283,6 +283,13 @@ class PromptTest(unittest.TestCase):
         self.assertEqual(declared, "extract-2")
         self.assertRegex(digest, r"^[0-9a-f]{8}$")
 
+    def test_a_candidate_prompt_declares_the_version_its_file_is_named_for(self):
+        """A prompt measured beside the hook's carries its own version, not the hook's."""
+        for path in sorted(extract.PROMPT_PATH.parent.glob("extract-*.md")):
+            declared, _, digest = extract.load_prompt(path).version.partition("+")
+            self.assertEqual(declared, path.stem)
+            self.assertRegex(digest, r"^[0-9a-f]{8}$")
+
     def test_editing_the_prompt_changes_the_version_even_without_a_bump(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "extract.md"

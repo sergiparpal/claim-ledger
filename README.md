@@ -72,7 +72,8 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   timings and a digest of each answer, and with `run --corpus` the answers too,
   as sentence numbers and types, for the reports the corpus annotates.
   `--config` measures another route from a copy of the project's
-  `claim-ledger.toml`. It needs the same key as `extract_report.py`. What it
+  `claim-ledger.toml`, and `--prompt` another prompt file, while the hook goes
+  on sending its own. It needs the same key as `extract_report.py`. What it
   found on 17 October 2026 is in
   [docs/provider-measurements.md](docs/provider-measurements.md).
 - `python3 tools/measure_recall.py agreement|recall` scores, and makes no call.

@@ -1176,3 +1176,65 @@ annotator no answer. What was not measured is a reference made by the majority
 of three passes or more. What is open is a prompt that carries ANNOTATING's
 rules, which needs the user's leave for the frozen prompt and a reading of
 I-1.
+
+Corrected on 25 October 2026: the sentence above saying that no quoted
+example of ANNOTATING is a sentence of a captured report is wrong. The check
+matched an example only when its quotes fell on one line of the guide, and
+two that wrap across lines are sentences of captured reports. "En esta fase no
+puedo leer `src/`, así que no podría editar el fichero después" is in
+`069e1689-…-1`, and "`docs/SPEC.md` no se ha tocado" in `51e5603c-…-2`,
+`57fec1fa-…-1` and `afd27afb-…-1`. All four reports are in the corpus and none
+is in the anchor. So the guide did hand the annotator the answer for those
+four sentences, and it gave that answer: no claim for the first, `judgment`
+for the other three. Recall, which counts checkable claims, does not see them,
+and the agreement with the anchor does not include them. The examples stay in
+ANNOTATING for now, since the corpus was annotated with them, and a guide
+changed under it would no longer be the one that made it.
+
+### A prompt with the guide's rules gains recall and does not clear phase 1 — 25 October 2026
+
+On 25 October the user gave leave to unfreeze the prompt and read I-1 so that
+the rules for typing are part of the type vocabulary the extractor is given,
+not context. `extract-3` (`src/ledger/prompts/extract-3.md`,
+`extract-3+47a8c259`) is `extract-2` with ANNOTATING's rules condensed into
+it: what is not a claim, headings, code, what was not done, what the agent may
+do, a file's content and a check's line. It has 784 words to `extract-2`'s 352.
+Its examples are invented, and none of its 26 quoted examples is in a captured
+report, checked with the lines joined; the two of ANNOTATING that are, named
+in the correction above, were replaced. The hook still sends `extract-2`, and
+`tools/measure_route.py --prompt` measures a candidate file beside it.
+
+medium and devstral ran the corpus with it three times each, from 08:06 to
+08:27 UTC, in the same order as their `extract-2` runs, for $0.84 in all.
+Before that, one call per route on the fixed report gave the three types it
+was recorded with. Scored against the frozen corpus (sha256 `1014621cb4d1`):
+
+| Worst pass | medium, `extract-2` | medium, `extract-3` | devstral, `extract-2` | devstral, `extract-3` |
+| --- | --- | --- | --- | --- |
+| Recall on checkable claims | 0.67 | 0.74 | 0.67 | 0.75 |
+| Spurious share | 0.52 | 0.49 | 0.49 | 0.46 |
+| Turns `UNKNOWN` | 5 of 81 | 3 of 81 | 3 of 81 | 3 of 81 |
+| Checkable claims missed in at least one pass | 306 | 254 | 309 | 242 |
+| Median call; calls inside 12s, of 243 | 2.2s; 240 | 3.3s; 237 | 2.2s; 243 | 3.2s; 238 |
+| Cost | $0.32 | $0.41 | $0.34 | $0.43 |
+
+Counted by type over the three passes, without a sentence being read, the
+rules did what they say for medium, and devstral went the same way. The
+annotator's `file_changed` claims in sentences the route typed nothing at all
+fell from 295 to 140, and its `suite_passed` claims from 299 to 212. Check
+lines typed `command_run` fell from 226 to 101, and judgments typed
+`suite_passed` from 169 to 55. But the route now calls far more sentences
+opinions where the annotator saw no claim, from 393 to 1,318, so it extracts
+half as much again and the spurious share hardly moves. Some checkable claims
+it now types `judgment`, `suite_passed` ones from 20 to 71, by the prompt's
+caution. Counted on checkable claims alone, 0.40 to 0.45 of what it types
+checkable matches nothing of the annotator's, where it was 0.46 to 0.52.
+
+The rules are worth seven or eight hundredths of recall. With these two models
+the prompt closes neither the gap to the 0.90 and 0.10 of phase 1 nor the one
+to the annotator's 0.95 and 0.07 against itself. Nothing was confirmed on
+reports outside the corpus: the four captured since are not annotated. What is
+open is adopting `extract-3` in the hook, which recovers more claims and loses
+fewer turns for about 30% more a turn and a slower tail, 10 seconds at the
+95th percentile against 6; stronger models, of another family than the
+annotator's; or phase 1 as an observer only.

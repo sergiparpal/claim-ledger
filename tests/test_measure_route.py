@@ -298,6 +298,14 @@ class RunTest(unittest.TestCase):
         self.assertEqual(measure.call_args.kwargs["settings"].model,
                          config.load(self.config).extractor.model)
 
+    def test_another_prompt_is_measured_from_its_file(self):
+        candidate = self.root / "candidate.md"
+        candidate.write_text("version: extract-test\n\nLabel the claims.\n", encoding="utf-8")
+        _, measure, _ = self.run_tool("--prompt", str(candidate))
+        self.assertTrue(measure.call_args.kwargs["prompt"].version.startswith("extract-test+"))
+        _, measure, _ = self.run_tool()
+        self.assertEqual(measure.call_args.kwargs["prompt"], extract.load_prompt())
+
     def test_every_row_names_its_route_and_a_corpus_run_keeps_its_answers(self):
         out = self.root / "run.jsonl"
         with (unittest.mock.patch.object(measure_route, "PAUSE_S", 0),

@@ -2,12 +2,15 @@
 """Measure the extraction route: how long it takes, and whether it answers alike.
 
     python3 tools/measure_route.py run [--root PROJECT] [--config ROUTE.toml] [--passes N]
-                                       [--deadline S] [--same-reports RUN.jsonl]
-                                       [--corpus CORPUS.jsonl] OUT.jsonl
+                                       [--prompt PROMPT.md] [--deadline S]
+                                       [--same-reports RUN.jsonl] [--corpus CORPUS.jsonl]
+                                       OUT.jsonl
     python3 tools/measure_route.py watch --probe REPORT [--root PROJECT] [--config ROUTE.toml]
-                                         [--every S] [--slow X] [--hours H] OUTDIR
+                                         [--prompt PROMPT.md] [--every S] [--slow X]
+                                         [--hours H] OUTDIR
     python3 tools/measure_route.py summary [--root PROJECT] RUN.jsonl [RUN.jsonl ...]
-    python3 tools/measure_route.py fixture [--root PROJECT] [--config ROUTE.toml] [--runs N]
+    python3 tools/measure_route.py fixture [--root PROJECT] [--config ROUTE.toml]
+                                           [--prompt PROMPT.md] [--runs N]
 
 `run` sends the request the Stop hook sends, built by the same code from
 PROJECT/claim-ledger.toml, for every report PROJECT has captured under
@@ -27,7 +30,10 @@ over it three times, with --passes 3.
 The route measured is the [extractor] table of PROJECT/claim-ledger.toml, or
 of --config, a copy of that file with another route in it, so that a
 candidate is measured without touching the file the project's turns read.
-Every row of a run names the route that answered it.
+--prompt does the same for the prompt: a candidate file, with a version line
+of its own, is measured while the hook goes on sending the one it has.
+Every row of a run names the route that answered it, the prompt's version
+and hash among it.
 
 `watch` sends one --probe report every --every seconds (default 300) and starts
 `run` when the route turns slow: two probes in a row at --slow times (default
@@ -365,7 +371,7 @@ def measure(out: Path, reports: Mapping[str, str], *, passes: int, seed: int,
 
 
 def run(args) -> int:
-    settings, prompt = _route(_config_path(args))
+    settings, prompt = _route(_config_path(args), args.prompt)
     only = reports_of(args.same_reports) if args.same_reports else None
     if args.corpus:
         held = annotate.annotated(args.corpus)
@@ -388,7 +394,7 @@ def run(args) -> int:
 
 
 def watch(args) -> int:
-    settings, prompt = _route(_config_path(args))
+    settings, prompt = _route(_config_path(args), args.prompt)
     only = reports_of(args.same_reports) if args.same_reports else None
     reports = captured(args.root, settings.max_report_chars, only)
     if args.probe not in reports:
@@ -534,7 +540,7 @@ def _summarise(rows: Sequence[Mapping]) -> None:
 
 
 def fixture(args) -> int:
-    settings, prompt = _route(_config_path(args))
+    settings, prompt = _route(_config_path(args), args.prompt)
     payload = json.loads("".join(block["text"] for block in
                                  json.loads(RECORDING.read_text(encoding="utf-8"))["content"]
                                  if block["type"] == "text"))
@@ -589,8 +595,8 @@ def _config_path(args) -> Path:
     return args.config or args.root / config.CONFIG_FILENAME
 
 
-def _route(path: Path):
-    return config.load(path).extractor, extract.load_prompt()
+def _route(path: Path, prompt: Path | None = None):
+    return config.load(path).extractor, extract.load_prompt(prompt or extract.PROMPT_PATH)
 
 
 def _project(root: Path, path: Path) -> dict:
@@ -649,6 +655,9 @@ def main(argv: list[str]) -> int:
         sub.add_argument("--config", type=Path,
                          help="the claim-ledger.toml whose [extractor] route is measured "
                               "(default: PROJECT's); a copy with another route measures that one")
+        sub.add_argument("--prompt", type=Path,
+                         help="the prompt file measured (default: the one the hook sends, "
+                              "src/ledger/prompts/extract.md); another measures a candidate")
         sub.add_argument("--deadline", type=float, default=150.0,
                          help="wall clock per call, in seconds (default 150)")
         if runs_reports:
