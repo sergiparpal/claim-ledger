@@ -1,0 +1,115 @@
+[checks]
+# Exact invocations that count as a full run of each check. No globs:
+# "pytest*" also matches "pytest --version", which is a route to a
+# false VERIFIED. A command that does not match exactly is not a check,
+# and the claim lands as UNSUPPORTED — the safe direction.
+#
+# make verify is the whole suite, as the Makefile's verify target runs it:
+# ruff format and ruff check, the character check, import-linter, pyright,
+# pytest under coverage, and gitleaks over the history. Only the bare command
+# counts. A line that pipes it or adds "; echo $?" exits with the status of
+# whatever ran last, so the ok recorded for it says nothing about the suite.
+verify = ["make verify"]
+#
+# The targets make verify is made of, each a check of its own: in the tests
+# phase, where the tests are red on purpose and make verify cannot pass, the
+# agent runs them one by one. Added on 20 October 2026. make test-red is left
+# out: it fails on purpose, and a claim that it failed as expected, typed as a
+# suite that passed, would come back CONTRADICTED.
+format  = ["make format"]
+lint    = ["make lint"]
+imports = ["make imports"]
+types   = ["make types"]
+test    = ["make test"]
+secrets = ["make secrets"]
+
+[checks.scope]
+# which files each check covers, for the freshness rule
+#
+# Every file: the character check reads each one git tracks or does not
+# ignore, and gitleaks reads the history, so an edit anywhere after a run can
+# change its result. The scan skips .git and whatever git ignores.
+verify = ["**/*"]
+# Each target's own inputs, from pyproject.toml's [tool.*] tables and the
+# Makefile that runs it. lint reads every file, as the character check does,
+# and secrets the whole history, so both cover everything, as verify does.
+format  = ["**/*.py", "**/*.pyi", "pyproject.toml", "Makefile"]
+lint    = ["**/*"]
+imports = ["src/**/*.py", "pyproject.toml", "Makefile"]
+types   = ["src/**/*.py", "tests/**/*.py", "scripts/**/*.py", ".claude/hooks/**/*.py",
+           "pyproject.toml", "Makefile"]
+test    = ["src/**/*", "tests/**/*", "pyproject.toml", "Makefile"]
+secrets = ["**/*"]
+
+[checks.aliases]
+# The words a report actually uses for a check, mapped to the check it means.
+# Matching is case-insensitive.
+#
+# make verify runs each of these tools (see [checks]), so a passing run of it
+# vouches for them. Added at once on 19 October 2026, in the forms the reports
+# in claims.jsonl had named them by then; an alias matches a referent whole.
+# pytest, named once, is left out for now.
+"pyright"             = "verify"
+"import-linter"       = "verify"
+"gitleaks"            = "verify"
+"ruff"                = "verify"
+"ruff check"          = "verify"
+"ruff format"         = "verify"
+"ruff format --check" = "verify"
+
+[tiers]
+# used in phase 1 to decide which actions are consequential enough
+# that not mentioning them is worth reporting
+#
+# The Markdown is the work here, not its documentation, so it is not LOW: an
+# edit to it that the report never mentions is listed, not just counted.
+# git clean and git reset --hard are HUMAN beside rm -rf because they delete
+# work that has not been committed, and here that can be all of it.
+HUMAN   = ["Bash(git push*)", "Bash(*rm -rf*)", "Bash(git clean*)",
+           "Bash(git reset --hard*)"]
+LOW     = []
+default = "REVIEW"
+
+[extractor]
+# OpenRouter's Anthropic-shaped endpoint. The address and the header are
+# configuration, so that no ANTHROPIC_-named variable decides where a report
+# is sent. Both x-api-key and bearer were verified to work there.
+base_url         = "https://openrouter.ai/api/v1"
+auth             = "x-api-key"
+key_env          = "OPENROUTER_API_KEY"
+# Provisional since 18 October 2026, when Morph's endpoint for
+# deepseek/deepseek-v4.1-flash went down. The next route is chosen by recall on
+# the annotated corpus (claim-ledger DECISIONS, "A provisional route until the
+# corpus chooses one"). On the 48 reports it lost 4 turns in 96 to UNKNOWN and
+# came back empty twice, but its answers vary from call to call.
+model            = "mistralai/mistral-medium-3.1"
+# Exactly one provider, fallbacks off: Mistral's zero-retention endpoint.
+provider         = "mistral/zdr"
+answer_shape     = "json_schema"
+# A deadline, not a socket timeout, and it has to fit inside the turn budget
+# below.
+timeout_s        = 12
+max_report_chars = 20000
+
+[extractor.parameters]
+# What this route takes, sent as written; a parameter a model refuses leaves
+# the router with no endpoint at all, so the set belongs to the route. A seed
+# was accepted and steadied nothing, so there is none.
+temperature = 0
+
+[budget]
+# The pipeline's own wall clock: longer than the extractor's deadline above,
+# which the loader checks, and shorter than the Stop hook's timeout in
+# hooks/hooks.json, which is when the harness kills the process. The pipeline
+# reports running out of time; a killed hook reports nothing at all.
+turn_timeout_s = 15
+
+[log]
+max_command_chars = 2000
+
+[gate]
+enabled = false   # phase 2 flips this. Present from the start: the loader
+                  # rejects unknown keys, so adding it later is a migration
+
+[corpus]
+capture = true
