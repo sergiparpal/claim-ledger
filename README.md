@@ -99,8 +99,11 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   where phase 1 needs 0.90 over at least 50 annotated reports. The reference
   is a model's annotation, which agrees with the reports a person annotated by
   hand on about three checkable claims in four
-  ([docs/DECISIONS.md](docs/DECISIONS.md)). Read the appendix as an instrument
-  that, measured so, misses a quarter of the checkable claims.
+  ([docs/DECISIONS.md](docs/DECISIONS.md)). On 27 reports captured after the
+  corpus was frozen it reaches 0.50, the loss almost all in claims about
+  suites, which those reports hold more of. Read the appendix as an instrument
+  that, measured so, misses between a quarter and a half of the checkable
+  claims.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
   3, and each is gated on evidence from the phase before it.
 - Nothing aggregates several claims in one sentence into one verdict. Each

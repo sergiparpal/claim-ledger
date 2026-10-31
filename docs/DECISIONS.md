@@ -1379,3 +1379,45 @@ Not measured: the route at a slow hour, which on 17 October halved the old
 route's speed, and any report beyond these 6 and the corpus. The route copies
 under `corpus/routes/` keep 12 and 15, as they were measured, and every earlier
 run's rows carry the deadline they were scored against.
+
+### Out of the corpus, the route finds half the checkable claims — 31 October 2026
+
+The corpus froze on 24 October, and `extract-3` was written while it was being
+measured. So on 31 October, at the user's request, the 27 reports distiller
+captured after it that the extractor reads were annotated as the corpus was:
+`claude-fable-5-1` through `tools/annotate_model.py`, under the guide
+unchanged since 24 October. They went into a file of their own,
+`corpus/holdout.jsonl` (sha256 `e11bd53fbae6`), with 1,113 claims, and the
+corpus was not touched. The CLI that carried the model was 2.1.316, where the
+corpus's was 2.1.310. The route, `mistral-medium-3.1` with
+`extract-3+32d58f9c`, ran them three times from 13:30 to 13:39 UTC under the
+20-second deadline, for $0.23.
+
+| Worst pass | The corpus, 81 reports | After it, 27 reports |
+| --- | --- | --- |
+| Recall on checkable claims | 0.72 | 0.50 (passes 0.55, 0.50, 0.57) |
+| Spurious share | 0.47 | 0.58 |
+| Turns `UNKNOWN` | 2 of 81 | 1 of 27 |
+
+Counted by type, without a sentence being read, the loss is the suites'.
+Recall on `suite_passed` is 0.42 to 0.52 across the three passes, against 0.69
+to 0.71 on the corpus. `file_changed` is 0.73 to 0.77 against 0.79 to 0.80, and
+`command_run` 0.62 to 0.69 against 0.59 to 0.62. These reports also hold more
+suite claims. `suite_passed` is 35% of what the annotator marked in them,
+against 20% in the corpus: 15.3 claims for every 100 sentences, against 9.8.
+Where the route misses a suite claim, it misses it as it does in the corpus:
+it types the sentence nothing 72% of the time, and `judgment` 27%, where the
+corpus gave 67% and 29%. What is not known is whether these suite claims are a
+harder kind, or whether the annotator marks them differently now. None of the
+anchor's reports is among the 27, so nothing here sets the annotator against a
+person.
+
+The one `UNKNOWN` was `c1f27201-…-1` in every pass: an answer in which one
+claim had no `referents`, which the schema requires and the client refuses
+under R-12. It is not new. Six of the `extract-2` corpus run's answers were
+the same, and one of the first `extract-3` run's, which also had one answer
+that was not JSON. SPEC § Extractor contract says the answer's shape is
+enforced rather than asked for. On this route the endpoint takes the schema
+and does not hold every answer to it, and SPEC is left as it is for the user
+to decide. Every one of the run's 81 calls on these reports came inside 20
+seconds, and 73 of them inside 12.
