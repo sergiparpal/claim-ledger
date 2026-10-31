@@ -1421,3 +1421,24 @@ enforced rather than asked for. On this route the endpoint takes the schema
 and does not hold every answer to it, and SPEC is left as it is for the user
 to decide. Every one of the run's 81 calls on these reports came inside 20
 seconds, and 73 of them inside 12.
+
+Annotated again, 31 October 2026. To tell the two apart, the annotator
+annotated the same 27 reports a second time that afternoon, with the same
+guide and CLI and no answer refused, into `corpus/holdout-repeat.jsonl`
+(sha256 `52600b0fa830`). Scored against the first annotation as an extractor
+would be, the way the corpus's second pass was, it reaches recall 0.98 on
+checkable claims, 537 of 547, and finds every one of the first's 389 suite
+claims. The other way round it is 0.95, and 0.96 on suite claims. Against the
+second annotation the route's worst pass is 0.49, against the first 0.50. The
+suite claims the route misses are ones the annotator marks the same way
+twice, so the gap is the extractor's.
+
+What varies is the border between `intent`, `judgment` and no claim, and it
+is wider here than in the corpus. 259 of the 2,543 sentences were typed
+differently, 10% against 7%, and the second pass marked 184 `intent` claims
+where the first had 111. Its spurious share against the first is 0.16, and
+0.08 the other way. Against one annotation of reports like these, then, even
+an extractor as good as the annotator could go over the 0.10 that phase 1
+allows. Not measured: whether the annotator under CLI 2.1.316 marks the
+corpus's reports as it did under 2.1.310. A few of them annotated again would
+show it.
