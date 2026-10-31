@@ -16,7 +16,7 @@
     "Stop": [
       { "hooks": [{ "type": "command", "command": "python3",
                     "args": ["${CLAUDE_PLUGIN_ROOT}/src/ledger/turn.py"],
-                    "timeout": 20,
+                    "timeout": 28,
                     "statusMessage": "Auditing the turn's claims" }] }
     ]
   }

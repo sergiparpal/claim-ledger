@@ -540,8 +540,8 @@ class BudgetTest(PipelineTest):
     def shrink_budget(self, turn_timeout="2", extractor_timeout="1"):
         path = self.root / config.CONFIG_FILENAME
         text = path.read_text(encoding="utf-8")
-        text = text.replace("turn_timeout_s = 15", f"turn_timeout_s = {turn_timeout}")
-        text = text.replace("timeout_s        = 12", f"timeout_s        = {extractor_timeout}")
+        text = text.replace("turn_timeout_s = 23", f"turn_timeout_s = {turn_timeout}")
+        text = text.replace("timeout_s        = 20", f"timeout_s        = {extractor_timeout}")
         path.write_text(text, encoding="utf-8")
 
     def test_running_out_of_budget_is_an_unknown_turn_not_a_silent_skip(self):
@@ -560,12 +560,12 @@ class BudgetTest(PipelineTest):
 
     def test_the_model_call_gets_what_the_budget_has_left_not_its_own_limit(self):
         """R-43: every timeout inside the pipeline is bounded by the one
-        containing it. The configured 12s is the ceiling, not the entitlement."""
+        containing it. The configured 20s is the ceiling, not the entitlement."""
         double = doubles.Transport(self.route_answer())
         payload = self.payload(last_assistant_message=self.CAPTURED)
         with unittest.mock.patch.object(extract, "https_transport", double):
             turn.audit(self.root, payload, SESSION, 1, json.dumps(payload).encode(),
-                       NOW, time.monotonic() - 11)     # 11s of a 15s budget already gone
+                       NOW, time.monotonic() - 19)     # 19s of a 23s budget already gone
         [given] = double.timeouts
         self.assertLess(given, 5, "the model call was handed more than the budget had")
         self.assertGreater(given, 0)

@@ -206,7 +206,7 @@ class HookRegistrationTest(unittest.TestCase):
                     with self.subTest(event=event):
                         self.assertEqual(handler["type"], "command")
                         self.assertIsNotNone(shutil.which(handler["command"]))
-                        self.assertEqual(handler["timeout"], 20 if event == "Stop" else 5)
+                        self.assertEqual(handler["timeout"], 28 if event == "Stop" else 5)
                         for arg in handler["args"]:
                             self.assertTrue(arg.startswith("${CLAUDE_PLUGIN_ROOT}/"), arg)
                             resolved = Path(arg.replace("${CLAUDE_PLUGIN_ROOT}", str(REPO)))

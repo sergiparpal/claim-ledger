@@ -63,17 +63,18 @@ Nothing ever blocks. Phase 1 observes and reports.
 ## UNKNOWN turns
 
 ```text
-claim-ledger · UNKNOWN · ExtractError: the model call passed its 12.0s deadline · 1 check seen
+claim-ledger · UNKNOWN · ExtractError: the model call passed its 20.0s deadline · 1 check seen
 ```
 
 No verdict was computed — it says nothing about your work. The reason is on the
 line; the full entry is in `.claude/claim-ledger/errors.log`. In the order you
 will meet them:
 
-- **The model call timed out or failed.** Nothing to do on the turn, but it is
-  not occasional: one run in fourteen passed the deadline when the route was
-  measured, and 11 turns in 44 did in distiller up to 17 October 2026, 9 of them
-  since 10 October. Whether the deadline moves is open; see
+- **The model call timed out or failed.** Nothing to do on the turn. It is
+  most likely on a long report: at the 12 seconds the deadline was until 31
+  October 2026, 4 of the 6 turns of more than 130 sentences with `extract-3`
+  passed it in distiller, and no shorter one did. It is 20 seconds now. Moving
+  it means moving `[budget]` and the Stop hook's timeout with it, in order; see
   [DECISIONS](DECISIONS.md).
 - **`claim-ledger.toml` changed mid-session.** Fine if you edited it. Worth a hard
   look if you did not. A new session re-baselines.

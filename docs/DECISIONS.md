@@ -391,6 +391,9 @@ The deadline still caps the size of an answer, but at a slow hour the cap is
 less than half as large, about 1,000 tokens for 12 seconds: the largest answer
 of that run, 2,943 tokens, took 38.6 seconds.
 
+Moved on 31 October 2026, at the user's leave, to 20 seconds, with the budget
+and the hook's timeout after it: § The deadline moves to 20 seconds.
+
 ### The route no longer gives the same answer twice — 17 October 2026
 
 The route was frozen on a measurement that included its repeatability: the
@@ -1319,3 +1322,60 @@ is as provisional in the sample as in distiller, and the frozen row of
 CLAUDE.md says so. The test that the sample loads as written now expects the
 new route, and a new one keeps the nested parameter table of the old route
 loading.
+
+### The deadline moves to 20 seconds — 31 October 2026
+
+On 31 October, at the user's leave, `[extractor] timeout_s` went from 12 to 20
+seconds, `[budget] turn_timeout_s` from 15 to 23, and the Stop hook's timeout in
+`hooks/hooks.json` from 20 to 28. The margins between them are the ones
+measured on 23 September: three seconds for the rest of the pipeline, five to
+render the `UNKNOWN`. The plugin goes to 0.3.1 with the hook's timeout.
+Distiller's `claim-ledger.toml`, which is the user's, moves after the plugin is
+installed and between sessions. The other order would put a 23-second budget
+inside a hook killed at 20, and a killed hook reports nothing.
+
+The reason is daily use. Of the first 20 distiller turns with `extract-3`, from
+25 to 31 October, 4 passed the 12 seconds, every one a report of 136 to 201
+sentences. That is 4 of the 6 turns of 120 sentences or more, and none of the
+14 shorter. With `extract-2` on the same route, from 18 to 25 October, none of
+29 had, 6 of them that long.
+
+The time is the size of the answer. Over the corpus the route costs the same
+per output token with either prompt, 4.35 milliseconds with `extract-2` and
+4.38 with `extract-3`, and 12 seconds hold about 2,550 tokens. `extract-3`
+writes more of them, 0.55 claims a sentence against 0.38 at about 25 tokens
+each, and nearly half of what it writes is `judgment`: 47% of its claims, and
+52% of those in answers over 2,000 tokens. The answer to one long report also
+changes size from call to call by four times or more: `699b8797-…-1`, of 166
+sentences, got 4,341, 3,869 and 991 tokens in three passes. The corpus holds 5
+reports of 120 sentences or more among 81, so its 239 calls in 243 inside 12
+seconds were decided by short reports. On those 5, 3 calls of 15 passed 12
+seconds with `extract-3`, and 2 with `extract-2`.
+
+What a longer deadline buys was not known, because a call abandoned at 12
+seconds leaves no trace of how long it would have taken. So the six long
+reports of daily use with `extract-3`, the four that passed the deadline and
+two that did not, were sent again on 31 October from 12:24 to 12:27 UTC: three
+passes with each prompt under a 150-second deadline, for $0.12, kept in
+`corpus/runs/long-reports-*.jsonl`. The two runs went side by side, and 8 of
+their 36 calls on reports came back HTTP 429; they were not repeated. With
+`extract-3`, 4 of the 12 answers passed 12 seconds, up to 14.0 seconds and
+3,127 tokens. With `extract-2`, 4 of 16 did, up to 17.4 seconds and 3,512
+tokens. Going back to `extract-2` would not have saved these turns: the size of
+an answer follows the report and the call more than the prompt.
+
+With the corpus's answers beside them, every answer to a report of 120
+sentences or more came inside 20 seconds as measured: 27 with `extract-3` and
+31 with `extract-2`. Every window ran at about 235 to 240 tokens a second after
+the first byte. At half that speed, an estimate from the size of each answer
+puts 20 of the 27 inside 20 seconds, 23 inside 25 and 25 inside 30, and single
+calls have been slower still, the slowest at 85 tokens a second. The user chose
+20 as the smallest figure that holds every answer measured. It costs time only
+on the turns 12 seconds would have lost, at most eight seconds each: a turn
+that answered inside 12 waits no longer than it did, and a call slower than 20
+is still `UNKNOWN`.
+
+Not measured: the route at a slow hour, which on 17 October halved the old
+route's speed, and any report beyond these 6 and the corpus. The route copies
+under `corpus/routes/` keep 12 and 15, as they were measured, and every earlier
+run's rows carry the deadline they were scored against.

@@ -99,8 +99,8 @@ class ValidConfigTest(ConfigTest):
             base_url="https://openrouter.ai/api/v1", auth="x-api-key",
             key_env="OPENROUTER_API_KEY", model="mistralai/mistral-medium-3.1",
             provider="mistral/zdr", answer_shape="json_schema",
-            parameters={"temperature": 0}, timeout_s=12.0, max_report_chars=20000))
-        self.assertEqual(cfg.budget, config.Budget(15.0))
+            parameters={"temperature": 0}, timeout_s=20.0, max_report_chars=20000))
+        self.assertEqual(cfg.budget, config.Budget(23.0))
         self.assertEqual(cfg.log, config.Log(2000))
         self.assertEqual(cfg.gate, config.Gate(False))
         self.assertEqual(cfg.corpus, config.Corpus(True))
@@ -123,12 +123,12 @@ class ValidConfigTest(ConfigTest):
 class UnknownKeyTest(ConfigTest):
     def test_unknown_keys_are_named(self):
         cases = [
-            (edited("timeout_s        = 12\n", "timeout_s        = 12\nmodle = \"x\"\n"),
+            (edited("timeout_s        = 20\n", "timeout_s        = 20\nmodle = \"x\"\n"),
              "extractor.modle"),
             (SAMPLE + "\n[extras]\nenabled = false\n", "extras"),
             (edited('default = "REVIEW"\n', 'default = "REVIEW"\nREVIEW = ["src/**"]\n'),
              "tiers.REVIEW"),
-            (edited("turn_timeout_s = 15\n", "turn_timeout_s = 15\nextra = 1\n"),
+            (edited("turn_timeout_s = 23\n", "turn_timeout_s = 23\nextra = 1\n"),
              "budget.extra"),
             (edited("max_command_chars = 2000\n", "max_command_chars = 2000\nmax_chars = 1\n"),
              "log.max_chars"),
@@ -229,14 +229,14 @@ class NoFallbackTest(ConfigTest):
 
     def test_invalid_values_are_named(self):
         cases = [
-            ("timeout_s        = 12", 'timeout_s = "12"', "extractor.timeout_s"),
-            ("timeout_s        = 12", "timeout_s = 0", "extractor.timeout_s"),
-            ("timeout_s        = 12", "timeout_s = true", "extractor.timeout_s"),
-            ("timeout_s        = 12", "timeout_s = inf", "extractor.timeout_s"),
+            ("timeout_s        = 20", 'timeout_s = "20"', "extractor.timeout_s"),
+            ("timeout_s        = 20", "timeout_s = 0", "extractor.timeout_s"),
+            ("timeout_s        = 20", "timeout_s = true", "extractor.timeout_s"),
+            ("timeout_s        = 20", "timeout_s = inf", "extractor.timeout_s"),
             # a budget it cannot fit inside is not a budget
-            ("timeout_s        = 12", "timeout_s = 16", "extractor.timeout_s"),
+            ("timeout_s        = 20", "timeout_s = 24", "extractor.timeout_s"),
             # equal is not shorter: it leaves no time to render the UNKNOWN (R-43)
-            ("timeout_s        = 12", "timeout_s = 15", "extractor.timeout_s"),
+            ("timeout_s        = 20", "timeout_s = 23", "extractor.timeout_s"),
             ("temperature = 0", 'model = "sneaky"', "extractor.parameters.model"),
             ("temperature = 0", "messages = []", "extractor.parameters.messages"),
             ("temperature = 0", "temperature = [0]", "extractor.parameters.temperature"),
@@ -259,7 +259,7 @@ class NoFallbackTest(ConfigTest):
              "extractor.provider"),
             ('answer_shape     = "json_schema"', 'answer_shape = "yaml"',
              "extractor.answer_shape"),
-            ("turn_timeout_s = 15", "turn_timeout_s = -1", "budget.turn_timeout_s"),
+            ("turn_timeout_s = 23", "turn_timeout_s = -1", "budget.turn_timeout_s"),
             ("max_command_chars = 2000", "max_command_chars = 0", "log.max_command_chars"),
             ("max_command_chars = 2000", 'max_command_chars = "2000"', "log.max_command_chars"),
             ("max_command_chars = 2000", "max_command_chars = true", "log.max_command_chars"),

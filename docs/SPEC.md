@@ -24,7 +24,7 @@ This spec covers phases 0 and 1 of the requirements document: the evidence log, 
 - `HUMAN`-tier acknowledgement belongs to phase 3.
 - The recall threshold is declared before the first measurement, not before the code.
 
-**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 25 October 2026, when the prompt came to carry the typing rules of ANNOTATING and the provisional route, `mistral-medium-3.1` on `mistral/zdr`, came to be named (§ Extractor contract); on the 24th § Corpus capture came to say how recall, the spurious share and the annotator's agreement are counted; on the 23rd the corpus came to be annotated by a model and anchored by a few reports annotated by hand (§ Corpus capture, REQUIREMENTS A-12); on 19 October the measurement came to report the share of usable referents beside recall, and on the 18th to run each candidate three times, judged by its worst pass, the day the extractor moved to the sentence contract (§ Extractor contract): a copy of this document without this sentence is stale.
+**Requirements covered here:** R-1 to R-29, R-34 to R-45, and I-1 to I-10. R-30 to R-33 are the gate itself: specified in the requirements document, implemented in phases 2 and 3. R-25 is here because the tier matching the gate will use is what phase 1 already needs to decide which actions are consequential. Last edited 31 October 2026, when the extractor's deadline moved from 12 to 20 seconds, the turn budget to 23 and the Stop hook's timeout to 28 (§ Configuration, § Hook wiring); on 25 October the prompt came to carry the typing rules of ANNOTATING and the provisional route, `mistral-medium-3.1` on `mistral/zdr`, came to be named (§ Extractor contract); on the 24th § Corpus capture came to say how recall, the spurious share and the annotator's agreement are counted; on the 23rd the corpus came to be annotated by a model and anchored by a few reports annotated by hand (§ Corpus capture, REQUIREMENTS A-12); on 19 October the measurement came to report the share of usable referents beside recall, and on the 18th to run each candidate three times, judged by its worst pass, the day the extractor moved to the sentence contract (§ Extractor contract): a copy of this document without this sentence is stale.
 
 **Revised 19 September 2026**, after the step-1 session verified the hook payloads and measured concurrent appends. What changed: the record dropped its counter and its exit code, gained an outcome and a turn id; freshness moved to join time; `[checks]` takes exact invocations instead of globs; config protection became detection rather than prevention.
 
@@ -117,8 +117,8 @@ model            = "mistralai/mistral-medium-3.1"
 provider         = "mistral/zdr"
 answer_shape     = "json_schema"
 # A deadline over the whole call, not a socket timeout, and it has to fit
-# inside [budget] below, which the loader checks.
-timeout_s        = 12
+# inside [budget] below, which the loader checks. 12 until 31 October 2026.
+timeout_s        = 20
 max_report_chars = 20000
 
 [extractor.parameters]
@@ -133,7 +133,7 @@ temperature = 0
 # which the loader checks, and strictly shorter than the Stop hook's timeout in
 # hooks/hooks.json, which is when the harness kills the process. That second
 # gap is what the UNKNOWN gets rendered in.
-turn_timeout_s = 15
+turn_timeout_s = 23
 
 [log]
 max_command_chars = 2000
@@ -218,7 +218,7 @@ Three registrations, all command hooks, all in `hooks/hooks.json`.
     "Stop": [
       { "hooks": [{ "type": "command", "command": "python3",
                     "args": ["${CLAUDE_PLUGIN_ROOT}/src/ledger/turn.py"],
-                    "timeout": 20,
+                    "timeout": 28,
                     "statusMessage": "Auditing the turn's claims" }] }
     ]
   }
@@ -239,7 +239,7 @@ The one exception is the refusal. With the gitignore line missing, `errors.log` 
 - No payload carries a start time, so R-2's start field is optional and `duration_ms` stands in where the harness supplies it.
 - `Stop` does not fire when the user interrupts, and an API error fires `StopFailure` instead. Those turns get no appendix at all. The README says so plainly rather than leaving the silence to be discovered.
 - `systemMessage` is capped at 10,000 characters. The collapsed appendix keeps a normal turn far under it; the expanded one truncates spans to fit and says how many entries it dropped.
-- **The hook's timeout is not the budget, and it is strictly larger.** `[budget] turn_timeout_s` is 15: the pipeline's own wall clock, which it watches and reports overrunning as `UNKNOWN`. The hook's timeout is 20: when the harness kills the process. Equal values, which is what shipped until 23 September 2026, leave nothing between the two — the pipeline would notice it had run out of budget at the same instant it was killed, and the `UNKNOWN` it exists to report would be what the kill destroyed. The five seconds are the room to render it. A cancelled hook renders no decision at all, which is why the margin is real time rather than an assumption about how fast rendering is.
+- **The hook's timeout is not the budget, and it is strictly larger.** `[budget] turn_timeout_s` is 23: the pipeline's own wall clock, which it watches and reports overrunning as `UNKNOWN`. The hook's timeout is 28: when the harness kills the process. Until 31 October 2026 they were 15 and 20, under an extractor deadline of 12, and the margins have not moved. Equal values, which is what shipped until 23 September 2026, leave nothing between the two — the pipeline would notice it had run out of budget at the same instant it was killed, and the `UNKNOWN` it exists to report would be what the kill destroyed. The five seconds are the room to render it. A cancelled hook renders no decision at all, which is why the margin is real time rather than an assumption about how fast rendering is.
 
 ## Extractor contract
 

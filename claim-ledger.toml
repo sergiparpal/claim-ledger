@@ -50,8 +50,9 @@ model            = "mistralai/mistral-medium-3.1"
 provider         = "mistral/zdr"
 answer_shape     = "json_schema"
 # A deadline, not a socket timeout, and it has to fit inside the turn budget
-# below. glm's tail does not fit: its slowest measured answer took 49.8s.
-timeout_s        = 12
+# below. 20s since 31 October 2026: at 12, the answer to a long report often
+# came too late (DECISIONS). glm's slowest measured answer took 49.8s.
+timeout_s        = 20
 max_report_chars = 20000
 
 [extractor.parameters]
@@ -66,7 +67,7 @@ temperature = 0
 # which the loader checks, and shorter than the Stop hook's timeout in
 # hooks/hooks.json, which is when the harness kills the process. The pipeline
 # reports running out of time; a killed hook reports nothing at all.
-turn_timeout_s = 15
+turn_timeout_s = 23
 
 [log]
 max_command_chars = 2000

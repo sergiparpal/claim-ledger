@@ -212,7 +212,10 @@ Tests above for the versions the suite is declared to pass on.
   how many sentences the report has, so validation still runs and a number
   naming no sentence is still counted as a defect.
 - **A slow model costs turns.** The call has a wall-clock deadline that fits
-  inside the turn budget, and one that passes it is `UNKNOWN`. One run in
-  fourteen passed it when the route was measured; in daily use, 11 turns in 44
-  did up to 17 October 2026, 9 of them in the 22 since 10 October. See
+  inside the turn budget, and one that passes it is `UNKNOWN`. The deadline is
+  20 seconds since 31 October 2026. At 12, 4 of the first 20 turns with
+  `extract-3` passed it in daily use, each a report of more than 130
+  sentences, whose answer can run past 3,000 tokens. Measured, every answer to
+  a report of 120 sentences or more came inside 20 seconds; at half the speed
+  seen, by estimate, about three in four would. See
   [docs/DECISIONS.md](docs/DECISIONS.md).
