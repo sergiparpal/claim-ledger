@@ -1442,3 +1442,55 @@ an extractor as good as the annotator could go over the 0.10 that phase 1
 allows. Not measured: whether the annotator under CLI 2.1.316 marks the
 corpus's reports as it did under 2.1.310. A few of them annotated again would
 show it.
+
+### A rule for table rows recovers the suite claims, and is not in the hook yet — 31 October 2026
+
+Counted by the form of their sentence, without one being read, the suite
+claims the route misses sit in table rows. It found 0.15 of those the
+annotator marked in table rows of the corpus and 0.18 in the reports after
+it, against 0.86 and 0.88 in prose. Rows hold 23% of the corpus's suite claims
+and 57% of the later reports', which is what the later reports lost. Neither
+`extract-3` nor ANNOTATING says anything about tables. The annotator types a
+row that gives a check's result as `suite_passed` by the rule for a check's
+line, the same way both times, and leaves most other rows unmarked: 218 of the
+corpus's 335 rows and 344 of the later 565, the header rows almost always.
+
+At the user's leave, `src/ledger/prompts/extract-4.md` (`extract-4+4a21e3ea`)
+is `extract-3` with one rule more and half a sentence saying a table comes a
+row to a sentence. The rule reads a row under its header row, the way a line
+is read under its heading. It leaves the header out, types a row that names a
+check with its result `suite_passed` and nothing else, a row about a file
+`file_changed`, and leaves out rows that only lay out data, options or a plan.
+It is the guide's rules for a check's line and for a heading, carried over to
+tables, and was not fitted to any row of a report. Its three quoted examples
+are invented, and none is in the 109 captured reports or the 21 fixture files.
+
+`mistral-medium-3.1` ran it three times over the corpus, from 16:06 to 16:28
+UTC on 31 October for $0.41, and three times over the later reports, from
+16:28 to 16:38 UTC for $0.25:
+
+| Worst pass | After the corpus: `extract-3`, `extract-4` | The corpus: `extract-3`, `extract-4` |
+| --- | --- | --- |
+| Recall on checkable claims | 0.50, 0.77 (passes 0.81, 0.86, 0.77) | 0.72, 0.79 (0.81, 0.80, 0.79) |
+| Spurious share | 0.58, 0.55 | 0.47, 0.52 (0.52, 0.45, 0.42) |
+| Suite claims found in table rows | 0.18, 0.82 | 0.15, 0.81 |
+| Suite claims found in prose | 0.88, 0.88 | 0.86, 0.88 |
+
+The rule does what it says and nothing else moves much. It also types more of
+the rows the annotator left unmarked. Claims the route takes from table rows
+went from 266 to 567 in the corpus and from 600 to 1,013 after it, and those
+in unmarked rows from 120 to 241 and from 337 to 445. The spurious share of
+claims from rows fell all the same, from 66% to 50% and from 80% to 46%,
+because most of the new ones are the annotator's suite claims: those that
+match went from 90 to 282 and from 119 to 547. The spurious share overall hardly
+moves: most of it is still `judgment` where the annotator saw no claim. All 81
+calls on the later reports came inside 20 seconds, the slowest at 15.2.
+
+The run over the later reports is whole. The one over the corpus is not: the
+endpoint refused 31 of its 269 calls with HTTP 429 that afternoon, one call
+stalled to the 150-second deadline, and 4 answers lacked `referents`. Its
+recall is over the 72, 73 and 67 reports each pass got an answer for, and its
+`UNKNOWN` share, up to 14 of 81, says more about the endpoint that afternoon
+than about the prompt. The three corpus passes are to run again at a quiet
+hour, on the night of 31 October, before the user decides. The hook sends
+`extract-3` until then, and phase 1 is not cleared either way.
