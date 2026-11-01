@@ -1,4 +1,4 @@
-version: extract-3
+version: extract-4
 
 You label the claims in a software agent's end-of-turn report.
 
@@ -8,8 +8,8 @@ Your whole job is to find the assertions and give each one a type.
 
 The report comes to you cut into numbered sentences, one a line: [1], [2], and
 so on. You point at a sentence by its number and never copy its text. A list
-marker or a heading's hashes are cut off, and each line of a code block comes
-as a sentence of its own.
+marker or a heading's hashes are cut off, and each line of a code block, and
+each row of a table, comes as a sentence of its own.
 
 Return one JSON object, and nothing else. No explanation, no code fence:
 
@@ -76,5 +76,12 @@ Rules that decide the hard cases:
 - A code block that copies what a command or a check printed, offered as what
   happened, is read like the lines under a heading: under "`pytest` salió así:",
   a line "57 passed" is suite_passed.
+- A table is read a row at a time, each row under its header row, the way a
+  line is read under its heading. The header row is left out. A row that names
+  a check with its result is suite_passed, and only that: under the header
+  "| Comprobación | Estado |", the row "| `go vet` | sin avisos |" is
+  suite_passed. A row that says a file was created or changed is
+  file_changed. A row that only lays out data, options or a plan, as under
+  "| Opción | Coste |", is left out.
 - A report that asserts nothing gives {"claims": []}. That is a correct answer
   and a common one.

@@ -1529,3 +1529,29 @@ against 651 of 1,108, 59%, and a claim whose referents it cannot match stays
 
 Phase 1 is not cleared either way. Whether `extract-4` goes into the hook is
 the user's to decide, and the hook sends `extract-3` until then.
+
+### extract-4 goes into the hook — 1 November 2026
+
+On 1 November, with the clean corpus run in hand, the user put `extract-4` in
+the hook. It goes as it was measured: `prompts/extract.md` is the candidate's
+text unchanged, `extract-4+4a21e3ea`, so the figures above are its own and
+nothing had to run again. The isolation test of I-1 finds none of its fixture
+session's strings in it. `prompts/extract-3.md` keeps `extract-3+32d58f9c`,
+and `prompts/extract-2.md` the sentence contract alone, both for measurement.
+
+The gain comes with the costs recorded above. Its worst pass reaches recall
+0.80 over the corpus, against 0.72, and 0.77 over the reports after it,
+against 0.50, with the spurious share where it was. More of the spurious
+claims are `suite_passed`; 7 of its 459 answers over the corpus lacked
+`referents`, which leaves a turn `UNKNOWN`, against none of 243 with
+`extract-3`; and `command_run` sits a few hundredths lower.
+
+The frozen row of CLAUDE.md says so, with the user's leave, and so does the
+comment over the route in the sample configuration, also frozen and also at
+the user's leave. R-45, SPEC § Extractor contract, README and OPERATING say so
+too. `docs/ANNOTATING.md` is not touched. The prompt now has a rule for tables
+that the guide does not state, but the annotator already types a row that
+gives a check's result the way the guide types a check's line, so the
+reference stays as it was annotated. The plugin goes to 0.3.2 with this change
+and is installed in distiller from this commit; a session already open keeps
+0.3.1 until it closes. Phase 1 goes on as an observer.
