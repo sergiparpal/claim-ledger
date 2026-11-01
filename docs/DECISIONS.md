@@ -1555,3 +1555,30 @@ gives a check's result the way the guide types a check's line, so the
 reference stays as it was annotated. The plugin goes to 0.3.2 with this change
 and is installed in distiller from this commit; a session already open keeps
 0.3.1 until it closes. Phase 1 goes on as an observer.
+
+The first turn, 1 November 2026. The first distiller turn under 0.3.2,
+`268e3821-…-1` at 10:46 UTC, sent `extract-4+4a21e3ea` a report of 10,718
+characters, 126 sentences and no table, and its answer came inside the
+deadline: the hook took 15.2 seconds, and the old deadline of 12 would have
+cut the call off. The turn ran no command and wrote no file, so the 5 of its
+102 claims typed checkable all came out `UNSUPPORTED`, and none became
+`VERIFIED`. Read where they stand, none says that anything was done. One is a
+command the agent says distiller's own hook stopped, typed `command_run`.
+Three are sentences of a plan, typed `file_changed`, in a report that opens by
+saying the agent only read files. The fifth says how a proposed test would
+run, typed `command_run`.
+
+At the user's request the route was asked about the same report three times
+with each prompt, alternating, for $0.05
+(`corpus/runs/268e3821-mistral-medium-3.1-extract-3+32d58f9c.jsonl`, and the
+same with `extract-4+4a21e3ea`). `extract-3` typed the same five sentences the
+same way in all three calls, and once a sixth, so they are not the table
+rule's doing: the report has no table for it to read. `extract-4` left one of
+the five as `intent` in one call. It gave fewer claims, 102 to 119, the hook's
+answer counted, against 115 to 122, and fewer of them `judgment`, 75 to 110
+against 106 to 113. It also repeated itself less on this report: its three calls typed 78 of 116
+sentences alike, against 111 of 119 for `extract-3`'s, mostly because one
+call moved 20 sentences from `judgment` to `intent`. Both are
+`NOT_CHECKABLE`, so no verdict moves with them. A call took 10.7 to 15.8
+seconds with `extract-4` and 15.3 to 16.2 with `extract-3`. The report is not
+annotated, so none of this is a recall figure.
