@@ -218,9 +218,10 @@ Tests above for the versions the suite is declared to pass on.
   requirements.
 - **An answer the client cannot read makes the turn `UNKNOWN`.** Nothing is
   repaired. The endpoint is asked to enforce the answer's shape with a JSON
-  schema, which ends code fences and stray keys at the source; it cannot know
-  how many sentences the report has, so validation still runs and a number
-  naming no sentence is still counted as a defect.
+  schema, which ends code fences and nearly every stray key at the source,
+  and validation refuses what still gets through; the schema cannot know how
+  many sentences the report has, so a number naming no sentence is still
+  counted as a defect.
 - **A slow model costs turns.** The call has a wall-clock deadline that fits
   inside the turn budget, and one that passes it is `UNKNOWN`. The deadline is
   20 seconds since 31 October 2026. At 12, 4 of the first 20 turns with

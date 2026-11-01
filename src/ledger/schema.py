@@ -82,10 +82,11 @@ class Extraction:
 def json_schema(vocabulary: Sequence[str] = CLAIM_TYPES) -> dict:
     """The shape an endpoint can be asked to enforce, from the same vocabulary.
 
-    Enforcement is worth having — it ends code fences and stray keys — but it
-    cannot know how many sentences the report has, which is why validate()
-    still runs and the defect count still means something. No minimum is set
-    on the number, since not every endpoint enforces one.
+    Enforcement is worth having — it ends code fences and nearly every stray
+    key — but not every answer is held to it, and it cannot know how many
+    sentences the report has, which is why validate() still runs and the
+    defect count still means something. No minimum is set on the number,
+    since not every endpoint enforces one.
     """
     return {"type": "object", "additionalProperties": False, "required": ["claims"],
             "properties": {"claims": {"type": "array", "items": {

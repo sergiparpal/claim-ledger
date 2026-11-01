@@ -134,8 +134,9 @@ def build_request(report_text: str, *, vocabulary: Sequence[str], settings: "Set
 
     Two shapes are supported and configuration picks one. `json_schema` asks
     the endpoint to enforce the answer's shape, which ends code fences and
-    stray keys at the source. `prefill` is the fallback for a route that does
-    not enforce schemas: the assistant turn is opened with a brace so the model
+    nearly every stray key at the source; schema.validate refuses what still
+    gets through. `prefill` is the fallback for a route that does not enforce
+    schemas: the assistant turn is opened with a brace so the model
     continues an object instead of introducing one. A route that ignores a
     prefill returns a whole object, the brace put back would open a second, and
     the turn is UNKNOWN rather than quietly repaired.
