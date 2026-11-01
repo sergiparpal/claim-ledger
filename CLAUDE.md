@@ -26,6 +26,11 @@ report a verdict taken from the harness's own execution record.
 - CI: `.github/workflows/ci.yml` runs `tools/run_suite.py` on the declared set,
   but only where something is pushed, and this repository had no remote until
   25 October 2026. The pre-commit hook is what gates.
+- Ship: distiller runs the plugin from `~/code/claim-ledger-release`, a clone
+  held at the commit of the version last shipped and never edited, not from
+  this tree, so an edit here reaches no session until it is shipped. How:
+  `docs/OPERATING.md` § Ship a version. Why: `docs/DECISIONS.md` § distiller
+  runs a release copy, not this tree.
 
 ## Constraints
 
