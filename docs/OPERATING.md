@@ -21,8 +21,9 @@ claude plugin marketplace add ~/code/claim-ledger-release --scope local
 claude plugin install claim-ledger@claim-ledger --scope local
 ```
 
-`install.py` ends by suggesting `--plugin-dir`. Leave it out: with the plugin
-installed, it would run every hook twice.
+A session started with `--plugin-dir` runs the folder it names in place of the
+installed plugin, so `claude --plugin-dir ~/code/claim-ledger` would put the
+tree being edited in that session.
 
 Nothing at the end of a turn means the plugin is not loaded, or git would commit
 `.claude/claim-ledger/`. The second says so on every tool call; the first is

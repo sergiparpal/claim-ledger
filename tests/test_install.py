@@ -186,6 +186,22 @@ class GitignoreTest(ProjectTest):
         self.assertEqual(len(evidence.read(evidence.session_log(self.root, "abc123"))), 1)
 
 
+class ClosingHintTest(ProjectTest):
+    def test_it_ends_with_the_install_from_this_checkout(self):
+        result = self.run_installer()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        hint = result.stdout.split(f"{config.CONFIG_FILENAME}: loads\n", 1)[1]
+        self.assertIn(f"claude plugin marketplace add {REPO} --scope local", hint)
+        self.assertIn(f"claude plugin install {install.PLUGIN_ID} --scope local", hint)
+        self.assertNotIn(f"--plugin-dir {REPO}", hint)
+
+    def test_the_plugin_id_is_the_one_the_manifests_declare(self):
+        manifests = REPO / ".claude-plugin"
+        name = json.loads((manifests / "plugin.json").read_text())["name"]
+        marketplace = json.loads((manifests / "marketplace.json").read_text())["name"]
+        self.assertEqual(install.PLUGIN_ID, f"{name}@{marketplace}")
+
+
 class HookRegistrationTest(unittest.TestCase):
     def test_the_registration_parses_and_its_paths_resolve(self):
         script = {"PostToolUse": "record.py", "PostToolUseFailure": "record.py",

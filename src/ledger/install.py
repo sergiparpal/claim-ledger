@@ -18,6 +18,13 @@ Adds, when missing:
 Nothing else in either file changes, running it twice changes nothing, and a
 settings file that is not a JSON object is left untouched and reported. Hooks
 are not registered here: they ship in hooks/hooks.json and load with the plugin.
+
+It ends by naming the commands that install the plugin from the checkout it
+runs from. Claude Code runs a plugin out of its folder as that folder stands
+at each hook call, so the checkout should be one that moves only when a
+version ships. It does not suggest --plugin-dir: a session started with it
+runs the folder it names in place of the installed plugin, which from the tree
+being edited would put that tree in the session.
 """
 
 from __future__ import annotations
@@ -37,6 +44,7 @@ DENY_RULE = "Edit(claim-ledger.toml)"
 GITIGNORE_LINE = ".claude/claim-ledger/"
 SETTINGS = Path(".claude") / "settings.json"
 PLUGIN_ROOT = Path(__file__).resolve().parents[2]
+PLUGIN_ID = "claim-ledger@claim-ledger"
 
 IGNORED, NOT_IGNORED, NO_GIT, UNKNOWN = "ignored", "not ignored", "no git", "unknown"
 _GIT_TIMEOUT_S = 5
@@ -154,7 +162,13 @@ def main(argv: list[str]) -> int:
         print("The recorder logs an error for every tool call until the config loads.")
         return 1
     print(f"  {config.CONFIG_FILENAME}: loads")
-    print(f"Start Claude Code at {root} with: claude --plugin-dir {PLUGIN_ROOT}")
+    print(f"Install the plugin from {PLUGIN_ROOT}, running these in {root}:")
+    print(f"  claude plugin marketplace add {PLUGIN_ROOT} --scope local")
+    print(f"  claude plugin install {PLUGIN_ID} --scope local")
+    print("Its hooks run out of that folder as it stands at each call, so install from a"
+          " checkout that moves only when a version ships.")
+    print("A session started with --plugin-dir runs the folder it names instead of the"
+          " installed plugin.")
     return 0
 
 

@@ -162,10 +162,14 @@ the hooks write to `.claude/claim-ledger/`.
    rule `Edit(claim-ledger.toml)` to `.claude/settings.json` (commit it, so
    that every clone gets it), and adds `.claude/claim-ledger/` to `.gitignore`
    unless git ignores that directory already.
-3. Start Claude Code at the project root with `claude --plugin-dir <plugin>`.
-   Claude Code runs the hooks out of `<plugin>` as it stands at each call, as
-   it also does from a `directory` marketplace, so make `<plugin>` a checkout
-   that moves only when you ship a version, not the tree you edit.
+3. At the project root, install the plugin from `<plugin>` with
+   `claude plugin marketplace add <plugin> --scope local` and
+   `claude plugin install claim-ledger@claim-ledger --scope local`, the
+   commands `install.py` ends with. `claude --plugin-dir <plugin>` loads it
+   for one session instead, and where it is installed runs `<plugin>` in its
+   place. Either way Claude Code runs the hooks out of `<plugin>` as it stands
+   at each call, so make `<plugin>` a checkout that moves only when you ship a
+   version, not the tree you edit.
 
 While git would commit `.claude/claim-ledger/`, the plugin writes nothing and
 says so on every tool call. Whether git would is git's answer, so ignoring
