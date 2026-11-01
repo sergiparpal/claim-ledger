@@ -97,6 +97,13 @@ that declare fp8 are among them. Only `morph` returned a reply with no thinking
 block at all, and `morph`'s quantization is undeclared — that is the price of
 the switch working.
 
+Corrected on 1 November 2026: that the switch worked on `morph` was never
+shown. No call went to it without the switch, so a reply with no thinking
+block cannot tell a switch honoured from a deployment that did not reason. On
+1 November `morph/fp8`, listed again, reasoned with the switch in this form,
+in the top-level shape below and as `reasoning: {"enabled": false}`
+(§ The pinned route is down, and its model has no other provider to take it).
+
 The top-level `chat_template_kwargs` shape, rather than under `extra_body`, is
 ignored too. `novita/fp8` 404s under `require_parameters`.
 
