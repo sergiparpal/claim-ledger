@@ -1494,3 +1494,38 @@ recall is over the 72, 73 and 67 reports each pass got an answer for, and its
 than about the prompt. The three corpus passes are to run again at a quiet
 hour, on the night of 31 October, before the user decides. The hook sends
 `extract-3` until then, and phase 1 is not cleared either way.
+
+Run again, 1 November 2026. The three corpus passes ran again from 01:00 to
+01:20 UTC on 1 November, for $0.46, once five probes had all answered.
+No call was refused and none passed 20 seconds, the slowest at 16.1. Three
+answers lacked `referents`, two in the first pass and one in the second, and
+the hook would have left those turns `UNKNOWN`. Over its two corpus runs
+`extract-4` has given 7 such answers in 459, on four reports.
+`extract-3+32d58f9c` gave none in 243, and its slowest answer, 19.7 seconds,
+came inside the 20 now in force, so under them none of its turns would be
+`UNKNOWN`.
+
+| Worst pass, the corpus | `extract-3` | `extract-4`, again |
+| --- | --- | --- |
+| Recall on checkable claims | 0.72 | 0.80 (passes 0.80, 0.81, 0.83) |
+| Spurious share | 0.47 | 0.47 (0.47, 0.46, 0.46) |
+| Turns `UNKNOWN` under 20 seconds | 0 of 81 | 2 of 81 |
+| Suite claims found in table rows | 0.15 | 0.87 |
+| Suite claims found in prose | 0.86 | 0.88 |
+
+The afternoon's figure holds: 0.79 then, over the reports that got an answer,
+and 0.80 now. The gain is all the suites'. `suite_passed` is 0.84, 0.88 and
+0.92 across the passes, against 0.69 to 0.71, and `file_changed` 0.80 to 0.81,
+against 0.79 to 0.80. `command_run`, 94 claims, is 0.54 to 0.58 against 0.59
+to 0.62, and all six passes `extract-4` has had are under `extract-3`'s
+lowest. The spurious share does not move, but more of it is checkable. Claims
+typed `suite_passed` in a sentence the annotator did not type so are 113, 145
+and 121 a pass, against 74, 77 and 78, and 12 to 22 of them are table rows,
+against at most 1. Spurious claims of the three checkable types together are
+476, 505 and 492, against 430, 489 and 438. The join could match the
+referents of 811 of the 1,520 `suite_passed` claims the passes typed, 53%,
+against 651 of 1,108, 59%, and a claim whose referents it cannot match stays
+`UNSUPPORTED` whatever ran.
+
+Phase 1 is not cleared either way. Whether `extract-4` goes into the hook is
+the user's to decide, and the hook sends `extract-3` until then.
