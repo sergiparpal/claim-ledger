@@ -4,18 +4,50 @@ One page. The rest is in [REQUIREMENTS](REQUIREMENTS.md) and [SPEC](SPEC.md).
 
 ## Start a session
 
+Projects run the plugin from `~/code/claim-ledger-release`, a clone of this
+repository held at the commit of the version last shipped. Claude Code reads a
+plugin from a `directory` marketplace out of the marketplace's folder, as that
+folder stands at each hook call, not out of the copy an install makes
+([DECISIONS](DECISIONS.md)). So no project points at `~/code/claim-ledger`, the
+tree being edited.
+
+Once per project, copy `claim-ledger.toml` to the project root. That file is
+yours — which commands count as checks, which paths are consequential. The
+ledger never guesses at it and never writes to it. Then, from the root:
+
 ```bash
-cd <your project> && claude --plugin-dir ~/code/claim-ledger
+python3 ~/code/claim-ledger-release/src/ledger/install.py .
+claude plugin marketplace add ~/code/claim-ledger-release --scope local
+claude plugin install claim-ledger@claim-ledger --scope local
 ```
 
-Once per project first: `python3 ~/code/claim-ledger/src/ledger/install.py <project>`,
-and copy `claim-ledger.toml` to the project root. That file is yours — which
-commands count as checks, which paths are consequential. The ledger never guesses
-at it and never writes to it.
+`install.py` ends by suggesting `--plugin-dir`. Leave it out: with the plugin
+installed, it would run every hook twice.
 
 Nothing at the end of a turn means the plugin is not loaded, or git would commit
 `.claude/claim-ledger/`. The second says so on every tool call; the first is
-silent, so check `--plugin-dir` and that you started at the project root.
+silent, so check that you started at the project root, and that
+`claude plugin list --json`, run there, shows `claim-ledger@claim-ledger`
+enabled with `readFromFolder` at `~/code/claim-ledger-release`.
+
+## Ship a version
+
+An edit in this repository reaches no project until it is shipped. Commit it
+with the version in `.claude-plugin/plugin.json` raised, close the project's
+sessions, and from the project root:
+
+```bash
+git -C ~/code/claim-ledger-release fetch
+git -C ~/code/claim-ledger-release checkout --detach <commit>
+claude plugin update claim-ledger@claim-ledger --scope local
+```
+
+The checkout is the ship. A session left open across it would run the new
+scripts from its next hook, which is why the sessions close first. The update
+keeps the copy in `~/.claude/plugins/cache`, and the commit
+`installed_plugins.json` records, matching the checkout; nothing runs that
+copy. The release copy is never edited, and
+`git -C ~/code/claim-ledger-release status` stays clean.
 
 ## Reading the line
 

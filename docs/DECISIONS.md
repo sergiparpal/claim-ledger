@@ -370,6 +370,11 @@ must stay strictly ordered, and the hook's own lives in `hooks/hooks.json`,
 which an installed copy picks up only after a version bump and an update.
 Moving any of them is the user's.
 
+Corrected on 1 November 2026: no installed copy picks it up. Claude Code reads
+the plugin, `hooks/hooks.json` with it, out of the marketplace's folder, which
+until that day was this working tree, and not out of the copy an update makes:
+§ distiller runs a release copy, not this tree.
+
 Later the same day the route was measured with a 150-second deadline
 (`provider-measurements.md`). In a seven-minute window every call finished
 inside 15 seconds and 93 of 96 inside 12, at about 0.65 seconds plus 4.7
@@ -1267,6 +1272,11 @@ with the vocabulary. The plugin goes to 0.3.0 with this change and is
 installed in distiller from this commit; a session already open keeps 0.2.1
 until it closes.
 
+Corrected on 1 November 2026: it did not keep 0.2.1. The hooks ran this
+working tree as it stood at each call, so turn 2 of `9da7aee8` sent `extract-3`
+at 09:09 UTC, from the tree, before this commit and before the install:
+§ distiller runs a release copy, not this tree.
+
 Phase 1 goes on as an observer. Nothing blocks a turn in phase 1, and phase 2
 waits for a route that clears the threshold. Until then the appendix reads as
 an instrument that misses about a quarter of the checkable claims the
@@ -1556,6 +1566,11 @@ reference stays as it was annotated. The plugin goes to 0.3.2 with this change
 and is installed in distiller from this commit; a session already open keeps
 0.3.1 until it closes. Phase 1 goes on as an observer.
 
+Corrected on 1 November 2026: a session already open would not have kept
+0.3.1, since the hooks ran this working tree as it stood at each call
+(§ distiller runs a release copy, not this tree). No turn fell between the
+edit and the install: the first to send `extract-4` is the one below.
+
 The first turn, 1 November 2026. The first distiller turn under 0.3.2,
 `268e3821-…-1` at 10:46 UTC, sent `extract-4+4a21e3ea` a report of 10,718
 characters, 126 sentences and no table, and its answer came inside the
@@ -1582,3 +1597,61 @@ call moved 20 sentences from `judgment` to `intent`. Both are
 `NOT_CHECKABLE`, so no verdict moves with them. A call took 10.7 to 15.8
 seconds with `extract-4` and 15.3 to 16.2 with `extract-3`. The report is not
 annotated, so none of this is a recall figure.
+
+### distiller runs a release copy, not this tree — 1 November 2026
+
+The plugin does not run from the copy that `claude plugin install` and
+`claude plugin update` make in `~/.claude/plugins/cache`. From a `directory`
+marketplace, Claude Code reads it out of the marketplace's folder as the folder
+stands at each hook call, and until this day that folder was this working tree:
+`claude plugin list --json` names it as `readFromFolder`, beside the cache's
+`installPath`. Turn 2 of distiller's `9da7aee8` was the first sign. It sent
+`extract-3+32d58f9c` at 09:09 UTC on 25 October, while the copy installed was
+0.2.1, whose prompt is `extract-2`; the prompt had been in this tree since
+08:59, and 0.3.0 was committed at 09:22 and copied at 09:23. That copy's
+`turn.py` and `record.py` were last read at 09:23 the same day, by the check
+made after installing it, though the hooks ran on each day from 28 to 31
+October with it installed, and on this disk a read more than a day after the
+last one moves the access time.
+
+So what distiller ran was this tree as it stood, edits not yet committed
+included, and an install gated nothing. The version a claim carries is still
+true, since it is the hash of the prompt sent (R-45), but nothing else that ran
+carried one. An edit half made in `src/` could have cost turns their audit, or
+the evidence log a record, with nothing in `errors.log` to say so, since the
+code that writes it is the code that would have broken.
+
+At the user's decision the plugin now runs from a release copy,
+`~/code/claim-ledger-release`: a clone of this repository, detached at the
+commit that shipped the version its `plugin.json` names, 189f0c8 for 0.3.2,
+and never edited. distiller's marketplace is that folder, so an edit here
+reaches no session until it is shipped, the way OPERATING gives. A clone and
+not a worktree, whose state would live in this repository's `.git`, so that
+nothing done here can move it or break it. Not taken: working in a worktree and
+keeping this tree at shipped commits, which leaves what distiller runs to
+discipline; and a marketplace on GitHub, which would make a push the release,
+and where Claude Code would run it from was not checked.
+
+Shipping moves the folder under any session open on it, and each hook starts
+Python on the folder's files afresh, so a session open across a ship would run
+the new scripts from its next hook. Whether Claude Code reads
+`hooks/hooks.json` again before then was not checked. So a version ships
+between sessions.
+
+The switch was made at 12:56 UTC. Removing the marketplace from distiller
+uninstalled the plugin with it; the marketplace was added again from the
+release copy with `--scope local`, and the plugin installed again. distiller's
+`.claude/settings.local.json` kept its `env` as it was. The release copy
+matches the 0.3.2 copy in the cache file for file, `.git` and `__pycache__`
+aside, and `readFromFolder` names it. Not checked: what Claude Code's
+documentation says about any of this, and whether a session open across the
+switch holds the folder it started with.
+
+Seen the same day. With the access times of `turn.py`, `record.py`,
+`hooks/hooks.json` and `plugin.json` set back to 1 January in the release copy
+and in the cache at 13:02 UTC, session `fcc7c6b4`, opened at 13:06, read the
+last two out of the release copy as it opened, `record.py` with its first Bash
+call at 13:07, and `turn.py` at 14:01:01, as its Stop began. Nothing in the
+cache was read. The Stop ran two hooks, distiller's own and this one, the 29
+calls the recorder covers are all in the evidence log, the hook took 3.7
+seconds, and `errors.log` has nothing new.

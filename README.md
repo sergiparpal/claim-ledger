@@ -163,6 +163,9 @@ the hooks write to `.claude/claim-ledger/`.
    that every clone gets it), and adds `.claude/claim-ledger/` to `.gitignore`
    unless git ignores that directory already.
 3. Start Claude Code at the project root with `claude --plugin-dir <plugin>`.
+   Claude Code runs the hooks out of `<plugin>` as it stands at each call, as
+   it also does from a `directory` marketplace, so make `<plugin>` a checkout
+   that moves only when you ship a version, not the tree you edit.
 
 While git would commit `.claude/claim-ledger/`, the plugin writes nothing and
 says so on every tool call. Whether git would is git's answer, so ignoring
