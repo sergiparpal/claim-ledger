@@ -1,6 +1,6 @@
 # Provider measurements
 
-**Measured 20–23 September and 17–18 October 2026. These go stale.** Provider
+**Measured 20–23 September, 17–18 October and 1 November 2026. These go stale.** Provider
 latency, routing and parameter support change without notice, and a number here
 is one sample unless it says otherwise. Re-measure before trusting any row to
 choose a pin; `tools/measure_route.py` repeats the runs of 17 October.
@@ -11,13 +11,14 @@ Nothing here can be re-derived by reading the repository.
 
 **Conditions, common to every row.** The same 442-character captured report
 (the one embedded in `tests/test_extract.py` as `CAPTURED_REPORT`); prompt
-`extract-1+74af1596`, or `extract-2+4e6f09ab` where a section says so;
+`extract-1+74af1596`, or `extract-2+4e6f09ab` or `extract-4+4a21e3ea` where a
+section says so;
 `output_config` carrying the claim JSON schema;
 `max_tokens` 8192; routing with `allow_fallbacks` false, `data_collection`
 deny, `require_parameters` true. Times are wall clock measured at the client,
 network included, from a single machine in one location.
 
-## deepseek/deepseek-v4.1-flash — the route in use, its pin down since 18 October 2026
+## deepseek/deepseek-v4.1-flash — down 18 October 2026, found reasoning 1 November
 
 Thinking-switch test, 21 September 2026, one call per provider, all sent
 `extra_body.chat_template_kwargs.enable_thinking = false` and `temperature` 0.
@@ -35,6 +36,26 @@ same request with thinking left on took 29.4s at 2,420 thinking tokens, and the
 top-level `chat_template_kwargs` shape (rather than under `extra_body`) took
 66.9s at 5,155 — accepted and ignored in both shapes.
 
+On 1 November 2026 `morph/fp8`, listed again, was sent the switch in three
+forms, with the fixed report and `extract-4+4a21e3ea`; $0.0008 for the six
+calls of the last two forms.
+
+| Form | Calls | Thinking tokens | Wall |
+| --- | --- | --- | --- |
+| `extra_body.chat_template_kwargs.enable_thinking = false`, the route's | 8, every tenth call of the corpus run below | 274–652 | 2.8–9.8s |
+| top-level `chat_template_kwargs.enable_thinking = false` | 3 | 360–567 | 2.9–6.5s |
+| `reasoning: {"enabled": false}` | 3 | 415–559 | 3.5–5.2s |
+
+Every call answered with HTTP 200 from Morph, 3 to 5 claims and no defect, and
+every reply carried a thinking block: accepted and ignored in all three forms.
+OpenRouter's endpoint list gives `reasoning`, `include_reasoning` and
+`reasoning_effort` among the endpoint's supported parameters, and not
+`chat_template_kwargs`, so the two chat-template forms may never reach Morph.
+No call went to `morph` without the switch in September, so its 0 thinking
+tokens then cannot tell a switch honoured from a deployment that did not
+reason. Not tried: a reasoning effort, `thinking: {"type": "disabled"}`, a
+template variable named `thinking`, and a call with no switch at all.
+
 `morph` over time, against the 12s deadline:
 
 | When | Runs | Wall | Result |
@@ -46,13 +67,16 @@ top-level `chat_template_kwargs` shape (rather than under `extra_body`) took
 | 17 Oct, three more, read | 3 | 0.4–0.9s | one with no claims; two with the recording's three claims, the intent now carrying `git add`, `commit` and `push` as referents, which the sentence does not name; one of the two without the spans' final full stops |
 | 17 Oct, every tenth call of the slow-hour run below | 11 | 0.55–2.61s, median 1.31s | the same three answers as the corpus run, five, three and three times; **no claims at all** in three |
 | 18 Oct, 12:28 UTC | 8 | — | **HTTP 404 from routing**: "Filter Disabled Endpoints removed morph/fp8", under both keys; a call at 20:25 UTC the evening before had answered |
+| 1 Nov, every tenth call of the corpus run below, `extract-4+4a21e3ea` | 10 | 2.8–9.8s, the 8 answered | **reasoned every time**, 274–652 thinking tokens; 3 to 5 claims, no defect; the last two refused with HTTP 402 |
 
 In September, thirteen of fourteen runs inside the deadline, every answer the
 same. On 17 October all fourteen were inside it, with at least three distinct
 answers among them, and so were the eleven of the slow hour, with the same
 three. On 18 October the endpoint was disabled, now tagged `morph/fp8` where its
 quantization had been undeclared, and every other endpoint of the model was
-tried (below).
+tried (below). By 31 October it was listed again, still `morph/fp8`, and on
+1 November it reasoned on every call, the fixed report's and the corpus's
+(below).
 
 ### The distiller corpus under a long deadline — 17 October 2026
 
@@ -154,6 +178,38 @@ out:
 
 None answered the same way twice as a rule, so none could carry the route even
 with reasoning allowed.
+
+### The annotated corpus on `morph/fp8` — 1 November 2026
+
+The Stop hook's request under distiller's configuration of the day, with only
+the model, the provider and the switch changed
+(`corpus/routes/deepseek-v4.1-flash.toml`), and prompt `extract-4+4a21e3ea`.
+One pass over the 81 reports of `corpus/annotations.jsonl`, the fixed report
+every tenth call, a 150s wall clock, from 15:00 to 16:04 UTC; $0.085. Run:
+`corpus/runs/deepseek-v4.1-flash-extract-4+4a21e3ea.jsonl`.
+
+Morph answered 77 calls, and every reply carried a thinking block. 38 spent
+all 8,192 tokens thinking and wrote no text, and 3 got no reply in 150s. The
+last 11, from 16:03:53 to 16:04:04 UTC, nine reports and two fixed, were
+refused with **HTTP 402** in about 0.1s each; the client keeps no error body,
+so why is not known, and a call two minutes later answered. Of the 80 calls
+not refused, 56 took more than 20 seconds, with a median of 52.8. The 39
+answers thought for a median of 2,162 tokens.
+
+| Against the corpus | `morph/fp8`, one pass | medium, `extract-4`, worst of three | medium, the same 31 reports |
+| --- | --- | --- | --- |
+| Recall on checkable claims | 0.74 | 0.80 | 0.76 |
+| Spurious share | 0.20 | 0.47 | 0.42 |
+| Turns `UNKNOWN` under 20 seconds | 65 of 81 | 2 of 81 | — |
+
+Medium's columns score its run of the same day,
+`corpus/runs/mistral-medium-3.1-extract-4+4a21e3ea-r2.jsonl`, the last over
+only the 31 reports this run answered. Those are the short ones, a median of
+1,658 characters against 4,738 for the 50 that got no answer, and 16 of the
+31 answers came inside 20 seconds. Leaving out the nine reports the 402 cut
+off, 56 of 72 turns would still be `UNKNOWN`. The figures describe the model
+reasoning, not the route of September, and under the deadline of 20 seconds
+it is no candidate.
 
 ## Other models — 18 October 2026
 

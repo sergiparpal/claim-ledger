@@ -634,6 +634,27 @@ frozen, so what follows is the user's: wait for Morph, which on 17 October was
 already answering differently from one call to the next, or choose another
 model, which the next entry measured.
 
+Listed again, 1 November 2026. Morph's endpoint was back in OpenRouter's list
+by 31 October, still tagged `morph/fp8`, and on 1 November, at the user's
+request, the route ran the annotated corpus once with `extract-4+4a21e3ea`
+under distiller's configuration, the switch as before
+(`provider-measurements.md` § The annotated corpus on `morph/fp8`). It reasons
+on every call. All 77 replies carried a thinking block, 38 spent the 8,192
+tokens on it and wrote nothing, and 56 of the 80 calls that were not refused
+took more than 20 seconds. 65 of the 81 turns would be `UNKNOWN`, and 56 of
+72 leaving out the nine reports a run of HTTP 402 cut off. On the 31 reports
+it answered, the short ones, recall was 0.74 and the spurious share 0.20,
+where medium's worst pass gives 0.76 and 0.42 on the same reports. The switch
+was then sent in the other two forms, top-level `chat_template_kwargs` and
+`reasoning: {"enabled": false}`, three calls each with the fixed report, and
+all six were accepted and reasoned, as the route's own form had. Whether Morph
+honoured the switch in September or served a deployment that did not reason,
+the calls of that month cannot say, since none went to it without the switch.
+Either way, waiting for Morph no longer leads back to the route of September:
+what answers on its pin now reasons, and does not fit the deadline. At the
+user's choice this is recorded rather than probed further, and the forms not
+tried are in `provider-measurements.md`. The provisional route stays.
+
 ### Cheaper models return fewer, emptier and less faithful answers — 18 October 2026
 
 The same day 48 cheaper models that take a schema and a temperature and do not
