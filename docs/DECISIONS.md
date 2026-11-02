@@ -1719,5 +1719,5 @@ October, what a commit is said to have changed, is not settled here. The
 corpus and the holdout stay as annotated under the old guide: annotating them
 again is a decision of its own, and if it is taken, recall will move with the
 reference, not with the extractor. The prompt has neither rule, and is
-frozen. Neither this report nor the other four of 1 November, whose counts
+frozen; R-45 and SPEC § Extractor contract say so. Neither this report nor the other four of 1 November, whose counts
 the user has seen, can be a blind anchor.
