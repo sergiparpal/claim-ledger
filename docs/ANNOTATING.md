@@ -112,6 +112,16 @@ extractor finds both only by naming that sentence twice, once with each type.
   that.** "`pytest -q`: 29 passed" or "`make lint`: sin errores" says that the
   check ran and how it came out. A check only comes out by running a command,
   so `command_run` beside it would count the same run twice.
+- **What a command returned is `command_run`, unless the command is a
+  check, and the agent's verdict on it is `judgment`.** A check is a command
+  whose job is to pass or fail: a test suite, a linter, a type checker,
+  `make verify`. A program or a script run to see what it does is not one,
+  whatever the agent ran it for. Under "He probado `csvtrim` a mano:", "con
+  un fichero vacío sale 2 y no escribe nada" says what the run returned, and
+  is `command_run`, though it also says how the program behaves; "así que la
+  entrada vacía está cubierta" is the agent's verdict on it, and is
+  `judgment`. With no run in the report for it to stand under, the first
+  would be a claim about behaviour, and `judgment`.
 - **A heading gets Enter, and the lines under it carry what it says.** "Lo que
   ejecuté" or "Qué cambia" does say something, that what follows was done,
   but it names nothing that can be checked, and marking it by its section
@@ -121,6 +131,14 @@ extractor finds both only by naming that sentence twice, once with each type.
   Reading the heading to understand a line is reading the report, which the
   extractor sees as well. A heading that asserts something by itself, "Todos
   los tests pasan", is typed like any other sentence.
+- **Under a line that says a file was changed, an item that says what went
+  into it does not claim the change again.** "He completado dos notas de
+  `NOTES.md`:" is `file_changed`, and that is the change. Each item under it
+  is typed by what else its own words assert: in "**La del límite:** por qué
+  la clave sigue siendo el path, y que el límite ya no es fijo", the second
+  part says how a file's content changed, and is `file_changed` by the rule
+  above; the first is `judgment`. A heading is the other way round: it gets
+  Enter, so the lines under it carry its claim.
 - **A line of code is offered like a sentence, and gets Enter.** The cut leaves
   out the fences of a code block but not the lines between them, and the
   extractor reads the same lines. Code the agent wrote or shows asserts
@@ -143,7 +161,11 @@ extractor finds both only by naming that sentence twice, once with each type.
 
 The rules on a file's content and on a check with its result were added on 24
 October 2026, at the user's request, when the reports annotated by hand
-showed the annotator and the user typing such sentences differently.
+showed the annotator and the user typing such sentences differently. The
+rules on what a command returned and on the items under a line that says a
+file was changed were added on 2 November 2026, also at the user's request,
+after the user typed the claims the route had missed in one report of the
+holdout.
 
 ## What you do not check
 

@@ -1683,3 +1683,41 @@ call at 13:07, and `turn.py` at 14:01:01, as its Stop began. Nothing in the
 cache was read. The Stop ran two hooks, distiller's own and this one, the 29
 calls the recorder covers are all in the evidence log, the hook took 3.7
 seconds, and `errors.log` has nothing new.
+
+### In one report, 14 of the route's 17 misses are misses for a person — 2 November 2026
+
+One of the five reports added to the holdout on 1 November, `fcc7c6b4-…-1`,
+holds 17 of the 26 checkable claims the route missed in at least one pass.
+On 1 and 2 November the user read those 17 sentences beside the annotator's
+types, and typed each.
+
+| The user's type | Sentences |
+| --- | --- |
+| The annotator's | 8, and on one of them the user added `file_changed` beside its `command_run` |
+| Another checkable type | 6: results of programs run by hand, `command_run` where the annotator put `suite_passed` |
+| `judgment` | 3: two items under a line that says a file was changed, typed `file_changed` by the annotator, and one verdict on a hand run, typed `suite_passed` |
+
+So 14 of the 17 sentences hold checkable claims for the user too, 15 in all,
+and the route missed each in all three passes: it never gave them the
+checkable type the user gave, and the five it typed `suite_passed` in its
+first pass match the annotator, not the user. Here the misses are the
+extractor's. The annotator was right on whether a sentence claims something
+checkable 14 times in 17, and wrong mostly on the type. No figure is
+corrected: only the route's misses were read, which leaves out what it found
+and what the annotator did not mark, so the sample is not fair either way.
+
+Where the two differ, the guide was silent, and at the user's request it now
+has two rules. What a command returned is `command_run` unless the command is
+a check, and the agent's verdict on it is `judgment`: the pauta of 24
+October, written down, with what a check is. And under a line that says a
+file was changed, an item saying what went into it does not claim the change
+again. Two of the user's types moved while the rules were checked against
+them: one sentence took `command_run` beside its `file_changed`, and one went
+from `judgment` to `command_run`. The examples are invented and appear in
+none of the 117 captured reports. The other difference recorded on 24
+October, what a commit is said to have changed, is not settled here. The
+corpus and the holdout stay as annotated under the old guide: annotating them
+again is a decision of its own, and if it is taken, recall will move with the
+reference, not with the extractor. The prompt has neither rule, and is
+frozen. Neither this report nor the other four of 1 November, whose counts
+the user has seen, can be a blind anchor.
