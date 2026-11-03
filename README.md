@@ -98,7 +98,7 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   in use reaches recall 0.80 on checkable claims over the annotated corpus,
   where phase 1 needs 0.90 over at least 50 annotated reports. The reference
   is a model's annotation, which agrees with the reports a person annotated by
-  hand on about three checkable claims in four
+  hand on about two checkable claims in three
   ([docs/DECISIONS.md](docs/DECISIONS.md)). On 27 reports captured after the
   corpus was frozen it reaches 0.77, where `extract-3`, the prompt before it,
   reached 0.50, missing most of the claims about suites made in table rows.

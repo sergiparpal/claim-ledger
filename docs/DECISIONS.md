@@ -944,6 +944,11 @@ run among the checks it named, which was `verify`'s, and rightly here, since
 `VERIFIED` and 11 named something the join could match; the hook took 5.2
 seconds.
 
+Corrected on 3 November 2026: the three with no referent were results of a
+script the agent had written and run by hand, typed `suite_passed`, and `make
+verify` passing says nothing of them (§ Nine claims about runs by hand were
+verified against a check that says nothing of them).
+
 That evening, back in the `tests` phase, turn 2 of session `6ea8d45c` ran
 `make format`, `make lint` and `make types` bare and passing, each recorded as
 its own check, and none of the turn's 8 suite claims came back `VERIFIED`:
@@ -1721,3 +1726,94 @@ again is a decision of its own, and if it is taken, recall will move with the
 reference, not with the extractor. The prompt has neither rule, and is
 frozen; R-45 and SPEC § Extractor contract say so. Neither this report nor the other four of 1 November, whose counts
 the user has seen, can be a blind anchor.
+
+### Four sentences of the anchor move to the rule on what a command returned — 3 November 2026
+
+Before the corpus is annotated again under the guide of 2 November, the
+annotator annotated the six reports of the anchor twice under it on 3
+November (`docs/ANNOTATING.md` sha256 `f1d48f664f01`, Claude Code 2.1.316),
+into `corpus/anchor-fable-b4ed0a0-1.jsonl` and `-2.jsonl`. The two passes
+under the guide of 24 October are the corpus and its repeat, through Claude
+Code 2.1.310.
+
+| Against the anchor as the user typed it, sha256 `630420c9fdbd` | Guide of 24 October | Guide of 2 November |
+| --- | --- | --- |
+| The user's checkable claims the annotator found | 22 of 29 (0.76), 22 of 29 (0.76) | 24 of 29 (0.83), 23 of 29 (0.79) |
+| The annotator's checkable claims the user made | 23 of 29 (0.79), 22 of 27 (0.81) | 25 of 31 (0.81), 24 of 30 (0.80) |
+| The annotator's claims of every type that are not the user's | 0.25, 0.22 | 0.25, 0.25 |
+
+The rule on what a command returned did what it was written to do. Three
+results of programs run by hand, which the user had typed `command_run` and
+the annotator `suite_passed` or `judgment`, came out `command_run` in both
+passes, and a fourth in one. It also moved four sentences away from the user
+in both passes, by its own words and its example. Two are results of a script
+the agent wrote and ran, typed `suite_passed` by the user beside a third
+result of the same script typed `command_run`. Two say what git does, under a
+line in which the agent says it checked a text with git, and the user had
+left them unmarked. The three sentences that say what a commit changed stayed
+`judgment` in every pass, since no rule covers them yet. The rule on the items
+under a line that says a file was changed found no clear case in the anchor,
+so these passes say nothing of it. The change of CLI between the guides is
+not ruled out as a cause, but the sentences that moved are the ones the rule
+describes.
+
+The user sided with the rule on all four on 3 November, as recommended. It is
+what the written rules give. The user's own types of 2 November already follow
+it, and so do two sentences of the anchor itself: the third result of the
+script, and the line about checking with git. And `suite_passed` on a run by
+hand is what let nine claims be verified against a check that says nothing of
+them (next entry). The two results of the script are now `command_run`, and
+so are the two sentences about git, each as a whole sentence (anchor sha256
+`bb2906b07b52`). Their rows keep the date of 24 October; the change is
+recorded here and in git.
+
+Those four sentences were typed after the user had seen the annotator's types
+for them, so the anchor is not blind on them, and part of what it measures
+from now on is agreement with the rule rather than with the person.
+
+| Against the anchor as it now stands, sha256 `bb2906b07b52` | Found | Made | Not the user's |
+| --- | --- | --- | --- |
+| The morning corpus of 24 October, before the guide's first rules | 16 of 31 (0.52) | 17 of 25 (0.68) | 0.31 |
+| Guide of 24 October: `corpus/annotations.jsonl`, and its repeat | 20 of 31 (0.65), 20 of 31 (0.65) | 21 of 29 (0.72), 20 of 27 (0.74) | 0.28, 0.25 |
+| Guide of 2 November, two passes | 28 of 31 (0.90), 27 of 31 (0.87) | 29 of 31 (0.94), 28 of 30 (0.93) | 0.19, 0.19 |
+
+So the reference every recall figure so far is measured against,
+`corpus/annotations.jsonl`, agrees with the anchor as it now stands on about
+two checkable claims in three, where the figure of 24 October was three in
+four. On checkable claims, the first pass under the new guide still differs
+from the user on the three sentences about commits, on an item typed
+`file_changed` under a heading on changes to a commit message, and on the
+line that introduces the script, typed `command_run`. Annotating the corpus
+and the holdout again under the guide of 2 November is still a decision of
+its own, and what a commit is said to have changed is still not settled.
+
+### Nine claims about runs by hand were verified against a check that says nothing of them — 3 November 2026
+
+Of the 2,012 claims distiller's log has judged since 6 October, 92 are
+`suite_passed` claims that came back `VERIFIED`, and 17 of those named no
+suite: the session had run exactly one check, and the join read them as that
+check, as SPEC § Matching, per type says. Eight are about what that check
+runs, tests, lint, coverage and import contracts, and `make verify` passing
+says what they say. The other nine are results of programs the agent ran by
+hand. Three are the results of the script in the entry above, in the first
+turn of `794b9f80` on 21 October, under `extract-2`. Six are in the first
+turn of `fcc7c6b4` on 1 November, under `extract-4`, five of them runs of
+distiller's own command; the user typed them `command_run` or `judgment` on 2
+November. All nine carry `make verify ok` and its time as their scope, and
+`make verify` passing says nothing of what those programs returned.
+
+The join did what its table says. The extractor typed the nine `suite_passed`
+and gave them no referent, and the fallback is safe only while the type is
+right: a `command_run` claim has none, and must name its command or stay
+`UNSUPPORTED`. So the nine were verified because they were typed as checks,
+which the guide's rule of 2 November on what a command returned types
+against, and the anchor with it since 3 November. The prompt the hook sends
+does not have that rule.
+
+The claims are probably true: nothing in the log says otherwise, and nothing
+in it says so. Whether they count as false `VERIFIED` against the condition
+for phase 2, no false `VERIFIED` in the phase-1 sample, is the user's to
+decide, and is not decided. Narrowing the fallback would be a change to the
+frozen join. The paragraph that reported three of them, under § The
+freshness test reads the working tree once a join, has a correction beneath
+it.
