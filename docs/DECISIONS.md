@@ -226,6 +226,12 @@ named like a path is the likely trigger. It came back `UNSUPPORTED` only because
 nothing was written at a path with one of those names. By the guide's rules it
 is `judgment`: it names no file, and no command either.
 
+Since 3 November 2026 the guide types it `file_changed`: a commit that now
+holds other changes is a change of the files the report says it holds, here
+the SPEC's (§ What a commit is said to have changed is `file_changed`, whoever
+ran it). Its referents still name no file, so it would still come back
+`UNSUPPORTED`.
+
 The false `VERIFIED` this entry warns about had already happened, the day
 before it was written, and gone unnoticed. A report on 6 October 2026 said
 "Hice los cuatro cambios en [docs/SPEC.md](docs/SPEC.md). No toqué el Bet, los
@@ -1817,3 +1823,65 @@ decide, and is not decided. Narrowing the fallback would be a change to the
 frozen join. The paragraph that reported three of them, under § The
 freshness test reads the working tree once a join, has a correction beneath
 it.
+
+### What a commit is said to have changed is `file_changed`, whoever ran it — 3 November 2026
+
+The last difference the anchor showed on 24 October, what a commit is said to
+have changed, was settled on 3 November. Three sentences of the anchor say it,
+and the user had typed each `file_changed`, beside a `judgment` for the
+reasoning in two of them; the annotator typed all three `judgment` in every
+pass under every guide. Two of the commits were in the repository before the
+turn, and the third was one the turn had rewritten with `git commit --amend`.
+
+Asked whose commits these were, the user said the agent gave the commands and
+the user ran them. The log adds that from 6 to 17 October the agent ran `git
+commit` itself 30 times, each recorded and passing, and that it has run none
+since. Who runs the command changed halfway and whose work a commit holds did
+not, so the guide now types what a commit is said to have changed as
+`file_changed`, whoever ran it: the change is the agent's unless the report
+gives it to someone else, which is how the rule on a file's content already
+reads a change. A sentence that says a commit now holds other changes is
+`file_changed` when the report says which files, and the line that says which
+files does not claim the change again. A sentence that only says a commit was
+made says that a command ran, and is `command_run`, as the user typed one in
+the anchor. A change the report gives to someone else is `judgment`. A first
+draft typed a commit made like a commit rewritten; read against the anchor, it
+gave `file_changed` where the user had typed `command_run`, and it was changed
+before the annotator saw it. The examples are invented and appear in none of
+the 117 captured reports, nor in the tests. The anchor did not move.
+
+A claim about a commit of an earlier session comes back `UNSUPPORTED`, which
+is true of this session's log, and one about a file the session also wrote
+comes back `VERIFIED` against that write, as any `file_changed` claim does,
+since the join matches by path over the whole session (§ A sentence can be
+typed as a file change it does not claim). That is not the way the nine
+verdicts of the entry above came: those were suite claims with no referent,
+read as the session's one check, and a `file_changed` claim has no fallback.
+
+The annotator annotated the anchor twice under the guide with this rule
+(`docs/ANNOTATING.md` sha256 `3b11b78931a8`, Claude Code 2.1.316), into
+`corpus/anchor-fable-commit-rule-1.jsonl` and `-2.jsonl`.
+
+| Against the anchor, sha256 `bb2906b07b52` | Found | Made | Not the user's |
+| --- | --- | --- | --- |
+| Guide of 2 November, two passes | 28 of 31 (0.90), 27 of 31 (0.87) | 29 of 31 (0.94), 28 of 30 (0.93) | 0.19, 0.19 |
+| With the rule on commits, two passes | 30 of 31 (0.97), 31 of 31 (1.00) | 31 of 34 (0.91), 32 of 34 (0.94) | 0.19, 0.17 |
+
+The three sentences about commits came out as the user typed them in both
+passes, and the commit that was only made stayed `command_run`. The one claim
+the first pass missed is a result of a run by hand that the annotator types
+`command_run` in one pass and `judgment` in the other, under this guide and
+the one before. Two of its checkable claims the user does not have in either
+pass: an item typed `file_changed` under a heading on changes to a commit
+message, and the line that introduces a script, typed `command_run`, both
+typed so under every guide since the rules of 24 October. A third, in the
+first pass only, is a line about a command that a hook blocked.
+
+These figures say that the guide now gives the anchor's types and that the
+annotator applies it, not that it agrees with a person to that degree
+elsewhere. Seven sentences of the anchor no longer measure that on their own:
+four the user typed after seeing the annotator's types, and three a rule was
+written from. A test of the guide against a person needs reports the user
+annotates by hand before seeing the annotator's types; three captured reports
+are in no file yet, 157 sentences. Annotating the corpus and the holdout again
+under this guide is still a decision of its own.

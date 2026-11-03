@@ -139,6 +139,20 @@ extractor finds both only by naming that sentence twice, once with each type.
   part says how a file's content changed, and is `file_changed` by the rule
   above; the first is `judgment`. A heading is the other way round: it gets
   Enter, so the lines under it carry its claim.
+- **What a commit is said to have changed is `file_changed`, whoever ran `git
+  commit`.** A commit holds a change to files, and the change is the agent's
+  work unless the report gives it to someone else, which is how the rule on a
+  file's content already reads a change: "El último commit de la rama solo
+  cambia `config/limits.toml`" is `file_changed`. So is a sentence that says a
+  commit now holds other changes, when the report says which files: after an
+  amend, "`a1b2c3d` es ahora `9f8e7d6`, en `fix/limites`." is `file_changed`,
+  and the line after it, "Lleva el cambio de `config/limits.toml` y el de
+  `CHANGELOG.md`.", does not claim the change again and gets Enter. A
+  sentence that only says a commit was made, "He hecho el commit `4c5d6e7` en
+  `fix/limites`", says that a command ran, and is `command_run`; the files are
+  claimed where the report says how they changed. A change the report gives
+  to someone else is `judgment`: "Tu commit de esta mañana añade `PLAN.md`"
+  says that a file changed, not that the agent changed it.
 - **A line of code is offered like a sentence, and gets Enter.** The cut leaves
   out the fences of a code block but not the lines between them, and the
   extractor reads the same lines. Code the agent wrote or shows asserts
@@ -165,7 +179,9 @@ showed the annotator and the user typing such sentences differently. The
 rules on what a command returned and on the items under a line that says a
 file was changed were added on 2 November 2026, also at the user's request,
 after the user typed the claims the route had missed in one report of the
-holdout.
+holdout. The rule on what a commit is said to have changed was added on 3
+November 2026, at the user's request, after the annotator typed `judgment`
+the three sentences of the anchor that the user had typed `file_changed`.
 
 ## What you do not check
 
