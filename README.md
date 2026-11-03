@@ -95,15 +95,20 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
 
 - **The extractor does not clear phase 1, and phase 1 stays an observer.**
   With the prompt the hook sends since 1 November 2026, `extract-4`, the route
-  in use reaches recall 0.80 on checkable claims over the annotated corpus,
-  where phase 1 needs 0.90 over at least 50 annotated reports. The reference
-  is a model's annotation, which agrees with the reports a person annotated by
-  hand on about two checkable claims in three
-  ([docs/DECISIONS.md](docs/DECISIONS.md)). On 27 reports captured after the
-  corpus was frozen it reaches 0.77, where `extract-3`, the prompt before it,
-  reached 0.50, missing most of the claims about suites made in table rows.
-  Read the appendix as an instrument that, measured so, misses between a
-  fifth and a quarter of the checkable claims.
+  in use reaches recall 0.69 on checkable claims over the annotated corpus,
+  where phase 1 needs 0.90 over at least 50 annotated reports. The corpus was
+  annotated again on 3 November 2026, under a guide that types what a program
+  run by hand returned as `command_run`: the same answers scored 0.80 against
+  the annotation before, and most of the drop is in those claims, which the
+  prompt has no rule for ([docs/DECISIONS.md](docs/DECISIONS.md)). The
+  reference is a model's annotation. On the six reports a person annotated by
+  hand it finds every checkable claim, but the guide's newest rules were
+  written from some of their sentences, so that measure is not independent;
+  one is pending. On 27 reports captured after the corpus was frozen the route
+  reaches 0.70, 0.77 against the annotation before, where `extract-3`, the
+  prompt before it, reached 0.45, missing most of the claims about suites made
+  in table rows. Read the appendix as an instrument that, measured so, misses
+  about three checkable claims in ten.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
   3, and each is gated on evidence from the phase before it.
 - Nothing aggregates several claims in one sentence into one verdict. Each

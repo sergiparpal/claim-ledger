@@ -1885,3 +1885,58 @@ written from. A test of the guide against a person needs reports the user
 annotates by hand before seeing the annotator's types; three captured reports
 are in no file yet, 157 sentences. Annotating the corpus and the holdout again
 under this guide is still a decision of its own.
+
+### The corpus and the holdout are annotated again under the guide as it stands — 3 November 2026
+
+At the user's request, the annotator annotated the 81 reports of the corpus
+and the 32 of the holdout again on 3 November, under the guide with the rules
+of 2 and 3 November (`docs/ANNOTATING.md` sha256 `3b11b78931a8`, Claude Code
+2.1.316), in three processes side by side. Eight reports were cut off at 13:08
+UTC, when the subscription's usage limit ran out and the CLI exited before
+making any call; they were annotated once it was restored, at 20:47 UTC, and
+none was refused. The new annotations are now `corpus/annotations.jsonl`
+(sha256 `49b617e87aa8`) and `corpus/holdout.jsonl` (sha256 `c932f01d206c`).
+The ones they replace are kept as `corpus/annotations-2026-10-24-evening.jsonl`
+(sha256 `1014621cb4d1`) and `corpus/holdout-2026-11-01.jsonl` (sha256
+`8919e6ada7fa`), and `corpus/annotations-repeat.jsonl` and
+`corpus/holdout-repeat.jsonl` are repeats of those. No repeat has been made
+under the new guide, so how much the annotator varies under it, and how near
+the threshold an extractor could come, is not measured.
+
+| Claims in the reference | Corpus, before and now | Holdout, before and now |
+| --- | --- | --- |
+| `command_run` | 94, 234 | 62, 160 |
+| `suite_passed` | 401, 362 | 419, 398 |
+| `file_changed` | 362, 372 | 118, 108 |
+
+The stored runs were scored again without a call. Recall moves here with the
+reference, not with the extractor.
+
+| Worst pass, recall and spurious share | Before | Now |
+| --- | --- | --- |
+| `extract-4`, the hook's prompt: the corpus, run of 1 November | 0.80, 0.47 | 0.69, 0.45 |
+| `extract-4`: 27 reports of the holdout | 0.77, 0.55 | 0.70, 0.54 |
+| `extract-4`: the 5 reports of 1 November | 0.50, 0.69 | 0.44, 0.67 |
+| `extract-3`: the corpus | 0.72, 0.47 | 0.65, 0.46 |
+| `extract-3`: 27 reports of the holdout | 0.50, 0.58 | 0.45, 0.56 |
+
+Every one of the 14 stored corpus runs lost between 0.03 and 0.10 of recall,
+the two runs of the hook's prompt the most, 0.104 each before rounding, and
+no spurious share moved by more than about 0.02. Most of the drop is the claims
+the rule of 2 November on what a command returned moved. In the corpus,
+`command_run` claims went from 94 to 234, mostly results of programs run by
+hand that had been `suite_passed` or `judgment`, and in its worst pass the
+route finds 55 of 230, 0.24, where it found 0.54 of the 93 before; in the
+holdout it finds 0.37, where it found 0.65. The prompt has no such rule.
+`suite_passed` went from 0.84 to 0.87, and `file_changed` from 0.80 to 0.79.
+
+Against the anchor, the new corpus finds all 31 of the user's checkable
+claims, and the user made 31 of its 34. That is not an independent measure,
+since the newest rules were written from sentences of the anchor (§ What a
+commit is said to have changed is `file_changed`, whoever ran it). The
+independent one is to come from the three reports captured on 1 November that
+were in no file. The annotator has annotated them too, into
+`corpus/anchor-blind-fable.jsonl`, which is kept out of the repository, out of
+the holdout and out of every figure here until the user has annotated the
+three by hand, into `corpus/anchor-blind.jsonl`, without seeing it. They join
+the holdout after that. No route clears phase 1 against either reference.
