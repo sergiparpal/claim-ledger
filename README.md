@@ -104,11 +104,13 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   ([docs/DECISIONS.md](docs/DECISIONS.md)). The reference is a model's
   annotation. On the six reports a person annotated by hand it finds every
   checkable claim, but the guide's newest rules were written from some of
-  their sentences, so that measure is not independent; one is pending. On 27
-  reports captured after the corpus was frozen the route reaches 0.80, where
-  `extract-4` reached 0.70 and `extract-3` 0.45. Read the appendix as an
-  instrument that, measured so, misses between a fifth and a quarter of the
-  checkable claims.
+  their sentences, so that measure is not independent. On three reports the
+  person annotated blind it finds 28 of the person's 48 checkable claims
+  (0.58), and 29 of its 31 are the person's; 17 of the 20 it misses are items
+  of three lists, a case its guide does not decide. On 27 reports captured
+  after the corpus was frozen the route reaches 0.80, where `extract-4`
+  reached 0.70 and `extract-3` 0.45. Read the appendix as an instrument that,
+  measured so, misses between a fifth and a quarter of the checkable claims.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
   3, and each is gated on evidence from the phase before it.
 - Nothing aggregates several claims in one sentence into one verdict. Each

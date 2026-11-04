@@ -1998,3 +1998,117 @@ come back `UNKNOWN` than with `extract-4`. Its spurious share is 0.48 on the
 corpus, against 0.45. Phase 1 is not cleared, and the hook stays an observer.
 The runs are in `corpus/runs/`, with the prompt's version in their names; the
 five runs cost about $2.20.
+
+### On three reports annotated blind, the annotator finds 0.58 of the user's checkable claims — 4 November 2026
+
+The three reports captured on 1 November that were in no file, the second and
+third turns of `5a44896f` and the first of `75d5aae0`, 157 sentences in all,
+give the first measure of the annotator against a person that no rule of the
+guide was written from. The annotator annotated them on 3 November under the
+guide as it stands (`docs/ANNOTATING.md` sha256 `3b11b78931a8`, Claude Code
+2.1.316), into `corpus/anchor-blind-fable.jsonl`. The user annotated them by
+hand on 3 and 4 November, into `corpus/anchor-blind.jsonl`, without seeing
+that file or any figure drawn from it.
+
+| Against reports the user annotated by hand | Found | Made | Not the user's |
+| --- | --- | --- | --- |
+| The three reports, blind, sha256 `0b78354418ed` | 28 of 48 (0.58) | 29 of 31 (0.94) | 5 of 71 (0.07) |
+| The six of the anchor, sha256 `bb2906b07b52`, which the newest rules were written from, with `corpus/annotations.jsonl` | 31 of 31 (1.00) | 31 of 34 (0.91) | 13 of 74 (0.18) |
+
+What the annotator marks, the user nearly always marks too, but on these
+three reports it left out two in five of the user's checkable claims. The
+first figure taken on the anchor, on 24 October, before the guide had any of
+its rules, was 0.67 found and 0.76 made.
+
+Seventeen of the twenty it missed are items of three lists, each under a line
+that ends in a colon. Thirteen are in two lists of `5a44896f-…-2`, under a
+line that says how many tests fail and one that says how many of the new
+tests pass; each item names a group of those tests, some with how many. The
+user typed each item `suite_passed`; the annotator typed the two lines
+`suite_passed`, as the user did, and left the items unmarked. Four are in a list of `75d5aae0-…-1`,
+under a line that names a file and nothing more, itself under the heading of
+what the agent wrote. The user left that line unmarked and typed the four
+items `file_changed`; the annotator typed the line `file_changed` and left the
+items. The guide decides neither. The rule on the items under a line that says
+a file was changed says that such an item does not claim the change again, but
+it speaks of files, and the first two lines say how checks came out; the rule
+on headings gives the lines under a heading its claim, but a line that says
+how many tests fail asserts by itself and is not a heading. For the third
+list, the question is whether a line that only names a file is a heading or a
+line that says a file was changed. The user's reading is the one the user gave
+on 2 November to the lines under a heading that named the file (§ In one
+report, 14 of the route's 17 misses are misses for a person), where the
+annotator read them the same way.
+
+The other three. Two are `make format` given with its result, once in each of
+the two turns of `5a44896f`: the user typed it `command_run`, the annotator
+`suite_passed`. Here the rule on what a command returned decides, and the
+annotator's way: a check is a command whose job is to pass or fail, and in
+distiller `make format` runs the formatter in check mode, as one of the steps
+of `make verify`. One is a line that gives what `git status` and `git diff`
+showed, that only two files changed: the user typed it `command_run` and
+`file_changed`, the annotator `command_run` alone. The rule on what a command
+returned gives the first, the rule on a file's content allows the second
+beside it, and "and only that" is written for a check's line alone. Of the
+annotator's checkable claims, the two the user did not make are the first
+`make format` line and the line that names the file. Four sentences more
+differ only in `judgment`.
+
+One claim of the user's file was a slip, and was removed at the user's leave
+before these figures were taken: a span of one character, typed at the
+annotation tool's prompt for a span where a type was meant.
+`tools/annotate.py` checks a span against the report and not against the
+sentence being typed, so it took it, and the scorer placed the claim in every
+sentence holding that character. With it, the file's sha256 was
+`311aba223151`, the annotator found 29 of 49 (0.59), and 27 sentences were
+typed differently rather than 25.
+
+How much of the reference such lists stand for was counted from the structure
+alone: lines that end in a colon, followed by a list. In
+`corpus/annotations.jsonl` the annotator typed the line checkable and left
+every item unmarked in 12 lists, of 60 items, beside 968 checkable claims; in
+the holdout as it stood, in 9 lists, of 36 items, beside 666. In 13 lists of
+the corpus and 10 of the holdout it typed some item as well, for reasons not
+looked at. The three reports hold more of them than the reference does: 17 of
+the user's 48 checkable claims stand in such lists.
+
+The route in use ran the three reports three times with `extract-5c` on 4
+November, for about $0.02, into
+`corpus/runs/holdout-blind-mistral-medium-3.1-extract-5c+0dbdf6be.jsonl`. In
+the first pass the answer for `75d5aae0-…-1` lacked the referents of one
+claim, so that turn would have been `UNKNOWN`; every other answer took 7
+seconds at most.
+
+| On the three reports | Recall, worst pass and the other two | Spurious share, worst pass and the other two |
+| --- | --- | --- |
+| Against the annotator | 0.89; 0.94, 0.94 | 0.62; 0.55, 0.51 |
+| Against the user | 0.91; 0.94, 0.94 | 0.43; 0.21, 0.23 |
+
+On these reports the route is nearer the user than the annotator is: it typed
+the items of the three lists as the user did, and found 45 of the user's 48
+checkable claims in each pass that answered for all three. What it missed of
+the user's, in every pass, are a file change in the opening sentence of
+`5a44896f-…-2`, a test said to fail in `5a44896f-…-3`, and the `make format`
+the user typed `command_run`. Three reports are too few for a figure of their
+own, and they say nothing of the corpus. They do say that the reference can
+stand between a route and a person as much as the route itself: on reports
+like these, recall measured against the annotator says little of recall
+against a person, and part of the spurious share it measures is claims a
+person makes.
+
+The three reports have joined the holdout with the annotator's annotations, as
+the entry of 3 November said they would: `corpus/holdout.jsonl` now holds 35
+reports, sha256 `8432c191c9bb`, its first 32 rows unchanged
+(`c932f01d206c`). The figures given for 27 of its reports, and for the 5 of 1
+November, stand as measured. Over the 35, `extract-5c`'s worst pass has recall
+0.78 and a spurious share of 0.58, as over the 32, and 3 of the 35 turns would
+have been `UNKNOWN`. Both blind files are now in the repository.
+
+Which reading of such lists the guide should state, whether the user's two
+`command_run` for `make format` stand against the rule on what a command
+returned, and whether what a command shows of the files carries
+`file_changed` beside `command_run`, are the user's to decide, and are not
+decided. The three reports are no longer blind: their differences have been
+read, and a rule written from them would be measured on them as the anchor's
+rules were on the anchor. The next blind measure needs reports not yet
+captured.
