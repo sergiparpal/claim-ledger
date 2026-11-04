@@ -205,8 +205,8 @@ The run calls the route three times a report and needs the key; the other two
 call nothing. The figures are in [DECISIONS](DECISIONS.md): no route measured
 clears phase 1, and with the prompt the hook sends since 4 November 2026 the
 route in use misses a quarter of the checkable claims the annotator marks in
-the corpus, as annotated again on 3 November 2026, and a fifth in 27 reports
-captured after it. Read the appendix as an instrument that does.
+the corpus, as annotated again on 4 November 2026, and about as many in 27
+reports captured after it. Read the appendix as an instrument that does.
 
 The corpus is frozen. Reports captured since go to `corpus/holdout.jsonl`
 instead, with `annotate_model.py --corpus` and an `--only` for each, and are

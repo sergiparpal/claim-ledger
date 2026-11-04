@@ -98,19 +98,21 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   route in use reaches recall 0.75 on checkable claims over the annotated
   corpus, where phase 1 needs 0.90 over at least 50 annotated reports. The
   corpus was annotated again on 3 November 2026, under a guide that types what
-  a program run by hand returned as `command_run`. `extract-5c` carries that
-  rule; `extract-4`, the prompt before it, does not, and reaches 0.69 against
-  the same annotation, 0.80 against the one before
-  ([docs/DECISIONS.md](docs/DECISIONS.md)). The reference is a model's
-  annotation. On the six reports a person annotated by hand it finds every
-  checkable claim, but the guide's newest rules were written from some of
-  their sentences, so that measure is not independent. On three reports the
-  person annotated blind it finds 28 of the person's 48 checkable claims
-  (0.58), and 29 of its 31 are the person's; 17 of the 20 it misses are items
-  of three lists, a case its guide does not decide. On 27 reports captured
-  after the corpus was frozen the route reaches 0.80, where `extract-4`
-  reached 0.70 and `extract-3` 0.45. Read the appendix as an instrument that,
-  measured so, misses between a fifth and a quarter of the checkable claims.
+  a program run by hand returned as `command_run`, and on 4 November, under
+  one that also types each item of a list under a check's result.
+  `extract-5c` carries the first rule and not the second; `extract-4`, the
+  prompt before it, carries neither, and reaches 0.69 against the annotation
+  of 4 November ([docs/DECISIONS.md](docs/DECISIONS.md)). The reference is a
+  model's annotation. On three reports a person annotated blind it found 28 of
+  the person's 48 checkable claims (0.58), and 29 of its 31 were the person's;
+  17 of the 20 it missed were items of three lists, which its guide did not
+  decide then and decides now. Its newest rules were written from those
+  reports and from the six of the anchor, where it now finds all but one of
+  the person's checkable claims, so that measure is not independent; the next
+  blind one needs reports not yet captured. On 27 reports captured after the
+  corpus was frozen the route reaches 0.76, where `extract-4` reached 0.67 and
+  `extract-3` 0.44. Read the appendix as an instrument that, measured so,
+  misses about a quarter of the checkable claims.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
   3, and each is gated on evidence from the phase before it.
 - Nothing aggregates several claims in one sentence into one verdict. Each

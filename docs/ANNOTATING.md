@@ -114,14 +114,17 @@ extractor finds both only by naming that sentence twice, once with each type.
   so `command_run` beside it would count the same run twice.
 - **What a command returned is `command_run`, unless the command is a
   check, and the agent's verdict on it is `judgment`.** A check is a command
-  whose job is to pass or fail: a test suite, a linter, a type checker,
-  `make verify`. A program or a script run to see what it does is not one,
-  whatever the agent ran it for. Under "He probado `csvtrim` a mano:", "con
-  un fichero vacío sale 2 y no escribe nada" says what the run returned, and
-  is `command_run`, though it also says how the program behaves; "así que la
-  entrada vacía está cubierta" is the agent's verdict on it, and is
-  `judgment`. With no run in the report for it to stand under, the first
-  would be a claim about behaviour, and `judgment`.
+  whose job is to pass or fail: a test suite, a linter, a type checker, a
+  formatter run to check, `make verify`. A program or a script run to see what
+  it does is not one, whatever the agent ran it for. Under "He probado
+  `csvtrim` a mano:", "con un fichero vacío sale 2 y no escribe nada" says
+  what the run returned, and is `command_run`, though it also says how the
+  program behaves; "así que la entrada vacía está cubierta" is the agent's
+  verdict on it, and is `judgment`. With no run in the report for it to stand
+  under, the first would be a claim about behaviour, and `judgment`. What a
+  command returned about the files the turn changed is `file_changed` as well,
+  by the rule on a file's content: "`git diff --stat`: cambian
+  `src/fechas.py` y `tests/test_fechas.py`" is both.
 - **A heading gets Enter, and the lines under it carry what it says.** "Lo que
   ejecuté" or "Qué cambia" does say something, that what follows was done,
   but it names nothing that can be checked, and marking it by its section
@@ -130,7 +133,11 @@ extractor finds both only by naming that sentence twice, once with each type.
   only "`make verify`" is `command_run`, since there it says the command ran.
   Reading the heading to understand a line is reading the report, which the
   extractor sees as well. A heading that asserts something by itself, "Todos
-  los tests pasan", is typed like any other sentence.
+  los tests pasan", is typed like any other sentence. A line that only says
+  where, and ends in a colon, is a heading too: under "Lo que he tocado", "En
+  `src/fechas.py`:" gets Enter, and the items under it are typed by what they
+  say was done there, so "**Una función nueva** para las zonas horarias" is
+  `file_changed`.
 - **Under a line that says a file was changed, an item that says what went
   into it does not claim the change again.** "He completado dos notas de
   `NOTES.md`:" is `file_changed`, and that is the change. Each item under it
@@ -139,6 +146,13 @@ extractor finds both only by naming that sentence twice, once with each type.
   part says how a file's content changed, and is `file_changed` by the rule
   above; the first is `judgment`. A heading is the other way round: it gets
   Enter, so the lines under it carry its claim.
+- **Under a line that says how a check came out, an item that names some of
+  its tests is `suite_passed`, with a count or without one.** "**Fallan 5**,
+  todos en el módulo de fechas:" is `suite_passed`, and so is each item under
+  it, "Los de las zonas horarias (3)." or "El del año bisiesto.": each says
+  how its own tests came out, which the line says only of the five together.
+  The rule above does not reach it: an item under a change says what went
+  into that one change, and an item under a result is a result of its own.
 - **What a commit is said to have changed is `file_changed`, whoever ran `git
   commit`.** A commit holds a change to files, and the change is the agent's
   work unless the report gives it to someone else, which is how the rule on a
@@ -181,7 +195,12 @@ file was changed were added on 2 November 2026, also at the user's request,
 after the user typed the claims the route had missed in one report of the
 holdout. The rule on what a commit is said to have changed was added on 3
 November 2026, at the user's request, after the annotator typed `judgment`
-the three sentences of the anchor that the user had typed `file_changed`.
+the three sentences of the anchor that the user had typed `file_changed`. The
+rules on a line that only says where and on the items under a check's result,
+and the examples of a formatter run to check and of what a command returned
+about the files, were added on 4 November 2026, at the user's request, after
+three reports the user annotated without seeing the annotator's annotation
+showed the two typing such lines differently.
 
 ## What you do not check
 

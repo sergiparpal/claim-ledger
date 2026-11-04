@@ -2112,3 +2112,88 @@ decided. The three reports are no longer blind: their differences have been
 read, and a rule written from them would be measured on them as the anchor's
 rules were on the anchor. The next blind measure needs reports not yet
 captured.
+
+### Each item of a list under a check's result is typed, and the reference is annotated again — 4 November 2026
+
+After the blind measure above, the user decided the three questions it left
+open, on 4 November. The lists go the user's way: a line that only says where,
+and ends in a colon, is a heading, and the items under it are typed by what
+they say was done there; under a line that says how a check came out, each
+item that names some of its tests is `suite_passed`, with a count or without
+one; under a line that says a file was changed, the items still do not claim
+the change again. `make format` stays a check, as the rule on what a command
+returned already had it, and the user's two `command_run` for it moved to
+`suite_passed` in `corpus/anchor-blind.jsonl` (sha256 `7a3507354391`), as four
+sentences of the anchor moved on 3 November; against that file the
+annotation of 3 November finds 30 of the user's 48 checkable claims (0.62),
+and the user makes 30 of its 31. What a command returned about the files the
+turn changed is `file_changed` as well as `command_run`, as the user typed it.
+In `docs/ANNOTATING.md` (sha256 `0f5da6f36293`) that is two rules, the first
+added to the rule on headings and the second a rule of its own after the rule
+on the items under a change, and two examples: a formatter run to check among
+the checks of the rule on what a command returned, and a line of `git diff
+--stat` after it. A dated sentence closes the section. The examples are absent
+from the 117 captured reports and the 42 test files.
+
+The annotator annotated the nine reports annotated by hand twice under it,
+into `corpus/anchor-fable-lists-1.jsonl` and `-2.jsonl`.
+
+| Against the user | Found | Made |
+| --- | --- | --- |
+| The three reports of the blind measure | 48 of 48 in both passes | 47 of 47, 47 of 49 |
+| The six of the anchor | 30 of 31 in both passes | 32 of 36, 31 of 33 |
+
+Every item of the three lists, the line that only names a file and the line
+of `git status` came out as the user typed them. The claim of the anchor both
+passes missed is in a sentence of `f89f6cd8-…-2` that the two probes of 3
+November typed `command_run` in one pass and `judgment` in the other. Neither
+figure is independent: the rules were written from these reports.
+
+The corpus and the holdout were then annotated again under this guide, in
+three processes. The subscription's limit stopped them after 33 reports; they
+finished once it reset, with no report left out (Claude Code 2.1.316). The new
+files are `corpus/annotations.jsonl` (sha256 `fad4ddaa2cee`) and
+`corpus/holdout.jsonl` (sha256 `b9ce220545cb`); those of 3 November are now
+`corpus/annotations-2026-11-03.jsonl` (`49b617e87aa8`) and
+`corpus/holdout-2026-11-03.jsonl` (`8432c191c9bb`).
+
+| Claims in the reference | Corpus, 3 and 4 November | Holdout, 3 and 4 November |
+| --- | --- | --- |
+| `command_run` | 234, 211 | 162, 169 |
+| `suite_passed` | 362, 402 | 416, 448 |
+| `file_changed` | 372, 409 | 119, 147 |
+| `judgment` | 1,152, 1,177 | 696, 731 |
+| `intent` | 242, 250 | 315, 365 |
+
+The new reference holds 54 more checkable claims in the corpus, 19 of them on
+the lines of a list, and 67 more in the holdout, 62 of them on such lines.
+Lists under a line that says how a check came out with every item left
+unmarked: 1 in the corpus before and none now, 4 in the holdout before and
+none now. Lists under a line that says a file was changed with every item left
+unmarked, as the rule on such items allows: 13 in the corpus and 4 in the
+holdout. Against the user, the new corpus finds 30 of the anchor's 31
+checkable claims (0.97), and the user makes 30 of its 32 (0.94); the new
+holdout finds all 48 of the three reports of the blind measure, and the user
+makes all 49 of its own. No repeat has been made under this guide; under the
+guide of 24 October between 7 and 10 percent of sentences moved from one pass
+to the next, so some of the moves in the table, `command_run` in the corpus
+among them, may be the annotator's own.
+
+The stored runs were scored again without a call.
+
+| Worst pass, recall and spurious share | Against 3 November | Against 4 November |
+| --- | --- | --- |
+| `extract-5c`, the hook's prompt: the corpus | 0.75, 0.48 | 0.75, 0.46 |
+| `extract-5c`: the holdout, 35 reports | 0.78, 0.58 | 0.75, 0.55 |
+| `extract-5c`: 27 reports of the holdout | 0.80, 0.56 | 0.76, 0.54 |
+| `extract-4`: the corpus, run of 1 November | 0.69, 0.45 | 0.69, 0.44 |
+| `extract-4`: 27 reports of the holdout | 0.70, 0.54 | 0.67, 0.53 |
+| `extract-3`: 27 reports of the holdout | 0.45, 0.56 | 0.44, 0.53 |
+
+The route finds some of the claims the reference gained and not all of them:
+on the corpus, `extract-5c` finds 0.86 of the `suite_passed` claims in its
+worst pass where it found 0.89, 0.81 of the `file_changed` where it found
+0.84, and 0.37 of the `command_run` where it found 0.36. Its spurious share
+falls by two or three hundredths, as claims it made in lists now count as
+found. The prompt carries neither of the two new rules, and a candidate that
+does is the user's to allow. No route clears phase 1 against either reference.
