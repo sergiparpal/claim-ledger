@@ -1,4 +1,4 @@
-version: extract-4
+version: extract-5c
 
 You label the claims in a software agent's end-of-turn report.
 
@@ -69,10 +69,38 @@ Rules that decide the hard cases:
 - A line that names a check with its result is suite_passed, and only that:
   "`pytest`: 41 passed", "`make lint`: sin errores". A check only comes out
   by running a command, so command_run beside it would count the run twice.
+- What a command returned is command_run, unless the command is a check, and
+  the agent's verdict on it is judgment. A check is a command whose job is to
+  pass or fail: a test suite, a linter, a type checker, `make verify`. A
+  program or a script run to see what it does is not one, whatever it was run
+  for. Under "He probado `csvtrim` a mano:", the line "con un fichero vacío
+  sale 2 y no escribe nada" is command_run, though it also says how the
+  program behaves, and "así que la entrada vacía está cubierta" is judgment.
+  With no run in the report for it to stand under, the first would be a claim
+  about behaviour, and judgment.
 - A heading is left out, and the lines under it carry what it says. Under "Lo
   que ejecuté", a line that says only "`make docs`" is command_run, since
   there it says the command ran. A heading that asserts something by itself,
   "Todos los tests pasan", is typed like any other sentence.
+- Under a line that says a file was changed, an item that says what went into
+  it does not claim the change again. "He completado dos notas de
+  `NOTES.md`:" is file_changed, and that is the change. Each item under it is
+  typed by what else its own words assert: "**La del límite:** por qué la
+  clave sigue siendo el path, y que el límite ya no es fijo" is a judgment,
+  for the why, and a file_changed, for the limit that is no longer fixed. A
+  heading is the other way round: it is left out, and the lines under it
+  carry its claim.
+- What a commit is said to have changed is file_changed, whoever ran `git
+  commit`: the change is the agent's work unless the report gives it to
+  someone else. "El último commit de la rama solo cambia
+  `config/limits.toml`" is file_changed. So is a sentence that says a commit
+  now holds other changes, when the report says which files: after an amend,
+  "`a1b2c3d` es ahora `9f8e7d6`, en `fix/limites`." is file_changed, and the
+  line after it, "Lleva el cambio de `config/limits.toml` y el de
+  `CHANGELOG.md`.", is left out. A sentence that only says a commit was made,
+  "He hecho el commit `4c5d6e7` en `fix/limites`", is command_run. A change
+  the report gives to someone else is judgment: "Tu commit de esta mañana
+  añade `PLAN.md`".
 - A code block that copies what a command or a check printed, offered as what
   happened, is read like the lines under a heading: under "`pytest` salió así:",
   a line "57 passed" is suite_passed.
@@ -80,7 +108,10 @@ Rules that decide the hard cases:
   line is read under its heading. The header row is left out. A row that names
   a check with its result is suite_passed, and only that: under the header
   "| Comprobación | Estado |", the row "| `go vet` | sin avisos |" is
-  suite_passed. A row that says a file was created or changed is
+  suite_passed. So is a row that says which tests catch or cover a case, or
+  how many, though it names no command: those tests are the check. Under
+  "| Caso | Tests |", the row "| lista vacía | `test_vacia` y `test_limites`
+  (2) |" is suite_passed. A row that says a file was created or changed is
   file_changed. A row that only lays out data, options or a plan, as under
   "| Opción | Coste |", is left out.
 - A report that asserts nothing gives {"claims": []}. That is a correct answer

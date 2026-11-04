@@ -1940,3 +1940,61 @@ were in no file. The annotator has annotated them too, into
 the holdout and out of every figure here until the user has annotated the
 three by hand, into `corpus/anchor-blind.jsonl`, without seeing it. They join
 the holdout after that. No route clears phase 1 against either reference.
+
+### extract-5c goes into the hook — 4 November 2026
+
+The reference of 3 November types what a program run by hand returned as
+`command_run`, and `extract-4` found 0.24 of those claims, having no such
+rule. At the user's leave, three candidate prompts were measured with the
+route in use, three passes each, against that reference.
+
+- `extract-5` (`extract-5+c5b8e1d0`) is `extract-4` with the guide's three
+  rules of 2 and 3 November, condensed, and one more change: "this turn's
+  work" became "the state of the work" in the line that says which assertions
+  are claims, since the rule on commits reaches commits of other sessions and
+  the guide speaks of the state of the work.
+- `extract-5b` (`extract-5b+3d0c0982`) is `extract-5` without that change.
+- `extract-5c` (`extract-5c+0dbdf6be`) is `extract-5b` with one rule more for
+  tables: a row that says which tests catch or cover a case is read as a
+  check's line, though it names no command.
+
+| Worst pass, recall and spurious share | `extract-4` | `extract-5` | `extract-5b` | `extract-5c` |
+| --- | --- | --- | --- | --- |
+| The corpus | 0.69, 0.45 | 0.72, 0.50 | not run | 0.75, 0.48 |
+| 27 reports of the holdout, passes 1 and 2 | 0.73, 0.54 | 0.63, 0.61 | 0.64, 0.60 | 0.80, 0.56 |
+| The corpus: answers past 20 seconds, of 243 | 0 | 12 | not run | 0 |
+
+On the corpus, `extract-5c` finds 0.36 to 0.42 of the `command_run` claims
+in its three passes, where `extract-4` found 0.24 to 0.25, `suite_passed`
+0.89 to 0.91, where it found 0.87 to 0.94, and `file_changed` 0.84 to 0.87,
+where it found 0.79 to 0.81. In the third pass of the holdout, `extract-5`
+lost 15 of 32 calls to HTTP 429 around 22:30 UTC, so its first two passes
+stand for it here.
+
+What the three showed. `extract-5` lost 111 of the holdout's `suite_passed`
+claims that `extract-4` found, 98 of them rows of tables that give, for each
+case, the tests that catch or cover it, and typed those rows `judgment`: the
+rule on what a command returned calls a check a command, and these rows name
+tests, not a command. It also extracted over half as many `judgment` claims
+again as `extract-4`, most in sentences the annotator left unmarked, and its
+answers grew long enough that 12 corpus calls passed 20 seconds; the
+provider's speed per token was the same as on 1 November. Without the change
+of scope, `extract-5b` lost 69 such claims, 63 of them table rows, and fewer
+answers came late; the change of scope was part of the cost, not most of it.
+With the rule for test rows, `extract-5c` lost 10, none of them table rows,
+and kept what the rule on command results gained. The prompt therefore still
+says "this turn's work" where the guide speaks of the state of the work, and
+has two rules for tables the guide does not state.
+
+So `src/ledger/prompts/extract.md` is now `extract-5c+0dbdf6be` byte for
+byte, and the figures above are its own. `extract-4` stays as
+`prompts/extract-4.md`, and `extract-5` and `extract-5b`, measured and not
+taken, stay as their own files. The plugin is 0.3.3. Its answers are longer
+than `extract-4`'s: a median of 722 output tokens on the corpus against 516,
+a 95th percentile of 12.7 seconds against 9.3, and a slowest answer of 19.2
+seconds, under the 20-second deadline; on the holdout 2 answers of 81 passed
+it. At a slow hour, when the provider generates at half speed, more turns will
+come back `UNKNOWN` than with `extract-4`. Its spurious share is 0.48 on the
+corpus, against 0.45. Phase 1 is not cleared, and the hook stays an observer.
+The runs are in `corpus/runs/`, with the prompt's version in their names; the
+five runs cost about $2.20.
