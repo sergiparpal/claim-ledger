@@ -2197,3 +2197,75 @@ worst pass where it found 0.89, 0.81 of the `file_changed` where it found
 falls by two or three hundredths, as claims it made in lists now count as
 found. The prompt carries neither of the two new rules, and a candidate that
 does is the user's to allow. No route clears phase 1 against either reference.
+
+### Under the guide as it stands, the annotator does not repeat itself within the threshold — 5 November 2026
+
+At the user's request, the annotator annotated the corpus's 81 reports a
+second time under the guide as it stands, `docs/ANNOTATING.md` of commit
+`383afc1` (sha256 `0f5da6f36293`), with the same CLI as the reference, Claude
+Code 2.1.316, into `corpus/annotations-repeat-383afc1.jsonl` (sha256
+`64db7dc378de`). The run began at 22:54 UTC on 4 November; the subscription's
+usage limit stopped it after 26 reports, and the other 55 were annotated from
+09:20 to 09:38 UTC on 5 November, with no answer refused. It measures what the
+entry of 3 November left unmeasured. The reference stays
+`corpus/annotations.jsonl` (sha256 `fad4ddaa2cee`), and every figure given
+against it stands.
+
+The two annotations were scored against each other as an extractor would be,
+as on 24 October; the same count, run on that day's two annotations, gives
+that day's figures again.
+
+| The annotator against itself | 24 October: the evening's guide, CLI 2.1.310 | 4 and 5 November: the guide of `383afc1`, CLI 2.1.316 |
+| --- | --- | --- |
+| The second annotation against the first: recall, spurious share | 0.95, 0.07 | 0.96, 0.13 |
+| The first against the second | 0.96, 0.08 | 0.90, 0.12 |
+| Sentences typed differently, of 4,088 | 286 (7%) | 512 (12.5%) |
+
+The second finds 982 of the first's 1,022 checkable claims, and 333 of its
+2,489 claims match none of the first's; the first finds 974 of the second's
+1,087, 0.896, and 282 of its 2,449 match none. Phase 1 asks for recall 0.90
+and a spurious share of at most 0.10. On 24 October an extractor as good as
+the annotator would have cleared that against one annotation of it. Under the
+guide as it stands it would not: the spurious share passes 0.10 both ways, and
+one way recall falls just short. The holdout's repeat of 31 October went over
+in one direction; the corpus now goes over in both.
+
+Where the two differ:
+
+- The border between `judgment`, `intent` and no claim, as in October, now in
+  310 of the 512 sentences: 198 between no claim and `judgment`, 112 between
+  no claim and `intent`, where October had 200 of 286. It moves the spurious
+  share and not recall, which counts checkable claims only.
+- How far `command_run` reaches. The second annotation makes 269 `command_run`
+  claims where the first makes 211. It has 64 the first lacks, in sentences
+  the first typed `judgment` (52) or left unmarked (12), and lacks 6 of the
+  first's. In October the two differed on 19 `command_run` claims; now on 70.
+- `suite_passed` and `file_changed` stay close: the second finds 0.98 of the
+  first's `suite_passed` claims and 0.94 of its `file_changed`, and the first
+  0.97 and 0.91 of the second's.
+
+What the first annotation types `command_run`, the second does too, 205 of
+211. Of the 123 such claims that `extract-5c`'s worst pass missed on the
+corpus, the second makes 120, so those misses are the extractor's, not the
+reference's variation. Scored against the second annotation, `extract-5c`'s
+worst pass has recall 0.70 and a spurious share of 0.49, against 0.75 and 0.46
+against the reference, and it finds 0.30 to 0.33 of the `command_run` claims in
+its three passes, against 0.37 to 0.42. Which of two annotations by the same
+annotator stands as the reference moves the route's recall by about five
+hundredths, and the reference is the kinder of the two to this route.
+
+Against the six reports of the anchor (sha256 `bb2906b07b52`), the second
+annotation finds 31 of the user's 31 checkable claims and the user made 31 of
+its 33, where the reference finds 30 of 31 and the user made 30 of its 32; 13
+of the second's 75 claims are not the user's, and 13 of the reference's 72.
+The anchor does not tell the two apart.
+
+Not measured: whether the guide or the CLI made the difference, since both
+changed between the two repeats, and how much of it is chance, with one repeat
+each time. The holdout was not annotated again. What follows is the user's to
+decide: whether to make the guide more repeatable at those two borders and
+measure a repeat again, or to measure against more than one annotation, which
+would change how the frozen numbers of phase 1 are measured and is a matter
+for the requirements (A-12, § Rollout phases). A candidate prompt for the
+`command_run` claims the route misses is the user's to allow, and its runs can
+be scored against whichever reference stands.
