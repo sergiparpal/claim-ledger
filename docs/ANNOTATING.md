@@ -121,10 +121,15 @@ extractor finds both only by naming that sentence twice, once with each type.
   what the run returned, and is `command_run`, though it also says how the
   program behaves; "así que la entrada vacía está cubierta" is the agent's
   verdict on it, and is `judgment`. With no run in the report for it to stand
-  under, the first would be a claim about behaviour, and `judgment`. What a
-  command returned about the files the turn changed is `file_changed` as well,
-  by the rule on a file's content: "`git diff --stat`: cambian
-  `src/fechas.py` y `tests/test_fechas.py`" is both.
+  under, the first would be a claim about behaviour, and `judgment`. A line
+  stands under a run when the report says that run in the line itself, in the
+  line it is an item of, or in the heading or the lead line of its section:
+  "He probado `csvtrim` a mano:" says one, and so does "`make demo` sale
+  así:". A label such as "**Dato:**", or a numbered section, says none, and
+  under it "Con importes negativos redondea hacia cero." is a claim about
+  behaviour, and `judgment`. What a command returned about the files the turn
+  changed is `file_changed` as well, by the rule on a file's content: "`git
+  diff --stat`: cambian `src/fechas.py` y `tests/test_fechas.py`" is both.
 - **A heading gets Enter, and the lines under it carry what it says.** "Lo que
   ejecuté" or "Qué cambia" does say something, that what follows was done,
   but it names nothing that can be checked, and marking it by its section
@@ -153,6 +158,14 @@ extractor finds both only by naming that sentence twice, once with each type.
   how its own tests came out, which the line says only of the five together.
   The rule above does not reach it: an item under a change says what went
   into that one change, and an item under a result is a result of its own.
+- **A description gets Enter wherever it stands, under a lead line as
+  anywhere.** A line that says what the code, a test or a case does asserts
+  nothing about the work, whatever the line above it says was done. Under "He
+  añadido tres tests a `tests/test_tarifas.py`:", which is `file_changed`, the
+  item "Uno por tramo, con el importe exacto que debe salir." describes the
+  tests and gets Enter. A line that says how a file's content changed is not a
+  description, and is `file_changed` by the rule on a file's content wherever
+  it stands.
 - **What a commit is said to have changed is `file_changed`, whoever ran `git
   commit`.** A commit holds a change to files, and the change is the agent's
   work unless the report gives it to someone else, which is how the rule on a
@@ -200,7 +213,11 @@ rules on a line that only says where and on the items under a check's result,
 and the examples of a formatter run to check and of what a command returned
 about the files, were added on 4 November 2026, at the user's request, after
 three reports the user annotated without seeing the annotator's annotation
-showed the two typing such lines differently.
+showed the two typing such lines differently. The rule on a description under
+a lead line, and the sentence on what a line stands under, were added on 5
+November 2026, at the user's request, after two annotations of the corpus
+under the guide as it then stood typed such lines differently far more often
+than two under the guide of 24 October.
 
 ## What you do not check
 

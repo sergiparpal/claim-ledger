@@ -204,9 +204,9 @@ python3 ~/code/claim-ledger/tools/measure_recall.py recall --root <project> <run
 The run calls the route three times a report and needs the key; the other two
 call nothing. The figures are in [DECISIONS](DECISIONS.md): no route measured
 clears phase 1, and with the prompt the hook sends since 5 November 2026 the
-route in use misses a fifth of the checkable claims the annotator marks in
-the corpus, as annotated again on 4 November 2026, and fewer, about one in
-seven, in 27 reports captured after it. Read the appendix as an instrument that does.
+route in use misses about a fifth of the checkable claims the annotator
+marks in the corpus, as annotated again on 5 November 2026, and fewer, about
+one in seven, in 27 reports captured after it. Read the appendix as an instrument that does.
 
 The corpus is frozen. Reports captured since go to `corpus/holdout.jsonl`
 instead, with `annotate_model.py --corpus` and an `--only` for each, and are

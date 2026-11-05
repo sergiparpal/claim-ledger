@@ -42,7 +42,7 @@ key_env          = "OPENROUTER_API_KEY"
 # Provisional since 18 October 2026, when Morph's endpoint for the route pinned
 # on 23 September, deepseek/deepseek-v4.1-flash, went down. No route measured
 # clears phase 1, stronger models included. With the prompt extract-6c this one
-# reaches recall 0.80 over the annotated corpus and loses 2 turns in 81, and
+# reaches recall 0.78 over the annotated corpus and loses 2 turns in 81, and
 # its answers vary from call to call (DECISIONS).
 model            = "mistralai/mistral-medium-3.1"
 # Exactly one provider, fallbacks off: a recall figure measured across a

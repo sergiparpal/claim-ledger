@@ -2399,3 +2399,107 @@ between days adding variation that hours do not is unlikely but not ruled
 out. What follows is the user's to decide: which rules of the guide to make
 more repeatable while keeping the readings the user gave. The reference is
 unchanged, and so is every figure given against it.
+
+### Two rules make the annotator repeat itself again, and the reference is annotated under them — 5 November 2026
+
+The two annotations of the corpus under the guide as it stood typed 512
+sentences differently, and 448 of them are sentences the two annotations
+under the guide of 24 October type alike. Most fall in two places: 310 are at
+the border between `judgment`, `intent` and no claim, 216 of those in items
+or rows under a lead line that describe a test, a case, the code or a plan,
+which the guide of 24 October left unmarked; and 62 are sentences one
+annotation types `command_run` and the other not, mostly how the code behaves,
+under a label or a numbered section. At the user's request the guide gained
+two rules for them.
+
+- A description gets Enter wherever it stands, under a lead line as anywhere:
+  a line that says what the code, a test or a case does asserts nothing about
+  the work, whatever the line above it says was done. A line that says how a
+  file's content changed is not a description, and is `file_changed` by the
+  rule on a file's content wherever it stands.
+- In the rule on what a command returned, a line stands under a run when the
+  report says that run in the line itself, in the line it is an item of, or in
+  the heading or the lead line of its section. A label, or a numbered section,
+  says none.
+
+Their examples are absent from the 117 captured reports and the 42 test files,
+and a dated sentence closes the section. `docs/ANNOTATING.md` is now sha256
+`349bb2305511`.
+
+The rules were tried on the nine reports annotated by hand, twice for each of
+three wordings, into `corpus/anchor-fable-descriptions-1.jsonl` and `-2`, `-b-1`
+and `-b-2`, and `-c-1` and `-c-2`. The first wording said a description of
+what the code or a test holds, and two of the user's `file_changed` items, in a
+list under a line that says how a commit's message changed, went to
+`judgment`. The second added that a change of a file's content is not a
+description, and a sentence saying when an item claims something, which made
+the annotator type `file_changed` items under a change and a heading that names
+where some decisions were noted; the third, the guide as it stands, drops that
+sentence. In five of the six passes the annotator typed `command_run`, as the
+user did, a line that says what a tool's run did not do, which the guide as it
+stood had typed `judgment`. In every wording the two items under the line about
+the commit's message went to `judgment` in most passes. The user chose to move
+them to `judgment` in `corpus/anchor.jsonl`, now sha256 `3c94491963ee`: a
+commit's message is not a file, the join verifies `file_changed` only against a
+write to a path, so the claim would be `UNSUPPORTED` however true, and the
+amend itself is claimed in the line that gives the commit's new id. On nine
+reports that already varied little, the two passes of each guide differ in
+about the same number of sentences.
+
+To measure what the rules do where the annotator varies, 40 of the corpus's
+75 reports outside the anchor were drawn with seed `20261105` and annotated
+twice under the guide as it stands, from 20:07 to 20:24 UTC, into
+`corpus/annotations-half-g349bb23-1.jsonl` (sha256 `bf909bf09675`) and `-2`
+(sha256 `0c8dddedd722`).
+
+| Two annotations of the same 40 reports, each scored against the other | Recall | Spurious share | Sentences typed differently, of 2,171 | At the border of `judgment`, `intent` and no claim | `command_run` in one only |
+| --- | --- | --- | --- | --- | --- |
+| The guide of 4 November, the annotations of 4 and 5 November | 0.95, 0.87 | 0.15, 0.17 | 335 (15.4%) | 205 | 54 |
+| The guide as it stands | 0.98, 0.96 | 0.06, 0.04 | 107 (4.9%) | 64 | 16 |
+| The guide of 24 October, the two of 5 November | 0.95, 0.96 | 0.06, 0.05 | 116 (5.3%) | 71 | 9 |
+
+Under the guide as it stands the annotator repeats itself as it did under the
+guide of 24 October while keeping the readings added since. An extractor as
+good as the annotator would come under the 0.10 phase 1 allows against one
+annotation of it. Which rule does what is not separable here: both changed at
+once.
+
+The user then had the reference annotated again under the guide as it stands.
+The corpus is the first annotation of the 40 reports drawn and an annotation
+of the other 41, made from 20:29 to 20:41 UTC; the holdout's 35 reports were
+annotated from 21:01 to 21:14 UTC. No answer was refused. They are now
+`corpus/annotations.jsonl` (sha256 `20ce8755afcd`) and `corpus/holdout.jsonl`
+(sha256 `86126b791b69`), and the ones they replace are kept as
+`corpus/annotations-2026-11-04.jsonl` (sha256 `fad4ddaa2cee`) and
+`corpus/holdout-2026-11-04.jsonl` (sha256 `b9ce220545cb`).
+
+| Claims in the reference, before and now | The corpus | The holdout |
+| --- | --- | --- |
+| `command_run` | 211, 232 | 169, 171 |
+| `suite_passed` | 402, 396 | 448, 439 |
+| `file_changed` | 409, 391 | 147, 134 |
+| `judgment` | 1,177, 1,074 | 731, 542 |
+| `intent` | 250, 177 | 365, 203 |
+
+Against the six reports of the anchor the annotation finds all 29 of the
+user's checkable claims, the user made 29 of its 31, and 12 of its 76 claims
+are not the user's; against the three reports annotated blind it finds all 48,
+and the user made all 47 of its own. Both measures are of reports the rules
+were tried on.
+
+| Worst pass, recall and spurious share | Against 4 November | Against 5 November |
+| --- | --- | --- |
+| `extract-6c`, the hook's prompt: the corpus | 0.80, 0.44 | 0.78, 0.49 |
+| `extract-6c`: the holdout, 35 reports | 0.84, 0.50 | 0.85, 0.55 |
+| `extract-6c`: 27 reports of the holdout | 0.85, 0.49 | 0.85, 0.54 |
+| `extract-5c`: the corpus | 0.75, 0.46 | 0.74, 0.51 |
+| `extract-5c`: 27 reports of the holdout | 0.76, 0.54 | 0.77, 0.58 |
+| `extract-4`: 27 reports of the holdout | 0.67, 0.53 | 0.68, 0.55 |
+| `extract-3`: 27 reports of the holdout | 0.44, 0.53 | 0.45, 0.59 |
+
+The reference now leaves unmarked descriptions the route still types
+`judgment` or `intent`, so every spurious share rises by two to six
+hundredths. The prompt carries neither rule, and a candidate that does is the
+user's to allow. Not measured: the annotator's agreement with itself over the
+whole corpus and the holdout under the guide as it stands; the 40 reports
+drawn are the measure of it. Phase 1 is not cleared.
