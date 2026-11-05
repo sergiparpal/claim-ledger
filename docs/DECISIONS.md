@@ -2269,3 +2269,85 @@ would change how the frozen numbers of phase 1 are measured and is a matter
 for the requirements (A-12, § Rollout phases). A candidate prompt for the
 `command_run` claims the route misses is the user's to allow, and its runs can
 be scored against whichever reference stands.
+
+### extract-6c goes into the hook — 5 November 2026
+
+At the user's leave, three candidates were written from `extract-5c` and
+measured on the corpus and the holdout, three passes each, with distiller's
+route, on 5 November between 10:13 and 11:53 UTC. Their examples are absent
+from the 117 captured reports and the 42 test files.
+
+- `extract-6a` (`extract-6a+21b220f1`) is `extract-5c` with the guide's rules
+  of 4 November, on a line that only says where and on the items under a
+  check's result, its examples of a formatter run to check and of what a
+  command returned about the files, and three rules for the `command_run`
+  claims the route missed: what a run returned is `command_run` in whatever
+  form the report gives it, a time, a count, an output or an error, once the
+  report says the run was made; one sentence can hold an edit and a search,
+  and an instruction can carry a claim; and a row that says what a run that is
+  not a check returned is `command_run`.
+- `extract-6b` (`extract-6b+aa80bad9`) is `extract-6a` with five rules against
+  what the route marked and the reference did not: a description of the code
+  is left out, the agent's own included; a step the report gives as still to
+  come is `intent`, in whatever tense; what the agent expects a check to give
+  is `judgment`; reading a file is not running it; and a row that names a test
+  and says what it checks, or how many cases it has, is left out.
+- `extract-6c` (`extract-6c+bf5a552b`) is `extract-6b` without the first of
+  the five.
+
+| Worst pass | `extract-5c` | `extract-6a` | `extract-6b` | `extract-6c` |
+| --- | --- | --- | --- | --- |
+| The corpus: recall, spurious share | 0.75, 0.46 | 0.78, 0.50 | 0.77, 0.47 | 0.80, 0.44 |
+| The corpus against its second annotation | 0.70, 0.49 | 0.75, 0.51 | 0.73, 0.49 | 0.76, 0.47 |
+| The holdout, 35 reports | 0.75, 0.55 | 0.84, 0.56 | 0.83, 0.49 | 0.84, 0.50 |
+| 27 reports of the holdout: recall | 0.76 | 0.85 | 0.84 | 0.85 |
+| The corpus: `command_run`, `suite_passed` and `file_changed` | 0.37, 0.86, 0.81 | 0.58, 0.82, 0.84 | 0.54, 0.86, 0.78 | 0.61, 0.87, 0.83 |
+| Turns `UNKNOWN`: the corpus, the holdout | 2, 3 | 4, 6 | 2, 2 | 2, 2 |
+| Answers past 20 seconds: the corpus, the holdout | 0 of 239, 2 of 100 | 1 of 235, 13 of 104 | 0 of 239, 4 of 105 | 0 of 238, 2 of 104 |
+
+What the three showed. Each finds more of the `command_run` claims: in the
+holdout's worst pass, the sentences the reference types `command_run` and the
+route typed `judgment` fall from 63 with `extract-5c` to 2 with `extract-6c`.
+`extract-6a` paid for it: it typed 49 of the corpus's `suite_passed` claims
+`command_run`, its spurious share rose, and its answers grew long enough that
+13 of the holdout's 104 passed 20 seconds. The five rules of `extract-6b` cut
+what the route marks that matches nothing: of its checkable claims in the
+corpus's worst pass, 588 matched nothing, against 707 for `extract-5c`, and
+its `suite_passed` claims in sentences the reference left unmarked fell from
+194 to 87; 123 of the 194 were rows of tables. Its spurious share on the
+corpus did not fall with them, since it marked `intent` in 112 sentences the
+reference left unmarked, against 63, and made fewer claims in all. It also
+found fewer `file_changed` claims, 0.78 against 0.81. Of the 33 that
+`extract-5c` found in two passes or three and it found in one or none, 5 are
+in a report it got no usable answer for, and most of the others say how a
+file's content changed without an editing verb, which is what the rule on
+describing the agent's own code would take away.
+
+Without that rule, `extract-6c` keeps most of the rest and finds 0.83 of the
+`file_changed` claims. Against `extract-5c`, counting the claims found in two
+passes or three, it finds 28 `file_changed` claims more and 17 fewer, 51
+`command_run` more and 5 fewer, and 11 `suite_passed` more and 23 fewer; 27
+of its `suite_passed` misses in the worst pass are results of checks typed
+`command_run`. Of its checkable claims, 650 matched nothing in the corpus's
+worst pass and 477 in the holdout's, against 707 and 661, and its
+`suite_passed` claims in table rows the reference left unmarked fell from 123
+to 52. With one run of each, part of what separates `extract-6b` from
+`extract-6c` beyond `file_changed` may be the route's variation from run to
+run.
+
+Its answers are shorter than `extract-5c`'s: a median of 646 output tokens on
+the corpus against 722, and 1,120 on the holdout against 1,455. On the corpus
+none passed 20 seconds, the slowest taking 18.8; on the holdout 2 of 104 did,
+as 2 of 100 did for `extract-5c`, though the provider generated about a sixth
+slower on 5 November, at a median of 195 tokens a second against 232. The
+answers left unusable were of the kind seen before, a claim without its
+referents.
+
+So `src/ledger/prompts/extract.md` is now `extract-6c+bf5a552b` byte for byte,
+and the figures above are its own. `extract-5c` stays as
+`prompts/extract-5c.md`, and `extract-6a` and `extract-6b`, measured and not
+taken, as their own files. The plugin is 0.3.4. The prompt now holds rules the
+guide does not state, each drawn from a rule it does, and whether to write
+them into the guide is the user's to decide. Phase 1 is not cleared, and the
+hook stays an observer. The six runs are in `corpus/runs/`, with the prompt's
+version in their names, and cost $2.70.
