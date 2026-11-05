@@ -2351,3 +2351,51 @@ guide does not state, each drawn from a rule it does, and whether to write
 them into the guide is the user's to decide. Phase 1 is not cleared, and the
 hook stays an observer. The six runs are in `corpus/runs/`, with the prompt's
 version in their names, and cost $2.70.
+
+### The guide's newer rules, not the annotator, doubled its variation, and the annotator has moved since October — 5 November 2026
+
+The entry before the last could not tell whether the guide or the CLI made
+the annotator vary more. At the user's request the annotator annotated the
+corpus's 81 reports twice more on 5 November under the guide of 24 October,
+`docs/ANNOTATING.md` of commit `a272162` (sha256 `afa2de54c994`), the last to
+change it before 2 November, with the reference's CLI, Claude Code 2.1.316.
+`tools/annotate_model.py` and the sentence cut are as they were on 24
+October, so only the guide differs from the annotations of 4 and 5 November.
+The first is `corpus/annotations-repeat-a272162.jsonl` (sha256
+`61b5ab16c9cf`), made from 12:18 to 14:31 UTC, and the second
+`corpus/annotations-repeat-a272162-2.jsonl` (sha256 `a63d9e1b9591`), from
+14:49 to 15:53 UTC. The subscription's usage limit stopped each once, and no
+answer was refused.
+
+| Two annotations of the corpus, each scored against the other | Recall | Spurious share | Sentences typed differently, of 4,088 |
+| --- | --- | --- | --- |
+| The guide of 24 October, both made that day, CLI 2.1.310 | 0.95, 0.96 | 0.07, 0.08 | 286 (7%) |
+| The guide of 24 October, both made on 5 November, CLI 2.1.316 | 0.95, 0.97 | 0.05, 0.05 | 200 (4.9%) |
+| The guide as it stands, made on 4 and 5 November, CLI 2.1.316 | 0.96, 0.90 | 0.13, 0.12 | 512 (12.5%) |
+| The guide of 24 October, each of 5 November against each of 24 October | 0.92 to 0.94, 0.88 to 0.89 | 0.15 to 0.16, 0.11 to 0.12 | 453 to 509 |
+
+Under one guide, annotating twice the same day, the annotator repeats itself
+within the threshold, as it did on 24 October and a little better; under the
+guide as it stands it does not. The rules added since 2 November are what more
+than doubled its variation. Between the two annotations of 5 November under
+the guide of 24 October, the border between `judgment`, `intent` and no claim
+moves in 126 sentences, against 310 between the two under the guide as it
+stands, and one annotation types a sentence `command_run` where the other does
+not in 17 sentences, against 70.
+
+The annotator has also moved since October. Under the same guide, the two
+annotations of 5 November differ from the two of 24 October about as much as
+the two under the guide as it stands differ from each other, and they differ
+in one direction: 401 and 410 `file_changed` claims against 361 and 362, 202
+and 220 `intent` against 157 and 163, and 116 and 113 `command_run` against 94
+and 103. With the code and the guide the same, what changed is the CLI, from
+2.1.310 to 2.1.316, or the model as it is served. Annotations made on
+different dates are therefore not one reference, and an annotation made today
+does not read as one made in October.
+
+Not measured: the pair under the guide as it stands was annotated over a
+night, the pair of 5 November within four hours, so a change
+between days adding variation that hours do not is unlikely but not ruled
+out. What follows is the user's to decide: which rules of the guide to make
+more repeatable while keeping the readings the user gave. The reference is
+unchanged, and so is every figure given against it.
