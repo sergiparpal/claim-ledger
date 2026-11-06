@@ -1482,6 +1482,11 @@ second annotation the route's worst pass is 0.49, against the first 0.50. The
 suite claims the route misses are ones the annotator marks the same way
 twice, so the gap is the extractor's.
 
+Corrected on 6 November 2026: the second annotation finds 388 of the first's
+389 suite claims, not every one. The one it misses, a sentence of
+`25b4c7b6-…-3`, it types `judgment`. The scorer and both files are as they
+were on 31 October, and the conclusion stands.
+
 What varies is the border between `intent`, `judgment` and no claim, and it
 is wider here than in the corpus. 259 of the 2,543 sentences were typed
 differently, 10% against 7%, and the second pass marked 184 `intent` claims
