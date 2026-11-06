@@ -30,7 +30,12 @@ since 23 October 2026 a model annotates the corpus (tools/annotate_model.py),
 and a person annotates a few reports by hand as its anchor, into a file of
 their own given with --corpus, corpus/anchor.jsonl.
 
-A span must appear in the report word for word, as the extractor's must. The
+A span typed by hand must be in the report word for word, as the extractor's
+must, and must fall in the sentence it is typed for and in no other. The
+scorer places a span by its text (ledger.sentences.holding), so one also found
+in another sentence would be counted there as well, as a span of one
+character typed where a type was meant once was. It may cross a cut made in
+the wrong place into the sentence beside it. The
 corpus is only ever appended to, and a file that cannot be appended to safely
 stops the run before anything is asked: a line that is not an annotation, a
 report annotated twice, or a last line with no line end, which the next
@@ -182,7 +187,7 @@ def annotate_report(report: Report, *, ask: Callable[[str], str], out: TextIO,
         try:
             for index, sentence in enumerate(cut, 1):
                 print(f"[{index}/{len(cut)}] {sentence}", file=out)
-                claims += _sentence(sentence, report.text, ask=ask, out=out)
+                claims += _sentence(sentence, report.text, cut, index, ask=ask, out=out)
         except _Skip:
             return None
         print(f"\n{len(claims)} claims in {report.report_id}", file=out)
@@ -199,8 +204,8 @@ def annotate_report(report: Report, *, ask: Callable[[str], str], out: TextIO,
             print(f"  {answer!r} is not one of Enter, r or q", file=out)
 
 
-def _sentence(sentence: str, text: str, *, ask: Callable[[str], str],
-              out: TextIO) -> list[dict]:
+def _sentence(sentence: str, text: str, cut: Sequence[str], number: int, *,
+              ask: Callable[[str], str], out: TextIO) -> list[dict]:
     while True:
         answer = _key(ask, "> ")
         if answer in KEYS:
@@ -208,7 +213,7 @@ def _sentence(sentence: str, text: str, *, ask: Callable[[str], str],
         if answer == "":
             return []
         if answer == "s":
-            return _by_hand(text, ask=ask, out=out)
+            return _by_hand(text, cut, number, ask=ask, out=out)
         if answer == "n":
             raise _Skip
         if answer == "q":
@@ -216,8 +221,11 @@ def _sentence(sentence: str, text: str, *, ask: Callable[[str], str],
         print(f"  {answer!r} is not a key: {LEGEND}, Enter, s, n or q", file=out)
 
 
-def _by_hand(text: str, *, ask: Callable[[str], str], out: TextIO) -> list[dict]:
-    """Spans typed or pasted, each checked against the report. An empty span ends them."""
+def _by_hand(text: str, cut: Sequence[str], number: int, *, ask: Callable[[str], str],
+             out: TextIO) -> list[dict]:
+    """Spans typed or pasted for sentence `number`, each checked where the scorer
+    will place it: in that sentence, or across a cut beside it, and nowhere
+    else. An empty span ends them."""
     claims = []
     while True:
         span = _read(ask, "  span (Enter when done): ").strip()
@@ -226,11 +234,28 @@ def _by_hand(text: str, *, ask: Callable[[str], str], out: TextIO) -> list[dict]
         if span not in text:
             print("  not in the report word for word; copy it exactly", file=out)
             continue
+        held = sentences.holding(span, text, cut)
+        if number not in held:
+            print(f"  in {_named(held)}, not this one; a span is a piece of the sentence "
+                  f"it is typed for", file=out)
+            continue
+        elsewhere = held - sentences.reach(span, text, cut, number)
+        if elsewhere:
+            print(f"  also in {_named(elsewhere)}; type more of it, so that it is in this "
+                  f"sentence alone", file=out)
+            continue
         kind = _key(ask, "  type: ")
         while kind not in KEYS:
             print(f"  {kind!r} is not a type: {LEGEND}", file=out)
             kind = _key(ask, "  type: ")
         claims.append({"span": span, "type": KEYS[kind]})
+
+
+def _named(numbers: frozenset[int]) -> str:
+    ordered = [str(n) for n in sorted(numbers)]
+    if len(ordered) == 1:
+        return f"sentence {ordered[0]}"
+    return "sentences " + ", ".join(ordered[:-1]) + " and " + ordered[-1]
 
 
 def _key(ask: Callable[[str], str], prompt: str) -> str:

@@ -301,6 +301,31 @@ class SessionTest(AnnotateTestCase):
         self.assertEqual(self.lines()[0]["claims"],
                          [{"span": "Ran it, e.g. the suite.", "type": "command_run"}])
 
+    def test_a_span_by_hand_must_be_in_the_sentence_it_is_typed_for(self):
+        capture(self.project, 1, "I updated src/parser.py. The tests pass.")
+        _, out, _, script = self.run_tool(
+            "s", "The tests pass",                # the next sentence's: asked again
+            "I updated src/parser.py", "3", "",   # the first sentence's own
+            "", "")                               # the second sentence, then save
+        self.assertEqual(script.answers, [])
+        self.assertIn("in sentence 2, not this one", out)
+        self.assertEqual(self.lines()[0]["claims"],
+                         [{"span": "I updated src/parser.py", "type": "file_changed"}])
+
+    def test_a_span_by_hand_found_in_another_sentence_too_is_refused(self):
+        # A type typed at the span prompt was once taken as a span of one
+        # character, and the scorer placed it in every sentence holding it.
+        capture(self.project, 1, "Fixed 2 files. 2 tests pass.")
+        _, out, _, script = self.run_tool(
+            "",                                   # the first sentence claims nothing
+            "s", "2",                             # also in the first: asked again
+            "2 tests pass", "2", "",              # this sentence's own
+            "")                                   # save
+        self.assertEqual(script.answers, [])
+        self.assertIn("also in sentence 1", out)
+        self.assertEqual(self.lines()[0]["claims"],
+                         [{"span": "2 tests pass", "type": "suite_passed"}])
+
     def test_a_typed_span_loses_only_its_surrounding_spaces(self):
         capture(self.project, 1, "I updated src/parser.py and the tests pass.")
         self.run_tool("s", "  the tests pass  ", "2", "", "")

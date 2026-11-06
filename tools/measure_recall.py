@@ -158,27 +158,9 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
 
 
-def holding(span: str, text: str, cut: Sequence[str]) -> frozenset[int]:
-    """The numbers of the sentences that hold a span: the ones it is, failing those
-    the ones it is part of, and failing those the ones it overlaps in the report."""
-    whole = frozenset(n for n, sentence in enumerate(cut, 1) if sentence == span)
-    if whole:
-        return whole
-    within = frozenset(n for n, sentence in enumerate(cut, 1) if span in sentence)
-    if within:
-        return within
-    places, at = [], 0
-    for sentence in cut:                      # each one a slice of the report, in order
-        start = text.index(sentence, at)
-        places.append((start, start + len(sentence)))
-        at = start + len(sentence)
-    crossed: set[int] = set()
-    start = text.find(span)
-    while start != -1:
-        end = start + len(span)
-        crossed |= {n for n, (first, last) in enumerate(places, 1) if first < end and start < last}
-        start = text.find(span, start + 1)
-    return frozenset(crossed)
+#: Where a span falls in the cut. It lives with the cut, so that the annotation
+#: tool checks a span typed by hand by the placement the scorer gives it.
+holding = sentences.holding
 
 
 def marked(annotation: Annotation, text: str, cut: Sequence[str], where: Path) -> list[Marked]:

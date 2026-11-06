@@ -56,7 +56,8 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   reports annotated by a person into `corpus/anchor.jsonl`, which the model's
   annotations are checked against. It asks about each report a sentence at a
   time: a key per claim type, Enter for none, spans typed by hand where one
-  sentence holds two claims. It shows the report and nothing else, neither the
+  sentence holds two claims, each refused unless it falls in that sentence
+  alone, as the scorer will place it. It shows the report and nothing else, neither the
   evidence nor the extractor's claims, and appends one line per finished
   report. `--older-than` keeps back the reports captured too recently, while
   the line that ended each turn is still in mind.
@@ -84,6 +85,13 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   candidate judged by its worst pass against the phase-1 threshold, and every
   claim a pass missed. A line names a report, a sentence number and types;
   `--spans` adds the sentence.
+- `python3 tools/measure_review.py run|score` measures a review step on the
+  answers a corpus run kept: `run` sends each answer of one pass to the route,
+  with the report and the answer's claims, and keeps which claims the reply
+  drops; `score` sets the pass before and after the review against the corpus,
+  and makes no call. What the step is, and what it gave on 6 November 2026, is
+  in [docs/precision-step.md](docs/precision-step.md). `run` needs the same key
+  as `extract_report.py`.
 - `python3 tools/daily_use.py recording|latency|verdicts|defects` reads back
   what daily use recorded: whether every tool call in a session's transcript
   has its record, how long each Stop took and how its turn ended, an empty

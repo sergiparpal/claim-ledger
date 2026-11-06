@@ -66,6 +66,26 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(sentences.split("```\n---\n- \n…\n"), [])
 
 
+class ReachTest(unittest.TestCase):
+    TEXT = "Ran it, e.g. the suite. Done."
+
+    def test_a_span_across_a_cut_reaches_the_sentences_on_both_sides(self):
+        cut = sentences.split(self.TEXT)
+        self.assertEqual(cut, ["Ran it, e.g.", "the suite.", "Done."])
+        self.assertEqual(sentences.reach("e.g. the suite", self.TEXT, cut, 1), {1, 2})
+        self.assertEqual(sentences.reach("e.g. the suite", self.TEXT, cut, 2), {1, 2})
+
+    def test_a_span_that_does_not_touch_a_sentence_reaches_nothing_from_it(self):
+        cut = sentences.split(self.TEXT)
+        self.assertEqual(sentences.reach("Done", self.TEXT, cut, 1), set())
+
+    def test_only_the_occurrence_that_touches_the_sentence_counts(self):
+        text = "Fixed 2 files. 2 tests pass."
+        cut = sentences.split(text)
+        self.assertEqual(sentences.holding("2", text, cut), {1, 2})
+        self.assertEqual(sentences.reach("2", text, cut, 2), {2})
+
+
 class NumberedTest(unittest.TestCase):
     def test_the_model_reads_one_numbered_sentence_a_line(self):
         self.assertEqual(sentences.numbered(["Uno.", "Dos."]), "[1] Uno.\n[2] Dos.")

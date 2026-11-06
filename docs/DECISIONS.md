@@ -2705,3 +2705,61 @@ before it is kept, within the same 20 seconds, and that is the user's to
 decide. The screen cost about $0.30 with its probes and the guide's run $0.22,
 and $4.80 is left. The four route files, `prompts/extract-guide.md` and the
 four runs are in the repository.
+
+### A span typed by hand must fall in the sentence it is typed for — 6 November 2026
+
+On 4 November a span of one character, typed at the annotation tool's prompt
+for a span where a type was meant, went into the user's blind annotation, and
+the scorer placed it in every sentence holding that character (§ On three
+reports annotated blind, the annotator finds 0.58 of the user's checkable
+claims). The tool checked a span against the whole report, and the scorer
+places a span by its text: in the sentences it is, failing those in the ones
+it is part of, failing those in the ones it crosses. At the user's request,
+`tools/annotate.py` now refuses a span typed by hand that the scorer would not
+place in the sentence being typed, or would place in another sentence as well,
+and asks again. A span that crosses a cut made in the wrong place, into the
+sentence beside it, is still taken.
+
+The placement the scorer gives a span, which the tool now checks by, moved
+from `tools/measure_recall.py` to `ledger/sentences.py`, beside the cut, so
+that the two cannot drift apart. No figure moves: `extract-6c`'s worst corpus
+pass scores 776 of 991 and 1,269 of 2,617 before and after. No span of
+`corpus/anchor.jsonl` or `corpus/anchor-blind.jsonl` is placed in more than one
+sentence. `docs/ANNOTATING.md` still says only that a span not in the report
+word for word is refused, which stays true; saying more would change the digest
+of the guide the reference was annotated under, and that is the user's to
+decide.
+
+### A review step after the extraction costs recall faster than it saves the spurious share — 6 November 2026
+
+With no route and no wording bringing the spurious share down, the user had
+the one structural idea left written up and measured: a second call that reads
+the extractor's answer and drops the claims the report does not make, never
+adding or retyping one (`docs/precision-step.md`). It was measured on answers a
+corpus run had kept, so that only the step was new. The route in the hook, with
+the review prompt `review-2+c0704259` (`prompts/review-2.md`: `extract-6c`'s
+typing rules, the claims one a line with their sentence, and a verdict asked on
+each), reviewed the 80 answers of the first stored pass of `extract-6c`, for
+$0.16. A first wording, asking for the numbers of the claims to drop, answered
+with sentence numbers on its first report and was replaced before any
+measurement.
+
+| The first pass of `extract-6c` on the corpus | Before the review | After it |
+| --- | --- | --- |
+| Recall on checkable claims | 0.78 | 0.58 |
+| Spurious share | 0.47 | 0.38 |
+| `command_run`, `suite_passed`, `file_changed` found | 127, 332, 317 | 85, 255, 238 |
+| Claims | 2,498 | 1,776 |
+
+The review dropped 722 claims: 495 matched nothing in the reference, and 227
+were claims the reference makes, most of them readings the guide's finer rules
+create. A review took 3.7 seconds at the median and 19.8 at the 95th
+percentile, and 4 of the 80 passed 20 seconds before the extraction's own time
+is added. The spurious share falls by nine hundredths and recall by twenty: the
+route reviewing itself is the route made more cautious, which the note said in
+advance would not count. The step is not proposed for the pipeline, and the
+other passes and the holdout were not reviewed. Not tried: a reviewer of
+another family, or one asked about one claim type at a time.
+`tools/measure_review.py` measures such a step, and the reviews are in
+`corpus/runs/review-mistral-medium-3.1-review-2+c0704259-extract-6c+bf5a552b-pass1.jsonl`.
+Phase 1 stays an observer.
