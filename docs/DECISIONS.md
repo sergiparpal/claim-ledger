@@ -2305,6 +2305,11 @@ from the 117 captured reports and the 42 test files.
 | Turns `UNKNOWN`: the corpus, the holdout | 2, 3 | 4, 6 | 2, 2 | 2, 2 |
 | Answers past 20 seconds: the corpus, the holdout | 0 of 239, 2 of 100 | 1 of 235, 13 of 104 | 0 of 239, 4 of 105 | 0 of 238, 2 of 104 |
 
+Corrected on 6 November 2026: two cells of the table above were rounded from
+three decimals rather than from the counts. `extract-6b`'s spurious share is
+0.4847 against the corpus's second annotation and 0.4848 on the holdout, 0.48
+both, not 0.49. The other cells hold when rounded from the counts.
+
 What the three showed. Each finds more of the `command_run` claims: in the
 holdout's worst pass, the sentences the reference types `command_run` and the
 route typed `judgment` fall from 63 with `extract-5c` to 2 with `extract-6c`.
@@ -2497,9 +2502,124 @@ were tried on.
 | `extract-4`: 27 reports of the holdout | 0.67, 0.53 | 0.68, 0.55 |
 | `extract-3`: 27 reports of the holdout | 0.44, 0.53 | 0.45, 0.59 |
 
+Corrected on 6 November 2026: three cells of the table above were rounded
+from three decimals rather than from the counts. `extract-6c`'s spurious share
+on the corpus against 5 November is 0.4849, 0.48, not 0.49; on 27 reports of
+the holdout it is 0.4849 against 4 November and 0.5345 against 5 November,
+0.48 and 0.53, not 0.49 and 0.54. The rises the next paragraph gives stay
+between two and six hundredths.
+
 The reference now leaves unmarked descriptions the route still types
 `judgment` or `intent`, so every spurious share rises by two to six
 hundredths. The prompt carries neither rule, and a candidate that does is the
 user's to allow. Not measured: the annotator's agreement with itself over the
 whole corpus and the holdout under the guide as it stands; the 40 reports
 drawn are the measure of it. Phase 1 is not cleared.
+
+### extract-7 and extract-7b, with the guide's two rules of 5 November, stay out of the hook — 6 November 2026
+
+At the user's leave, two candidates that carry the guide's two rules of 5
+November were written from `extract-6c` and measured on the corpus and the
+holdout against the reference of that day, three passes each, with
+distiller's route, between 22:27 UTC on 5 November and 09:27 UTC on 6
+November.
+
+- `extract-7` (`extract-7+c8d01670`) is `extract-6c` with the two rules where
+  the guide puts them, and with the guide's examples. The sentence on what a
+  line stands under follows the rule on what a command returned, and the rule
+  on what a run returned now asks for a line that stands under that run,
+  where it asked that the report say the run was made. The rule that a
+  description is left out wherever it stands follows the rule on the items
+  under a check's result. One wording is not the guide's: a description is
+  left out "under a heading or a lead line", where the guide says a lead line,
+  since the route marked the items under headings that say what was written.
+- `extract-7b` (`extract-7b+25e161ad`) is `extract-7` with one exception to
+  the rule on descriptions: a row that says which tests catch or cover a case
+  or a mutant, or how many, is not a description, and is `suite_passed` by the
+  rule on tables, which now names mutants too. The exception is for rows only.
+  Of the table rows that speak of mutants or of tests that catch or detect, by
+  their words or their table's header, the reference types 48 of 51 in the
+  corpus and 178 of 201 in the holdout `suite_passed`; of the items under a
+  lead line that do, by their words or their lead line's, 12 of 49 and 4 of
+  30.
+
+`extract-7`'s examples are the guide's, absent from the 117 captured reports
+and the 42 test files, and `extract-7b` adds none.
+
+The endpoint refused calls with HTTP 429 in bursts of a minute or two.
+`extract-7`'s first runs, the corpus and the holdout at once from 22:27 UTC,
+lost 10 of the corpus's 81 first-pass calls and 9 of the holdout's 35, all in
+the first minute. Both ran again from 07:27 UTC on 6 November, one after the
+other, into files whose names end in `-r2`: the holdout lost no call, and the
+corpus lost 7 calls of its first pass and 13 of its second. `extract-7` is
+judged here on the three passes over the corpus in which no call was refused,
+the second and third of the first run and the third of the second, and on the
+holdout's second run. `extract-7b` ran from 08:48 to 09:27 UTC, one set after
+the other, and no call was refused. The answers left unusable, five, five and
+three on the corpus and one, none and one on the holdout, were of the kind
+seen before, a claim without its referents.
+
+| Worst pass, against the reference of 5 November | `extract-6c` | `extract-7` | `extract-7b` |
+| --- | --- | --- | --- |
+| The corpus: recall, spurious share | 0.78, 0.48 | 0.78, 0.47 | 0.76, 0.50 |
+| The holdout, 35 reports | 0.85, 0.55 | 0.81, 0.50 | 0.85, 0.52 |
+| 27 reports of the holdout | 0.85, 0.53 | 0.82, 0.48 | 0.86, 0.52 |
+| The corpus against the reference of 4 November | 0.80, 0.44 | 0.81, 0.43 | 0.78, 0.47 |
+| The corpus: `command_run`, `suite_passed` and `file_changed` | 0.55, 0.87, 0.82 | 0.57, 0.88, 0.81 | 0.55, 0.84, 0.81 |
+| The holdout: the same | 0.68, 0.91, 0.77 | 0.72, 0.85, 0.78 | 0.74, 0.91, 0.77 |
+| Claims found in two passes or three: the corpus, of 232, 396 and 391 | 126, 343, 322 | 133, 331, 311 | 136, 344, 321 |
+| The same: the holdout, of 171, 439 and 134 | 125, 405, 105 | 124, 404, 106 | 128, 405, 107 |
+| The user's own checkable claims found: the anchor, of 29 | 23 | 21 | 20 |
+| The same: the three reports annotated blind, of 48 | 45 | 43 | 40 |
+| Turns `UNKNOWN`: the corpus, the holdout | 2, 2 | 2, 1 | 1, 1 |
+| Answers past 20 seconds: the corpus, the holdout | 0 of 238, 2 of 104 | 0 of 238, 2 of 105 | 0 of 240, 1 of 104 |
+| Median output tokens: the corpus, the holdout | 646, 1,120 | 496, 955 | 570, 996 |
+
+What the two showed. The rule on descriptions takes away most of what it was
+written against. Over each candidate's three passes on average, the claims
+that match nothing fall from 1,212 a pass with `extract-6c` to 1,063 with
+`extract-7` on the corpus, and from 1,010 to 844 on the holdout; its
+`suite_passed` claims in table rows under a lead line that the reference
+leaves unmarked fall from 42 a pass to 8 on the corpus, and its `judgment`
+claims in unmarked lines under a lead line from 228 to 179 on the corpus and
+from 160 to 110 on the holdout. The spurious share moves less, because the
+route also stops marking `judgment` claims the reference keeps: on the corpus
+those it matches fall from 499 a pass to 397.
+
+`extract-7`'s worst pass on the holdout is one answer. In one pass of three,
+in `64907bb0-…-5`, it left out the 24 rows of a table of mutants with the
+tests that catch each, and typed eight results of checks `command_run`: of
+the report's 38 `suite_passed` claims it found 6, where its other two passes
+found 37. The rule on descriptions reads such a row as what a case does,
+where the rule on tables makes it a result. `extract-7b`'s exception mends that
+report, of whose 38 `suite_passed` claims it finds 36, 36 and 30 in its three
+passes, and its worst pass on the holdout goes back to 0.85. It also draws in the tables
+that say what each test covers, which the reference leaves unmarked: against
+`extract-7`, its `suite_passed` claims in unmarked table rows rise from 8 a
+pass to 30 under a lead line on the corpus, and from 58 to 137 on the
+holdout. On the corpus its worst pass, the first, is a few answers on long
+reports: in one of them it found 20 of 50 checkable claims, against 31 in
+each of its other two passes.
+
+Counted by the claims found in two passes or three, the three prompts are
+within a few claims of each other. Against the user's own annotations both
+candidates find fewer than `extract-6c`, and among the losses of both, an
+item of one report of the anchor that names a file and two functions in it,
+which the user typed `file_changed`, is left out in every pass, as a
+description. At temperature 0 the route gives a report the same claims in two
+passes for only 22 to 48 of the 78 or 79 corpus reports both passes answered,
+and 5 to 14 of the holdout's 34 or 35, depending on the prompt and the pair of
+passes, and one answer
+or a few on long reports move a worst pass by two to four hundredths, which
+is the size of the differences between the three prompts. By its worst pass,
+neither candidate does better than `extract-6c`.
+
+So the hook keeps sending `extract-6c`, and the two candidates stay as
+`prompts/extract-7.md` and `prompts/extract-7b.md`, measured and not taken, as
+the user agreed on 6 November. Their runs are in `corpus/runs/`, four files for
+`extract-7` and two for `extract-7b`, and cost $1.52 and $0.84. Phase 1 is not
+cleared: every worst pass above has a spurious share between 0.47 and 0.55,
+against the 0.10 it allows. What would move that next is not a rule of this
+size but another route, or another way for phase 1 to judge a candidate,
+which is a matter for the requirements (§ Rollout phases). Both are the user's
+to decide.
