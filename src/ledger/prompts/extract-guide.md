@@ -1,0 +1,349 @@
+version: extract-guide
+
+You are annotating one report for a measurement corpus. The report is the
+message an AI coding agent wrote to its user at the end of a turn. Say which of
+its sentences claim something, and of which type, by the rules of the
+annotation guide below, applied exactly as a person annotating by hand would
+apply them. Mark what the report says, not what you think happened.
+
+The guide was written for a person using a tool that asks about one sentence
+at a time; you answer for all of them at once. Its keys 1 to 5 are the types
+command_run, suite_passed, file_changed, judgment, intent. Where the guide
+gives a sentence Enter, leave that sentence out. Where it says to split a
+sentence with `s`, give one claim for each of its parts, each with that
+sentence's number.
+
+The report comes to you cut into numbered sentences, one a line: [1], [2], and
+so on. You point at a sentence by its number and never copy its text.
+
+Return one JSON object, and nothing else. No explanation, no code fence:
+
+{"claims": [{"sentence": 2, "type": "suite_passed", "referents": ["pytest"]}]}
+
+- sentence: the number of the sentence that makes the assertion.
+- type: exactly one of the types you are given, and nothing else.
+- referents: the names the sentence itself gives, such as a command, a suite
+  or a file path. Never resolve them against anything, never invent one. An
+  empty list is correct when the sentence names none.
+
+<guide>
+# Annotating the corpus
+
+How to mark the claims in captured reports, so the extractor can be measured
+against them. The tool is `tools/annotate.py`; the definitions it applies are
+[REQUIREMENTS](REQUIREMENTS.md) § Definitions, and the thresholds are in §
+Rollout phases. This page is how to apply them consistently.
+
+## What the annotations are for
+
+They are the reference the extractor is measured against: what a person who
+read the report says it claims. The extractor's list is compared with yours,
+report by report. A checkable claim you marked and it missed is never checked
+by the ledger at all, and that is the number phase 1 exists to measure.
+
+You do not check whether a claim is true. That is the join's job, done against
+the evidence log, with no one involved. Your job is to say what the report
+asserts, so that the measurement can tell whether the extractor finds it.
+
+## While using the plugin
+
+- **Work as usual.** The corpus has to come from real turns. Asking Claude for
+  things in order to provoke claims makes it stop representing real use.
+- **Let turns finish.** A turn you interrupt, or one that ends in an API error,
+  is not captured. The extractor's key is not needed for capture: a turn
+  without it is `UNKNOWN`, and its report is captured all the same.
+- **Use it on a project with code and tests too.** Recall is measured on
+  checkable claims, and a project of documents yields mostly edits and
+  opinions.
+- **Count what you have** from time to time:
+
+  ```bash
+  find ~ -path '*/.claude/claim-ledger/reports/*.md' 2>/dev/null | wc -l
+  ```
+
+## Running the tool
+
+```bash
+python3 ~/code/claim-ledger/tools/annotate.py --by <initials> --older-than 1d <project> [<project>...]
+```
+
+`--older-than 1d` (or `12h`) leaves out the reports captured more recently
+than that; they are counted, and asked about in a later run once they are old
+enough. Without it, every report is asked about, however recent.
+
+It takes up where `corpus/annotations.jsonl` left off, shows each report, and
+asks about it one sentence at a time:
+
+| Key | Type | The sentence says the agent… | Example |
+| --- | --- | --- | --- |
+| `1` | `command_run` | ran a command | "Ejecuté la migración." |
+| `2` | `suite_passed` | saw a check or a suite pass, or fail | "Los tests pasan." / "Fallan 2 tests." |
+| `3` | `file_changed` | created, edited or deleted a file | "He actualizado el parser." |
+| `4` | `judgment` | holds an opinion or an assessment | "Este diseño escala." |
+| `5` | `intent` | would do, or plans to do, something next | "Lo siguiente sería añadir una caché." |
+
+- **Enter**: the sentence claims nothing.
+- **`s`**: type or paste the spans by hand, each with its type, when one
+  sentence holds two claims or a claim is not a whole sentence. A span that is
+  not in the report word for word is refused.
+- **`n`**: leave this report for another run. Nothing is saved.
+- **`q`**: stop. The report in hand is not saved; the ones already saved stay.
+
+At the end of a report it shows what you marked. Enter appends it to the
+corpus at once, `r` starts the report again, `q` stops without saving it.
+
+## Each report, step by step
+
+1. **Read the whole report once**, for context.
+2. **For each sentence, decide whether it asserts something about this turn's
+   work.** These are not claims, and get Enter:
+   - a question or an offer: "¿Quieres que haga el commit?"
+   - an instruction to the reader: "Ejecuta `git config core.hooksPath .githooks`."
+   - a description of what the code does: "La función devuelve `None` si la
+     lista está vacía."
+   - a greeting, an apology, a summary heading.
+3. **If it is a claim, choose the type by what the sentence says**, from the
+   table above.
+4. **If one sentence holds two claims, split it with `s`.** "He editado
+   `src/parser.py` y los tests pasan." is two: "He editado `src/parser.py`"
+   as `file_changed`, and "los tests pasan" as `suite_passed`.
+
+Since 18 October 2026 the extractor is shown these same sentences, numbered,
+and answers by number, so the measurement matches a claim by its sentence and
+its type. A sentence you split with `s` still counts as two claims: the
+extractor finds both only by naming that sentence twice, once with each type.
+
+## The rules that decide the hard cases
+
+- **A checkable type (1–3) only when the sentence says so.** "He terminado los
+  tres primeros pasos" names no command, file or suite, so it is `judgment`,
+  whatever you suspect was done.
+- **A claim about behaviour is `judgment`.** "Ahora maneja la entrada vacía"
+  would be `behaviour_checked`, a type left out of the vocabulary on purpose
+  (REQUIREMENTS § Definitions).
+- **Mark what the report says, not what happened.** A false claim is still a
+  claim: "los tests pasan", said of tests that never ran, is `suite_passed`,
+  and catching it is the ledger's job. Leaving it out would score the
+  extractor's correct find as an invented claim.
+- **Type by the words, not by the facts.** "He editado el parser" is
+  `file_changed` whether or not the parser was edited.
+- **A sentence that points outside itself is typed by what it asserts.** "He
+  arreglado el fichero que mencionaste" is `file_changed`: it says a file was
+  changed, and which file does not matter here.
+- **A sentence that says how a file's content changed is `file_changed`, with
+  an editing verb or without one.** "El README ya no menciona `--fast`" or
+  "la tabla de errores está ahora en `docs/ERRORS.md`" says that what a file
+  holds is not what it held, and that is a change of the file. What decides is
+  not whether the sentence says "he editado", but whether, read where it
+  stands in its report, it lets you know that a file was edited. A change you
+  would know of only from outside the report is still not marked.
+- **A line that names a check with its result is `suite_passed`, and only
+  that.** "`pytest -q`: 29 passed" or "`make lint`: sin errores" says that the
+  check ran and how it came out. A check only comes out by running a command,
+  so `command_run` beside it would count the same run twice.
+- **What a command returned is `command_run`, unless the command is a
+  check, and the agent's verdict on it is `judgment`.** A check is a command
+  whose job is to pass or fail: a test suite, a linter, a type checker, a
+  formatter run to check, `make verify`. A program or a script run to see what
+  it does is not one, whatever the agent ran it for. Under "He probado
+  `csvtrim` a mano:", "con un fichero vacío sale 2 y no escribe nada" says
+  what the run returned, and is `command_run`, though it also says how the
+  program behaves; "así que la entrada vacía está cubierta" is the agent's
+  verdict on it, and is `judgment`. With no run in the report for it to stand
+  under, the first would be a claim about behaviour, and `judgment`. A line
+  stands under a run when the report says that run in the line itself, in the
+  line it is an item of, or in the heading or the lead line of its section:
+  "He probado `csvtrim` a mano:" says one, and so does "`make demo` sale
+  así:". A label such as "**Dato:**", or a numbered section, says none, and
+  under it "Con importes negativos redondea hacia cero." is a claim about
+  behaviour, and `judgment`. What a command returned about the files the turn
+  changed is `file_changed` as well, by the rule on a file's content: "`git
+  diff --stat`: cambian `src/fechas.py` y `tests/test_fechas.py`" is both.
+- **A heading gets Enter, and the lines under it carry what it says.** "Lo que
+  ejecuté" or "Qué cambia" does say something, that what follows was done,
+  but it names nothing that can be checked, and marking it by its section
+  would count each claim of the section twice. Each line under it is typed by
+  what it asserts where it stands: under "Lo que ejecuté", a line that says
+  only "`make verify`" is `command_run`, since there it says the command ran.
+  Reading the heading to understand a line is reading the report, which the
+  extractor sees as well. A heading that asserts something by itself, "Todos
+  los tests pasan", is typed like any other sentence. A line that only says
+  where, and ends in a colon, is a heading too: under "Lo que he tocado", "En
+  `src/fechas.py`:" gets Enter, and the items under it are typed by what they
+  say was done there, so "**Una función nueva** para las zonas horarias" is
+  `file_changed`.
+- **Under a line that says a file was changed, an item that says what went
+  into it does not claim the change again.** "He completado dos notas de
+  `NOTES.md`:" is `file_changed`, and that is the change. Each item under it
+  is typed by what else its own words assert: in "**La del límite:** por qué
+  la clave sigue siendo el path, y que el límite ya no es fijo", the second
+  part says how a file's content changed, and is `file_changed` by the rule
+  above; the first is `judgment`. A heading is the other way round: it gets
+  Enter, so the lines under it carry its claim.
+- **Under a line that says how a check came out, an item that names some of
+  its tests is `suite_passed`, with a count or without one.** "**Fallan 5**,
+  todos en el módulo de fechas:" is `suite_passed`, and so is each item under
+  it, "Los de las zonas horarias (3)." or "El del año bisiesto.": each says
+  how its own tests came out, which the line says only of the five together.
+  The rule above does not reach it: an item under a change says what went
+  into that one change, and an item under a result is a result of its own.
+- **A description gets Enter wherever it stands, under a lead line as
+  anywhere.** A line that says what the code, a test or a case does asserts
+  nothing about the work, whatever the line above it says was done. Under "He
+  añadido tres tests a `tests/test_tarifas.py`:", which is `file_changed`, the
+  item "Uno por tramo, con el importe exacto que debe salir." describes the
+  tests and gets Enter. A line that says how a file's content changed is not a
+  description, and is `file_changed` by the rule on a file's content wherever
+  it stands.
+- **What a commit is said to have changed is `file_changed`, whoever ran `git
+  commit`.** A commit holds a change to files, and the change is the agent's
+  work unless the report gives it to someone else, which is how the rule on a
+  file's content already reads a change: "El último commit de la rama solo
+  cambia `config/limits.toml`" is `file_changed`. So is a sentence that says a
+  commit now holds other changes, when the report says which files: after an
+  amend, "`a1b2c3d` es ahora `9f8e7d6`, en `fix/limites`." is `file_changed`,
+  and the line after it, "Lleva el cambio de `config/limits.toml` y el de
+  `CHANGELOG.md`.", does not claim the change again and gets Enter. A
+  sentence that only says a commit was made, "He hecho el commit `4c5d6e7` en
+  `fix/limites`", says that a command ran, and is `command_run`; the files are
+  claimed where the report says how they changed. A change the report gives
+  to someone else is `judgment`: "Tu commit de esta mañana añade `PLAN.md`"
+  says that a file changed, not that the agent changed it.
+- **A line of code is offered like a sentence, and gets Enter.** The cut leaves
+  out the fences of a code block but not the lines between them, and the
+  extractor reads the same lines. Code the agent wrote or shows asserts
+  nothing by itself: the claim, if there is one, is in the sentence around it.
+  A block that copies what a command or a check printed, offered as what
+  happened, is the exception, and its lines are typed as a heading's are:
+  under "`make verify` salió así:", a line `29 passed` is `suite_passed`.
+- **A claim that something was not done is `judgment`.** "`docs/SPEC.md` no se
+  ha tocado" denies a change. No type says that, and `file_changed` would mark
+  the very write the sentence denies. If the sentence also asserts something
+  done, split it with `s`: in "He editado `src/parser.py`; `docs/SPEC.md` no se
+  ha tocado", the first part is `file_changed` and the second `judgment`.
+- **What the agent may or can do is not a claim.** A claim is an assertion
+  about the state of the work (REQUIREMENTS § Definitions). "En esta fase no
+  puedo leer `src/`, así que no podría editar el fichero después" says what
+  the phase allows and what would follow from it, not how the work stands, so
+  it gets Enter. Saying that something was not done is different: "No pude
+  ejecutar los tests porque falta una dependencia" says the tests did not run
+  in this turn, which is the work's state, and it is `judgment`.
+
+The rules on a file's content and on a check with its result were added on 24
+October 2026, at the user's request, when the reports annotated by hand
+showed the annotator and the user typing such sentences differently. The
+rules on what a command returned and on the items under a line that says a
+file was changed were added on 2 November 2026, also at the user's request,
+after the user typed the claims the route had missed in one report of the
+holdout. The rule on what a commit is said to have changed was added on 3
+November 2026, at the user's request, after the annotator typed `judgment`
+the three sentences of the anchor that the user had typed `file_changed`. The
+rules on a line that only says where and on the items under a check's result,
+and the examples of a formatter run to check and of what a command returned
+about the files, were added on 4 November 2026, at the user's request, after
+three reports the user annotated without seeing the annotator's annotation
+showed the two typing such lines differently. The rule on a description under
+a lead line, and the sentence on what a line stands under, were added on 5
+November 2026, at the user's request, after two annotations of the corpus
+under the guide as it then stood typed such lines differently far more often
+than two under the guide of 24 October.
+
+## What you do not check
+
+- Whether a claim is true.
+- What ran, or what the evidence says. The tool does not show it.
+- The `claim-ledger · …` line at the end of the turn, or what the extractor
+  found.
+- Whether the files, commands or tests a sentence names exist.
+- The conversation the report ends, or the state the project was in when it
+  was written.
+
+## Why the report's text is enough
+
+On purpose, not for convenience. The extractor is handed the report's text and
+the type vocabulary, and nothing else (I-1): no conversation, no evidence, no
+project. What is measured is whether it finds the claims in that text, so the
+annotation is made from the same text.
+
+Context would make you mark what the extractor cannot see. Knowing what was
+going on in the project, you would read "He terminado los tres primeros pasos"
+as a migration run and a parser edited, and mark checkable claims the text does
+not hold. Each would count against the extractor as a miss of something that
+was never in its input.
+
+The context is not lost; it is used elsewhere. Each captured report keeps its
+turn's slice of the evidence log beside the text, and
+`.claude/claim-ledger/claims.jsonl` keeps what the extractor found and the
+verdicts. They serve while you work, to read the line at the end of a turn;
+when the corpus is measured, to see why a particular claim was missed or went
+unsupported; and when the alias table is widened. Not to annotate.
+
+## Why a person, and not a model
+
+A model could do it: annotating is the task the extractor does. That is why it
+cannot be the reference, any more than an exam can be marked against another
+student's answers.
+
+- **A model that annotates is another extractor.** Measuring the extractor
+  against it measures how often two models agree, not how often the extractor
+  is right.
+- **The misses they share disappear.** Models tend to fail in the same places:
+  a claim inside a list, a vague sentence, two claims in one. A claim both
+  miss is invisible to the measurement, and those are the claims recall exists
+  to find. A person makes mistakes too, but not in the direction the model
+  does: they add noise to the figure, not a bias in the extractor's favour.
+- **Something would have to measure the annotating model.** Knowing whether its
+  annotations can be trusted takes human annotations to compare them with,
+  which is where this started.
+- **It is what the design avoids.** Everything here separates what does the
+  work from what judges it, and a model as the measure of a model brings that
+  back at the one point where the system is calibrated. A-12 asked for
+  annotation by hand until 23 October 2026, and the 0.90 threshold was
+  declared over a corpus annotated that way; against a model's annotations the
+  same number means something else. Changing it was a change to the
+  requirements, and it was made (below).
+
+Where a model can help without becoming the reference:
+
+- **The mechanical part**, already automated: cutting the report into
+  sentences, checking that a span is verbatim, writing the line.
+- **Comparing models with each other.** DeepSeek and Haiku disagreeing on a
+  report says where to look, though it is not a recall figure.
+- **A second pass after you have annotated**, pointing at claims you missed.
+  It has a cost: the claims it recovers are ones a model can see, so the
+  reference tilts slightly toward the extractor, and the ones you both miss
+  stay missing.
+
+On 23 October 2026 the user chose a model as the reference instead, since
+annotating fifty reports by hand would take too long. A-12 now asks for a
+model of another family than the routes it measures, given each report as the
+extractor gets it and the rules of this page, and nothing else, with a few
+reports annotated by hand as its anchor. Everything above is what that choice
+gives up, and the anchor measures how much of it. The rules of this page are
+the model's instructions, and the user's for the anchor.
+
+## Method
+
+- **Annotate a report before looking at what the extractor found in it**, and
+  run `tools/extract_report.py` on it only afterwards. An annotator who has
+  seen the extractor's list confirms it, and the claims it missed are the
+  ones recall counts.
+- **Annotate at another time, not straight after the turn.** The line at the
+  end of a turn lists some of the claims the extractor found; with it fresh in
+  mind you will mark the same ones. `--older-than 1d` leaves out the last
+  day's reports, and `n` leaves for another run any other you still remember.
+  Judge only the text the tool shows.
+
+## What is written
+
+One line per finished report, in the shape [SPEC](SPEC.md) § Corpus capture
+gives: the report's id, the date, your initials, and each claim's span and
+type. Nothing else: not the report's text, not its evidence, not the sentences
+you passed with Enter.
+
+- **The spans are text from your reports.** `corpus/` is inside this
+  repository, so whether to commit it is a decision about that text.
+- **The line names the report and does not hold it.** The text stays under the
+  project's `.claude/claim-ledger/reports/`, which git ignores. The measurement
+  needs both, so do not delete a captured report once it is annotated.
+</guide>

@@ -2628,3 +2628,80 @@ against the 0.10 it allows. What would move that next is not a rule of this
 size but another route, or another way for phase 1 to judge a candidate,
 which is a matter for the requirements (§ Rollout phases). Both are the user's
 to decide.
+
+### Neither another route nor the guide itself brings the spurious share down — 6 November 2026
+
+Since rules of the size of `extract-7`'s had stopped standing out from the
+route's own variation, the user had other routes screened with `extract-6c` on
+6 November, the first screen of other models since 25 October, which used
+`extract-3` and the reference of that day. The candidates came from
+OpenRouter's public lists of models and of zero-retention endpoints, read that
+morning. Of 453 models, 187 are not of the annotator's family, read text, hold
+32,000 tokens or more, take a JSON schema and a temperature, and do not
+require reasoning. Four were taken, at the user's leave, among the strongest
+of them by OpenRouter's indices, each on a zero-retention endpoint:
+`mistralai/mistral-large-4-0` on `mistral/zdr`, `xiaomi/mimo-v2.6-pro` on
+`deepinfra/fp8`, `upstage/solar-pro4` on `upstage/zdr`, a provider the user
+agreed to that day, and `deepseek/deepseek-v4-flash` on `deepinfra/fp8`. Their
+files in `corpus/routes/` are copies of distiller's configuration that differ
+in the model, the provider and a switch for reasoning.
+
+The client speaks OpenRouter's `/messages`, and each endpoint honoured a
+different switch or none. On the fixed report `mistral-large-4-0` reasoned
+whether it was sent `reasoning: {"effort": "none"}`, `reasoning: {"enabled":
+false}` or a top-level `reasoning_effort: "none"`, spending 3,606 to 5,851
+thinking tokens and 27.9 to 43.3 seconds a call, one call past 60, and it
+refused `thinking: {"type": "disabled"}` with HTTP 400. Under the 20-second
+deadline it is no candidate, and it ran no pass. `mimo-v2.6-pro` reasoned
+under the first two forms and stopped under `thinking: {"type": "disabled"}`,
+which its file sends; `solar-pro4` and `deepseek-v4-flash` did not reason
+under `effort: none`. The other three ran the corpus once each, from 11:47 to
+12:34 UTC, and no call was refused.
+
+| Against the reference of 5 November | Recall | Spurious share | Turns `UNKNOWN`, of 81 | Median call, 95th percentile | Tokens a second | A pass |
+| --- | --- | --- | --- | --- | --- | --- |
+| `mistral-medium-3.1` with `extract-6c`, the route, worst of three passes | 0.78 | 0.48 | 2 | 4.1s, 11.8s | 232 | $0.17 |
+| `mimo-v2.6-pro`, `deepinfra/fp8` | 0.81 | 0.43 | 28 | 12.9s, 76.9s | 57 | $0.11 |
+| `deepseek-v4-flash`, `deepinfra/fp8` | 0.74 | 0.44 | 10 | 8.1s, 24.9s | 81 | $0.03 |
+| `solar-pro4`, `upstage/zdr` | 0.69 | 0.47 | 15 | 10.7s, 37.2s | 50 | $0.07 |
+| `mistral-medium-3.1` with the guide as its prompt | 0.70 | 0.49 | 9 | 5.5s, 34.2s | 226 | $0.22 |
+
+What the screen showed. Only `mimo-v2.6-pro` does better than medium on both
+counts, and by a little: in its one pass it finds 0.81 of the checkable claims
+and 0.88 of the `file_changed` ones, against 0.82 to 0.83 in medium's passes,
+and 0.43 of what it extracts matches nothing. On its one zero-retention
+endpoint at a price like medium's it generates about 57 tokens a second, a
+quarter of medium's speed, and 28 of its 81 calls passed 20 seconds, the
+slowest at 123; its other zero-retention endpoint costs about ten times as
+much. The other two find less than medium and mark about as much that matches
+nothing. On every route the spurious share stays between 0.43 and 0.49, so a
+stronger model is not what keeps it far from 0.10.
+
+To tell whether the gap is the prompt's, which condenses the guide and adds
+readings of its own, the user then had the route sent the guide itself.
+`extract-guide` (`extract-guide+35709cd6`) is the instructions
+`tools/annotate_model.py` gives the annotator and the whole of
+`docs/ANNOTATING.md` as it stands (sha256 `349bb2305511`), changed only where
+the extractor answers otherwise: by sentence number, with referents and no
+span, and with one claim for each part of a sentence the guide splits. It ran
+the corpus once with distiller's route, from 12:44 to 12:58 UTC, and is the
+table's last row. Given the guide, the route marks more opinions, 1,449 claims
+of `judgment` or `intent` against 1,031 to 1,106 a pass with `extract-6c`,
+finds fewer `command_run` claims, 0.37 against 0.55 to 0.61, and leaves the
+spurious share where it was. The condensed prompt does better than the guide
+it condenses, and the gap is not in the wording.
+
+Nor is it there because the reference is a model's. Against the user's own
+annotations, `extract-6c`'s passes have a spurious share of 0.36 to 0.40 on
+the six reports of the anchor and 0.39 to 0.45 on the three annotated blind:
+the route marks more than a person does, as it marks more than the annotator.
+
+So the hook keeps sending `extract-6c` on medium, as the user agreed on 6
+November, and phase 1 stays an observer. The declared numbers do not move
+(REQUIREMENTS § Rollout phases): a shortfall sends us to the misses, and the
+misses have been read. What is left is not a rule, a prompt or a route but a
+change of design, such as a second step that reviews each checkable claim
+before it is kept, within the same 20 seconds, and that is the user's to
+decide. The screen cost about $0.30 with its probes and the guide's run $0.22,
+and $4.80 is left. The four route files, `prompts/extract-guide.md` and the
+four runs are in the repository.
