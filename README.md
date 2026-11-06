@@ -61,6 +61,12 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   evidence nor the extractor's claims, and appends one line per finished
   report. `--older-than` keeps back the reports captured too recently, while
   the line that ended each turn is still in mind.
+- `python3 tools/backfill_reports.py [--dry-run] <transcripts> <root>` rebuilds
+  captured reports for a project the plugin never ran in, from its Claude Code
+  transcripts (`~/.claude/projects/<project>/`): each message that ended a
+  turn, written as the Stop handler writes a report, with a note that it was
+  rebuilt and has no evidence. `<root>` is a folder of its own, which
+  `annotate_model.py` and `measure_route.py` then take as a project.
 - `python3 tools/extract_report.py <report.md>` runs the extractor over one
   captured report and prints the claims it finds, to compare against the
   report's annotation once that is written. It needs whichever variable

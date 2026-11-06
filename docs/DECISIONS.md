@@ -2763,3 +2763,58 @@ another family, or one asked about one claim type at a time.
 `tools/measure_review.py` measures such a step, and the reviews are in
 `corpus/runs/review-mistral-medium-3.1-review-2+c0704259-extract-6c+bf5a552b-pass1.jsonl`.
 Phase 1 stays an observer.
+
+### On semantic-diff-weaver the route finds a little less, and marks less that matches nothing — 6 November 2026
+
+Distiller is paused until 14 November, when the user decides whether to go on
+with it. So, at the user's request, the route was measured on another
+project's reports, `semantic-diff-weaver`, where the plugin never ran. Its
+reports were rebuilt from its Claude Code transcripts by
+`tools/backfill_reports.py`, by the rule the Stop handler follows: each
+message of a session's main thread that ended its turn, `stop_reason`
+`end_turn`, is the report, its text blocks in order. A turn interrupted or cut
+by an API error does not end so, and is left out as the handler leaves it out.
+A message copied into a resumed session's transcript is written once. Each
+report is written through the handler's own `turn.capture`, with a header note
+that it was rebuilt and that no evidence was recorded. The transcripts held
+423 such reports from 34 sessions, between 30 July and 6 November, with a
+median of 890 characters and 10 sentences, far shorter than distiller's. They
+are in `~/code/claim-ledger-corpora/semantic-diff-weaver`, outside both
+repositories, beside a copy of distiller's configuration;
+`semantic-diff-weaver` itself was not touched. The user agreed to these
+reports going to the route and to the annotator.
+
+100 of them, drawn with seed `20261106`, were annotated by the annotator as
+the corpus is, `claude-fable-5-1` through Claude Code 2.1.316 under the guide as
+it stands (`docs/ANNOTATING.md` sha256 `349bb2305511`), in three processes,
+and none was refused. The annotation holds 1,199 claims in 1,425 sentences,
+422 of them checkable, and is in that folder (sha256 `351d0bdc13c3`). It is not
+in this repository, since its spans are text of those sessions, until the user
+decides whether it should be. `extract-6c` then ran the sample three times
+with distiller's route, from 15:12 to 15:38 UTC, for $0.23, into
+`corpus/runs/sdw-mistral-medium-3.1-extract-6c+bf5a552b.jsonl`.
+
+| Worst pass of `extract-6c` | distiller's corpus, 81 reports | `semantic-diff-weaver`, 100 reports |
+| --- | --- | --- |
+| Recall on checkable claims | 0.78 | 0.73 |
+| Spurious share | 0.48 | 0.38 |
+| `command_run`, `suite_passed`, `file_changed` | 0.55, 0.87, 0.82 | 0.58, 0.89, 0.82 |
+| Turns `UNKNOWN` | 2 of 81 | 6 of 100, 4 of them refused with HTTP 429 |
+| Median call, 95th percentile | 4.1s, 11.8s | 2.4s, 11.9s |
+
+What it showed. On these short reports the annotator marks a claim in most
+sentences, so few sentences are left unmarked for the route to over-mark, and
+most of what matches nothing is typed otherwise: about 250 claims a pass,
+against about 100 in unmarked sentences. The commonest is a different border
+from distiller's: in the first pass, 87 claims the route typed `file_changed`
+are sentences the annotator typed `judgment`, sentences that say how the code
+behaves now, which the route reads as a change to a file's content and the
+guide reads as a claim about behaviour. `command_run` is as hard to find here
+as in distiller. Which border costs the route its precision depends on the
+project's reports, and neither figure is near the 0.90 and 0.10 of phase 1.
+
+Not checked: no report of this sample has been annotated by hand, so these
+figures measure agreement with the annotator on reports it has not been set
+against a person on; how far the annotator repeats itself on them; and
+whether a rebuilt report is exactly what the handler would have captured. The
+corpus phase 1 is judged on stays distiller's, and phase 1 stays an observer.
