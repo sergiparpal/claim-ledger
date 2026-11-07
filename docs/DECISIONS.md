@@ -3275,3 +3275,61 @@ The three runs are in `corpus/runs/` as
 `sonnet-5-5` and `fable-5-1`, with sentence numbers and types and no text; the
 script that sent them is not in the repository. Nothing changed in the hook,
 and phase 1 stays an observer.
+
+### Sonnet given the guide at low effort marks a tenth that the user did not, at the route's recall — 7 November 2026
+
+The entry above left to a second probe whether the guide, in place of
+`extract-6c`, is what Claude models lack on new reports, and whether they can
+be made faster. It ran on 7 November at the user's leave, as the first did:
+the 14 reports the user annotated by hand, one pass, through the Claude Code
+CLI, 2.1.316. The CLI has no switch for reasoning. On a report of 18
+sentences, `MAX_THINKING_TOKENS=0` changed nothing, and `--effort low` cut
+Sonnet's answer from 1,141 output tokens and 10.8 seconds to 313 and 4.1, with
+the same eight claims, and left Haiku's at 1,700 to 2,100 tokens and 8 to 10
+seconds. So `claude-sonnet-5-5` and `claude-haiku-5-5` were sent the guide as
+the prompt, `extract-guide` (`extract-guide+35709cd6`, the prompt of § Neither
+another route nor the guide itself brings the spurious share down), at
+`--effort low`, and, so that the prompt's part could be told from the
+effort's, `extract-6c` at `--effort low` as well. All 56 answers were usable,
+with no defect.
+
+| Against the user's annotations of 14 reports, one pass | Recall on checkable claims | Spurious share | The 5 of `semantic-diff-weaver` | Median time; over 20 seconds |
+| --- | --- | --- | --- | --- |
+| `extract-6c` on `mistral-medium-3.1`, the route, three stored passes | 84 to 86 of 99 (0.85 to 0.87) | 0.38 to 0.39 | 16 of 22 (0.73), 0.33 to 0.36 | 1.4 to 7.0 s a report; none |
+| `claude-sonnet-5-5`, `extract-6c`, the CLI's own effort (above) | 88 of 99 (0.89) | 27 of 183 (0.15) | 14 of 22 (0.64), 0.17 | 11.9 s; 3 of 14 |
+| `claude-sonnet-5-5`, `extract-6c`, low effort | 88 of 99 (0.89) | 34 of 183 (0.19) | 15 of 22 (0.68), 0.21 | 5.0 s; none |
+| `claude-sonnet-5-5`, the guide, low effort | 84 of 99 (0.85) | 16 of 171 (0.09) | 16 of 22 (0.73), 0.10 | 8.5 s; none |
+| `claude-haiku-5-5`, `extract-6c`, the CLI's own effort (above) | 87 of 99 (0.88) | 56 of 258 (0.22) | 14 of 22 (0.64), 0.23 | 11.1 s; 2 of 14 |
+| `claude-haiku-5-5`, `extract-6c`, low effort | 87 of 99 (0.88) | 103 of 295 (0.35) | 14 of 22 (0.64), 0.16 | 10.2 s; 1 of 14 |
+| `claude-haiku-5-5`, the guide, low effort | 87 of 99 (0.88) | 33 of 212 (0.16) | 16 of 22 (0.73), 0.12 | 10.3 s; 2 of 14 |
+| The annotator, `claude-fable-5-1` given the guide | 98 of 99 (0.99) | 14 of 219 (0.06) | 21 of 22 (0.95), 0.03 | not measured |
+
+The guide moves more than the model or the effort does. With the same model
+and effort it brings the spurious share from 0.19 to 0.09 for Sonnet and from
+0.35 to 0.16 for Haiku, and on the five independent reports both find 16 of 22
+with it, where with `extract-6c` they found 14 or 15. It costs recall on the
+anchor, where both find 25 of 29 with it and 28 without; the anchor and the
+three reports annotated blind are what the guide's newer rules were written
+from, so with the guide as the prompt they are less independent still, and the
+five are what counts.
+
+Sonnet at low effort with the guide is the first configuration measured whose
+spurious share is at the threshold or under, 0.09, and its recall is the
+route's, 0.85 against 0.85 to 0.87. On the five independent reports it finds
+what the route finds, 16 of 22, and a tenth of what it marks there is not the
+user's, where a third of the route's is not. Its answers ran to 832 output
+tokens at the median, and took 8.5 seconds, 18.2 at the slowest, inside the
+hook's 20. Low effort halves Sonnet's time with `extract-6c`, from 11.9 to 5.0
+seconds, at the same recall and a share of 0.19 for 0.15. Haiku's answers do
+not shorten, and with `extract-6c` its share went from 0.22 to 0.35 with the
+effort alone, most of it in one of the three reports annotated blind: in one
+pass, with temperature not pinned, a few hundredths say nothing.
+
+Recall stays short of 0.90: 0.85 over the 14, and 0.73 on the five independent
+reports, where the annotator, Fable given the guide at the CLI's own effort,
+finds 0.95. Not checked: more passes, more independent reports, a higher
+effort for Sonnet with the guide, and a route through an API with no
+retention, which the CLI is not. The four runs are in `corpus/runs/` as
+`cli-claude-sonnet-5-5-low-extract-guide+35709cd6.jsonl`, and the same for
+`haiku-5-5` and for `extract-6c+bf5a552b`, with sentence numbers and types and
+no text. Nothing changed in the hook, and phase 1 stays an observer.
