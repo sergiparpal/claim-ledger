@@ -3333,3 +3333,66 @@ retention, which the CLI is not. The four runs are in `corpus/runs/` as
 `cli-claude-sonnet-5-5-low-extract-guide+35709cd6.jsonl`, and the same for
 `haiku-5-5` and for `extract-6c+bf5a552b`, with sentence numbers and types and
 no text. Nothing changed in the hook, and phase 1 stays an observer.
+
+### Sonnet with the guide holds over three passes, and the routes it could take accept no temperature — 7 November 2026
+
+Before 14 November the result above was checked further, at the user's leave.
+`claude-sonnet-5-5` with `extract-guide` at `--effort low` ran two more passes
+over the same 14 reports, so that it can be judged by its worst pass, as phase
+1 judges a candidate, and one pass at `--effort medium`, to see whether recall
+rises inside the 20 seconds, through the same CLI. All 42 answers were usable,
+with no defect. OpenRouter's public lists of models and of zero-retention
+endpoints were read the same day, to see which route such an extractor could
+take.
+
+| `claude-sonnet-5-5` with the guide, against the user's 14 reports | Recall on checkable claims | Spurious share | The 5 of `semantic-diff-weaver` | Median; slowest; over 20 seconds |
+| --- | --- | --- | --- | --- |
+| Low effort, pass 1 (above) | 84 of 99 (0.85) | 16 of 171 (0.09) | 16 of 22, 0.10 | 8.5 s; 18.2 s; none |
+| Low effort, pass 2 | 86 of 99 (0.87) | 22 of 170 (0.13) | 16 of 22, 0.15 | 9.0 s; 18.2 s; none |
+| Low effort, pass 3 | 85 of 99 (0.86) | 18 of 171 (0.11) | 17 of 22, 0.09 | 9.1 s; 19.2 s; none |
+| Medium effort, one pass | 91 of 99 (0.92) | 21 of 179 (0.12) | 18 of 22 (0.82), 0.09 | 14.9 s; 26.1 s; 2 of 14 |
+| `extract-6c` on `mistral-medium-3.1`, the route, worst of three passes | 84 of 99 (0.85) | 0.39 | 16 of 22 (0.73), 0.36 | 1.4 to 7.0 s a report; none |
+
+Judged by its worst pass, Sonnet at low effort with the guide has recall 0.85
+and a spurious share of 0.13: the route's recall at a third of its share, 0.39
+on the same reports. On the five independent reports its passes find 16, 16
+and 17 of 22, and 0.09 to 0.15 of what they mark there is not the user's,
+where the route's is 0.33 to 0.36. Every answer came inside 20 seconds, the
+slowest at 19.2. At medium effort its one pass found 91 of 99, the first
+recall over 0.90 on these reports, with a share of 0.12, and 18 of the 22
+independent claims. But its answers took 14.9 seconds at the median, and the
+reports of 49 and 90 sentences passed 20 seconds, which in the hook would make
+those turns `UNKNOWN`. Neither reaches 0.90 and 0.10 at once, and medium
+effort has one pass.
+
+OpenRouter lists zero-retention endpoints for `claude-sonnet-5.5` and
+`claude-haiku-5.5` through Amazon Bedrock and Google Vertex, in the EU, the US
+and globally. Only Vertex's declare structured outputs, which the hook asks
+for; all declare an effort for reasoning; none declares temperature, and the
+list gave no latency for any. Sonnet costs $2 a million input tokens and $10 a
+million output tokens there, $2.20 and $11 in a region: some two cents a turn
+with the guide as the prompt, about ten times the route. Haiku costs $0.10 and
+$0.50. `claude-fable-5.1` has no zero-retention endpoint, and none of
+Anthropic's own endpoints is among them.
+
+The temperature is the user's question, and is not decided. The hook pins
+temperature 0 and asks the router to refuse an endpoint that does not take
+every parameter sent, so as configured it would find none of these. SPEC
+records that `openai/gpt-5.6-luna` was refused on 20 September because its
+sampling could not be pinned, since an extractor that does not repeat itself
+cannot carry a recall figure, and R-45 gives that reasoning as one reason the
+present route is provisional. Yet the route at temperature 0 does not repeat
+itself either: two of its passes give a report the same claims for only 22 to
+48 of the 78 or 79 corpus reports both answered (§ extract-7 and extract-7b,
+with the guide's two rules of 5 November, stay out of the hook). Whether a
+candidate whose sampling cannot be pinned may be taken, judged by its worst of
+three passes as every candidate is, is for the user to say.
+
+Not checked: the time through a Vertex route, for which the CLI's times only
+stand in; more reports annotated independently than the five; more passes at
+medium effort. The two further passes at low effort were added to
+`cli-claude-sonnet-5-5-low-extract-guide+35709cd6.jsonl` in `corpus/runs/`,
+which now holds all three, and the pass at medium effort is
+`cli-claude-sonnet-5-5-medium-extract-guide+35709cd6.jsonl`, with sentence
+numbers and types and no text. The lists read are not kept. Nothing changed in
+the hook, and phase 1 stays an observer.
