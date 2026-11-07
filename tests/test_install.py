@@ -23,6 +23,15 @@ HOOKS = REPO / "hooks" / "hooks.json"
 INSTALLER = REPO / "src" / "ledger" / "install.py"
 FIXTURE = REPO / "tests" / "fixtures" / "hooks" / "post_tool_use_bash.json"
 GIT_ISOLATED = {"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull}
+# What git tells a command about the repository it runs in, as `git rev-parse --local-env-vars`
+# lists it. A pre-commit hook passes some to the suite: from a linked worktree, GIT_DIR names this
+# repository, and these tests' own git must answer for their temporary project instead.
+GIT_REPOSITORY_VARIABLES = (
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_CONFIG", "GIT_CONFIG_PARAMETERS", "GIT_CONFIG_COUNT",
+    "GIT_OBJECT_DIRECTORY", "GIT_DIR", "GIT_WORK_TREE", "GIT_IMPLICIT_WORK_TREE",
+    "GIT_GRAFT_FILE", "GIT_INDEX_FILE", "GIT_NO_REPLACE_OBJECTS", "GIT_REPLACE_REF_BASE",
+    "GIT_PREFIX", "GIT_SHALLOW_FILE", "GIT_COMMON_DIR",
+)
 
 
 class ProjectTest(unittest.TestCase):
@@ -34,6 +43,8 @@ class ProjectTest(unittest.TestCase):
         isolated = unittest.mock.patch.dict(os.environ, GIT_ISOLATED)
         isolated.start()  # the machine's own git config must not decide these tests
         self.addCleanup(isolated.stop)
+        for name in GIT_REPOSITORY_VARIABLES:
+            os.environ.pop(name, None)  # nor the repository a hook runs in; stop() restores them
 
     def git_init(self, gitignore=None):
         subprocess.run(["git", "init", "-q"], cwd=self.root, check=True,
@@ -184,6 +195,34 @@ class GitignoreTest(ProjectTest):
         result = self.run_registered_hook()
         self.assertEqual((result.returncode, result.stdout, result.stderr), (0, b"", b""))
         self.assertEqual(len(evidence.read(evidence.session_log(self.root, "abc123"))), 1)
+
+
+class HookEnvironmentTest(unittest.TestCase):
+    """A commit's pre-commit hook in a linked worktree runs the suite with GIT_DIR naming the
+    worktree's directory inside the repository, and GIT_INDEX_FILE its index. Read by
+    `git init` in a temporary project, they reinitialized that repository, which git then
+    guessed bare and wrote so into its config."""
+
+    def test_the_repository_a_hook_names_is_left_as_it_was(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        decoy = Path(tmp.name).resolve() / "decoy"
+        minimal = {"PATH": os.environ.get("PATH", ""), **GIT_ISOLATED}
+        for command in (["init", "-q", str(decoy)],
+                        ["-C", str(decoy), "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+                         "commit", "-q", "--allow-empty", "-m", "decoy"],
+                        ["-C", str(decoy), "worktree", "add", "-q", str(decoy.parent / "linked")]):
+            subprocess.run(["git", *command], check=True, capture_output=True, timeout=60,
+                           env=minimal)
+        worktree = decoy / ".git" / "worktrees" / "linked"
+        hook = {**os.environ, "GIT_DIR": str(worktree), "GIT_INDEX_FILE": str(worktree / "index")}
+        result = subprocess.run([sys.executable, "-m", "unittest", "tests.test_install.GitignoreTest"],
+                                cwd=REPO, env=hook, capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 0, result.stderr[-3000:])
+        bare = subprocess.run(["git", "config", "--file", str(decoy / ".git" / "config"),
+                               "--get", "core.bare"],
+                              capture_output=True, text=True, timeout=60, env=minimal)
+        self.assertEqual(bare.stdout.strip(), "false")
 
 
 class ClosingHintTest(ProjectTest):
