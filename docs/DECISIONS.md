@@ -3056,3 +3056,53 @@ plugin has captured 117, since the copies and the reports rebuilt from
 `errors.log` and the 168 session logs beside distiller's reports were not
 copied, and the phase-1 sample, in which no false `VERIFIED` may be found
 before phase 3, is in them.
+
+Later the same day, at the user's leave, they were copied as well, with
+distiller's `claim-ledger.toml`, which the verdicts were joined against: the
+folder holds 288 files, each with its original's sha256. `tools/daily_use.py
+verdicts` and `defects` give the same output with `--root` on the copy as on
+distiller; `referents` counts fewer `command_run` referents there, since it
+looks for a command among the project's own files, and distiller's code was
+not copied.
+
+### Three readings the blind reports left open are decided, and wait for the guide — 7 November 2026
+
+The entry on five reports of `semantic-diff-weaver` annotated blind left three
+readings to the user, and on 7 November the user decided them:
+
+- **A pull request is read as a commit is.** What a pull request is said to
+  change is `file_changed`, beside the `command_run` of opening it, as the
+  rule on what a commit is said to have changed reads a commit. The opening
+  sentence of `4bf464e8-…-95`, which says a pull request was opened and what
+  it takes out of the package, is both, as the user typed it. Such sentences
+  are not rare: 30 of distiller's 117 reports and 219 of
+  `semantic-diff-weaver`'s 423 name a pull request, though not every one says
+  what it changes.
+- **In a list of what a change touched, an item that names a file is
+  `file_changed`, whatever it says the file's code does.** Read where it
+  stands, it says that file was touched, and the third item of that list,
+  which names a script and says what it rejects, is the only line of its
+  report that names the script: left unmarked, as the user had left it, that
+  claim would never be checked. The annotator and the route typed it so. An
+  item that names no file still gets Enter, as in the example of the rule on
+  descriptions, where tests are described under the line that names their
+  file. That rule is one of the two that brought the annotator's variation
+  back down on 5 November, so this exception is to be measured before it is
+  relied on.
+- **A description of the code given as the cause of a failure is `judgment`.**
+  Under a heading that names the cause, the two sentences of `54939a91-…-58`
+  that say how the tests load the code and which test files the repository
+  holds are the agent's diagnosis of why the work fails, which is the state of
+  the work: the user and the route typed them so, and the annotator left them
+  unmarked.
+
+None of the three is in `docs/ANNOTATING.md` yet. Writing them in changes the
+guide's digest, `349bb2305511`, under which the corpus, the holdout and
+`semantic-diff-weaver`'s 100 were annotated, so the reference would have to be
+annotated again for the figures to stay comparable, as on 3, 4 and 5 November,
+and the five reports would stop being blind for these rules. Since none of the
+three moves what keeps the route from phase 1, the user chose to write them
+into the guide, and to annotate the reference again, only if the change of
+design goes ahead (§ Phase 1 stays an observer as it is, and a change of
+design waits for the decision on distiller). Until then every figure stands
+against the reference as it is.

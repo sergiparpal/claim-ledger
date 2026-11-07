@@ -147,9 +147,12 @@ one you interrupt, and not one that dies on an API error. `capture = false` unde
 
 Nothing in this repository holds a report's text: the corpus and the holdout are
 distiller's reports, which their annotations and the runs' answers name. A copy
-of the 117 reports distiller held on 7 November 2026 is kept outside both
-repositories, in `~/code/claim-ledger-corpora/distiller`, with a sha256
-manifest, and `--root` takes that folder as it takes distiller (DECISIONS).
+of distiller's `.claude/claim-ledger/` as it stood on 7 November 2026, its 117
+reports, `claims.jsonl`, `errors.log` and session logs, is kept outside both
+repositories, in `~/code/claim-ledger-corpora/distiller`, with distiller's
+`claim-ledger.toml` and a sha256 manifest. `--root` takes that folder as it
+takes distiller, except where a tool looks among the project's own files
+(DECISIONS).
 
 ## Counting what you have
 
