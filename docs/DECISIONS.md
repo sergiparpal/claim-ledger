@@ -3173,3 +3173,50 @@ pushed are the local tree. The figures recorded for `semantic-diff-weaver`
 stand against those files as their digests name them. Nobody outside could
 recompute them either way, since the reports are not published, as distiller's
 are not.
+
+### A live install in semantic-diff-weaver waits for 14 November, with what it would touch there — 7 November 2026
+
+With distiller paused until 14 November, the plugin runs in no project, since
+distiller is the only one it is installed in. Option B, raised on 6 November,
+is to install it in `semantic-diff-weaver` as it is installed in distiller, so
+that turns with their evidence accrue in a second project. On 7 November the
+user decided to take it up on 14 November, with whether distiller goes on.
+What it would touch there was looked at that day without changing anything,
+and is recorded here for that decision.
+
+It would give turns with evidence in a project other than distiller, where the
+plugin has never run: the 423 reports rebuilt from `semantic-diff-weaver`'s
+transcripts carry none, so they measure the extraction and not the verdicts.
+The phase-1 sample would grow outside distiller, and if distiller stops, the
+observer would still run somewhere. `semantic-diff-weaver` is the more active
+project: 7 of its sessions were touched in the 7 days to 7 November, and its
+rebuilt reports count 6 to 87 turns on each day with turns from 31 October to
+6 November. On its reports the route answers in 2.4 seconds at the median and
+12.0 at the 95th percentile, which every turn would wait for at its end, and
+the desktop app's Code tab would not show the appendix. Its consequence table,
+which commands are checks and which paths are consequential, would be the
+user's to write (I-8).
+
+As the checkout stood on 7 November, on a feature branch with nothing
+uncommitted, three things in it would have to change. Git does not ignore
+`.claude/claim-ledger/` there, and the recorder refuses to record until it
+does; `install.py` would add the line to `.gitignore`, a tracked file, unless
+git already ignores the directory, which a line in `.git/info/exclude`, local
+and never pushed, would see to. `install.py` would also add the deny rule to
+`.claude/settings.json`, which does not exist there and would be a new file
+git does not ignore; the rule could go instead into
+`.claude/settings.local.json`, which git ignores, with the plugin's enablement
+and the key, as in distiller. And the configuration is read only from
+`claim-ledger.toml` at the project's root. `semantic-diff-weaver` builds with
+hatchling, whose sdist, by a comment in the project's own `pyproject.toml`,
+honors the project's `.gitignore` and not a global ignore, and presumably not
+`.git/info/exclude` either: a configuration kept out of git only locally would
+go into the sdists built in that checkout, such as those built there to check
+a package, though not into the releases its CI builds from a clean clone. That
+was not checked by building one. Only a change to its `.gitignore`, a tracked
+file on a protected main branch, would keep it out for certain.
+
+So if the install goes ahead, the clean way proposed is for claim-ledger to
+read its configuration from `.claude/` as well, which that sdist already
+leaves out; that changes the code and SPEC, and ships as a version. Nothing
+was changed in `semantic-diff-weaver`.
