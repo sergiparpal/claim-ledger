@@ -2818,3 +2818,111 @@ figures measure agreement with the annotator on reports it has not been set
 against a person on; how far the annotator repeats itself on them; and
 whether a rebuilt report is exactly what the handler would have captured. The
 corpus phase 1 is judged on stays distiller's, and phase 1 stays an observer.
+
+### On five reports of another project annotated blind, the annotator finds 0.95 of the user's checkable claims, and the route 0.73 — 7 November 2026
+
+The entry above set the route on `semantic-diff-weaver` against the annotator
+alone. To set the annotator against a person there, five reports of its
+sample were drawn with seed `20261107` from the 66 of the 100 with eight
+sentences or more: the seventh turn of `09faaac3`, the 95th and 126th of
+`4bf464e8`, the 58th of `54939a91` and the 30th of `90b14c04`, 79 sentences
+in all. The user annotated them by hand on 6 and 7 November under the guide
+as it stands (`docs/ANNOTATING.md` sha256 `349bb2305511`), into
+`anchor-blind.jsonl` in the same folder (sha256 `ae367f1dbaf9`), without
+seeing the annotator's annotation of them or any figure drawn from it on
+them; the figures of the entry above, over the 100, were known. It is the
+first blind measure under this guide, and the first on another project's
+reports. No rule of the guide was written from them: the guide last changed
+on 5 November, and they were rebuilt on 6 November. Nothing was called. The
+annotator's annotation is that of 6 November (sha256 `351d0bdc13c3`), and the
+route's answers are the three passes stored in
+`corpus/runs/sdw-mistral-medium-3.1-extract-6c+bf5a552b.jsonl`.
+
+| On the five reports | Recall on checkable claims | Spurious share |
+| --- | --- | --- |
+| The annotator against the user | 21 of 22 (0.95) | 2 of 68 (0.03) |
+| The user against the annotator | 20 of 21 (0.95) | 6 of 80 (0.075) |
+| `extract-6c` against the user, three passes | 16 of 22 (0.73) in each | 15 of 44 (0.34), 16 of 48 (0.33), 16 of 45 (0.36) |
+| `extract-6c` against the annotator, the same passes | 17 of 21 (0.81) in each | 16 of 44 (0.36), 17 of 48 (0.35), 17 of 45 (0.38) |
+
+The annotator and the user typed 8 of the 79 sentences differently, where two
+annotations by the annotator of 40 of distiller's reports under this guide
+differed in 107 of 2,171 (4.9%), at recall 0.96 and 0.98 and a spurious share
+of 0.04 and 0.06 (§ Two rules make the annotator repeat itself again). Six of
+the eight differ only at the border of `judgment`, `intent` and no claim, as
+64 of those 107 did. Three move a figure.
+
+- The annotator's one miss is the opening sentence of `4bf464e8-…-95`, which
+  says that a pull request was opened and what it takes out of the package:
+  the user typed it `command_run` and `file_changed`, the annotator and the
+  route `command_run` alone. The guide speaks of commits, not of pull
+  requests. Read by the rule on what a commit is said to have changed, the
+  sentence is `file_changed` as well; read by that rule's sentence on a commit
+  only said to have been made, it is `command_run`, and the files are claimed
+  where the report says how they changed, here in the list under it.
+- One of the annotator's two claims that are not the user's is the third item
+  of that list, which names a script and says what it rejects: the annotator
+  and the route, in every pass, typed it `file_changed`, and the user left it
+  unmarked. There the rule of 5 November on descriptions and the rule on a
+  file's content point different ways: the line says what the code does,
+  which is a description wherever it stands, and, read where it stands, it
+  lets one know that the script was edited. The item above it, which names
+  the project's packaging file, both typed `file_changed`.
+- The other is a sentence of `4bf464e8-…-126` that offers a further change
+  and says how a name will be shown on GitHub: the annotator typed it
+  `judgment`, and the user left it unmarked, as an offer.
+
+The other five are claims the user typed and the annotator did not, and none
+of them is checkable: `judgment` beside `command_run` in two sentences of
+`54939a91-…-58` that give a run and what the session did in it; `judgment` in
+two sentences of that report's section on the cause of a failure, which say
+how the tests load the code and which test files the repository holds, and
+which the annotator left unmarked as descriptions; and `intent` in a sentence
+of `90b14c04-…-30` that says how the next round of work is to be designed and
+measured. The route typed the two sentences of the section on the cause
+`judgment` in every pass, as the user did.
+
+What the route missed of the user's is the same in all three passes: six
+claims in five sentences. Four of the sentences are misses against the
+annotator as well: one that says changes were moved to another branch before
+any commit, typed `file_changed` where both typed `command_run`; a line that
+says a check was tried both ways, typed `command_run` where both typed
+`suite_passed`, and which the user split into two claims; and two sentences
+that give a run or what it returned, left unmarked. The fifth is the opening
+sentence of `4bf464e8-…-95`. What it marked that is not the user's is mostly
+`file_changed` in sentences both typed `judgment`, six a pass: a fix that
+names no file, a table row that says a step is done, and four sentences on
+two passages of a specification that have fallen out of date, that is, on a
+file that was not changed. Besides those, it typed `suite_passed` two
+sentences both typed `judgment`, and `intent` an offer and a request for
+permission, which both left unmarked. The rest, in two passes or three: the
+item of the list, a heading that names a file, a sentence that says when a
+workflow will run, a line of timings under a label, and the two misses typed
+otherwise.
+
+What it showed. On these five reports the annotator agrees with the user, on
+recall and on the spurious share, about as closely as two of its own
+annotations of distiller's reports agree with each other. Whether that is
+owed to the rules of 4 and 5 November, written from distiller's reports, or
+to reports easier to type, five reports do not say. The route stands about as
+far from the user as from the annotator, and against the annotator it does a
+little better on these five than over the 100 on recall and the same on the
+spurious share (0.81 and 0.38, against 0.73 and 0.38): here, what keeps it
+from phase 1 is the route, not the reference. On the three reports of 4
+November it was the other way round: the route found more of the user's
+claims (0.91 to 0.94) than the annotator did (0.58).
+
+Not checked: five reports and 22 checkable claims are too few for a figure of
+their own, one claim moving recall by 0.05, and they say nothing of the other
+95 reports of the sample or of distiller's corpus; nor how far the annotator
+repeats itself on this project's reports. The user's annotation stays in that
+folder beside the annotator's, out of this repository, until the user decides
+whether the annotations of `semantic-diff-weaver` should come in. Whether a
+sentence that says a pull request was opened and what it changes is
+`file_changed` as well as `command_run`, whether an item that says what a
+changed file's code does is a description or a change where the two rules
+point different ways, and whether a description of the code given as the
+cause of a failure is `judgment`, are the user's to decide, and are not
+decided. A rule written from them would be measured on these five as the
+anchor's rules were on the anchor, and they would stop being blind for it.
+Phase 1 stays an observer.

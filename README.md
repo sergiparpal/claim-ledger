@@ -127,9 +127,13 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   17 of the 20 it missed were items of three lists, which its guide did not
   decide then and decides now. Its newest rules were written from those
   reports and from the six of the anchor, where it now finds all of the
-  person's checkable claims, so that measure is not independent; the next
-  blind one needs reports not yet captured. On 27 reports captured after the
-  corpus was frozen the route reaches 0.85, where `extract-5c` reached 0.77,
+  person's checkable claims, so that measure is not independent. On five
+  reports of another project, `semantic-diff-weaver`, rebuilt from its
+  transcripts and annotated blind by the same person, it found 21 of the
+  person's 22 checkable claims (0.95), and 20 of its 21 were the person's,
+  while the route found 16 of the 22 (0.73); five reports are too few for a
+  figure of their own. On 27 reports captured after the corpus was frozen
+  the route reaches 0.85, where `extract-5c` reached 0.77,
   `extract-4` 0.68 and `extract-3` 0.45. Read the appendix as an instrument
   that, measured so, misses about a fifth of the checkable claims.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
