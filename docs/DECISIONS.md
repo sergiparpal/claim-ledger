@@ -2926,3 +2926,72 @@ cause of a failure is `judgment`, are the user's to decide, and are not
 decided. A rule written from them would be measured on these five as the
 anchor's rules were on the anchor, and they would stop being blind for it.
 Phase 1 stays an observer.
+
+### A vote over the route's three passes leaves the spurious share at 0.39, and the three together find 0.82 of the checkable claims — 7 November 2026
+
+At temperature 0 the route does not give a report the same claims twice: on 6
+November two of its passes gave the same claims for only 22 to 48 of the
+corpus's reports, by prompt and pair of passes, and the differences between
+passes were the size of those between prompts (§ extract-7 and extract-7b,
+with the guide's two rules of 5 November, stay out of the hook). If what it
+marks in every pass were more often the reference's than what it marks once,
+keeping only what several passes agree on would leave fewer claims that match
+nothing, with no new reading. That was measured on 7 November, with nothing
+called, on the three passes of `extract-6c` stored in `corpus/runs/` for the
+corpus, the holdout and `semantic-diff-weaver`
+(`mistral-medium-3.1-extract-6c+bf5a552b.jsonl`, and the same name after
+`holdout-` and `sdw-`), against the references of 5 November (sha256
+`20ce8755afcd` and `86126b791b69`) and the annotator's annotation of
+`semantic-diff-weaver` of 6 November (`351d0bdc13c3`). Each pass's answer was
+taken as a set of pairs of a sentence and a type, so that a pair a pass gives
+twice counts once; that leaves every recall as the scorer gives it and moves
+no spurious share by as much as 0.01. A claim was kept when its sentence and
+type were in one pass or more, two or more, or all three, and what was kept
+was scored by the scorer's rule. Only reports with an answer in all three
+passes count: 78 of the corpus's 81, 34 of the holdout's 35 and 94 of the 100.
+
+| Recall on checkable claims, and spurious share | Corpus, 78 reports | Holdout, 34 | `semantic-diff-weaver`, 94 |
+| --- | --- | --- | --- |
+| Each pass | 0.78 to 0.81, 0.47 to 0.48 | 0.85 to 0.86, 0.52 to 0.56 | 0.73 to 0.74, 0.37 |
+| In one pass or more, the union | 0.82, 0.54 | 0.87, 0.61 | 0.75, 0.39 |
+| In two or more | 0.80, 0.46 | 0.85, 0.53 | 0.73, 0.37 |
+| In all three | 0.77, 0.39 | 0.83, 0.42 | 0.72, 0.34 |
+
+Two passes in three keep what one pass keeps: their figures fall within the
+passes' own, or a hundredth under them. All three lower the spurious share,
+against each pass, by 0.08 to 0.10 on the corpus, 0.10 to 0.14 on the holdout
+and 0.03 to 0.04 on `semantic-diff-weaver`, and recall by 0.02 to 0.04, 0.02
+to 0.03 and up to 0.02. Unlike the review step, that saves more of the share
+than it costs recall: on 78 of the 80 reports the review was measured on, it
+reaches the review's share, 0.39 against 0.38, with recall at 0.77 where the
+review left 0.58 (§ A review step after the extraction costs recall faster than
+it saves the spurious share). It still leaves the share on the corpus at about
+four times the limit.
+
+It goes no further because most of what the route marks wrongly it marks
+every time. Of the distinct claims the three passes make that match nothing in
+the reference, 713 of 1,715 (42%) are in all three on the corpus, 531 of
+1,530 (35%) on the holdout and 270 of 412 (66%) on `semantic-diff-weaver`;
+of those that match it, 77%, 75% and 82%. A vote keeps the first with the
+second: they are the route's reading, not its noise.
+
+And no choice among these passes' claims, by a vote, a review or anything
+else, can find more than their union does: 0.82 on the corpus, 0.87 on the
+holdout and 0.75 on `semantic-diff-weaver`, all under 0.90. Of the corpus's
+964 checkable claims, one pass finds 755 to 778 and the three together 791;
+phase 1 would need 868, and 173 are in no pass. To reach it a route must make
+claims this one does not make in three tries.
+
+So a vote does not bring phase 1 nearer either. The hook is unchanged, one
+call a turn, and phase 1 stays an observer. Unanimity would make what the
+observer shows less noisy, with 713 claims on the corpus that match nothing
+where one pass makes 1,134 to 1,240, at three calls a turn; whether that is
+worth it is the user's to decide. Not checked: a vote's figures are those of
+one answer drawn from three passes, where phase 1 judges a candidate by the
+worst of three, which for a vote would take nine; three calls a turn were not
+run in the hook, so the time a turn would wait for the slowest of them under
+the same 20 seconds, the 429 replies three calls at once may draw, and what a
+turn does when one of them fails or is late were neither measured nor
+decided; whether more passes raise the union was not measured; and no vote by
+type was tried. The counts were made from the files named above with the
+scorer's own functions, by a script that is not in the repository.
