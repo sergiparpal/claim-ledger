@@ -3220,3 +3220,58 @@ So if the install goes ahead, the clean way proposed is for claim-ledger to
 read its configuration from `.claude/` as well, which that sdist already
 leaves out; that changes the code and SPEC, and ships as a version. Nothing
 was changed in `semantic-diff-weaver`.
+
+### Claude models sent the hook's request mark far less that the user did not, and find less on the five independent reports — 7 November 2026
+
+The first step proposed for a change of design (§ Phase 1 stays an observer as
+it is, and a change of design waits for the decision on distiller) was taken
+on 7 November, before the decision, at the user's leave: an extractor of the
+annotator's family set against the user's own annotations, which A-12 allows,
+since it rules out only a reference of the route's family. The reports are the
+14 the user annotated by hand, 99 checkable claims: the anchor's 6 and the 3
+annotated blind on 4 November, from distiller, and the 5 of
+`semantic-diff-weaver` annotated blind. Each was sent the hook's own request,
+as `extract.build_request` makes it: `extract-6c`'s system prompt with the
+list of types, the report's numbered sentences, and the answer's JSON schema.
+It went through the Claude Code CLI, 2.1.316, in print mode, with no tools, no
+MCP and no settings, from an empty folder, as the annotator's requests go,
+with the schema passed as the CLI's own, and `measure_route.call` read each
+answer through `extract.extract`, as any route's. One pass each of
+`claude-haiku-5-5`, `claude-sonnet-5-5` and `claude-fable-5-1`; every answer
+was usable, with no defect. The CLI cannot pin temperature 0, as the hook
+does, and in the Sonnet and Fable runs it also used Haiku for tasks of its
+own.
+
+| Against the user's annotations of 14 reports | Recall on checkable claims | Spurious share | The 5 of `semantic-diff-weaver` | Median time; over 20 seconds |
+| --- | --- | --- | --- | --- |
+| `extract-6c` on `mistral-medium-3.1`, the route, three stored passes | 84 to 86 of 99 (0.85 to 0.87) | 0.38 to 0.39 | 16 of 22 (0.73), 0.33 to 0.36 | 1.4 to 7.0 s a report; none |
+| `claude-haiku-5-5` | 87 of 99 (0.88) | 56 of 258 (0.22) | 14 of 22 (0.64), 0.23 | 11.1 s; 2 of 14 |
+| `claude-sonnet-5-5` | 88 of 99 (0.89) | 27 of 183 (0.15) | 14 of 22 (0.64), 0.17 | 11.9 s; 3 of 14 |
+| `claude-fable-5-1` | 91 of 99 (0.92) | 33 of 235 (0.14) | 15 of 22 (0.68), 0.14 | 25.9 s; 8 of 14 |
+| The annotator, `claude-fable-5-1` given the guide | 98 of 99 (0.99) | 14 of 219 (0.06) | 21 of 22 (0.95), 0.03 | not measured |
+
+With the same request, each of the three marks far less that the user did not
+mark: the spurious share falls from 0.38 or 0.39 to 0.14 to 0.22, and recall
+does not fall with it. It is the first thing measured that lowers the share
+without costing recall. On the 9 reports of distiller they find 73 to 76 of
+the user's 77 checkable claims, but those are the reports the guide's newer
+rules and `extract-6c`'s were written from. On the 5 of
+`semantic-diff-weaver`, the only independent ones, all three find fewer than
+the route, 14 or 15 of 22 against 16, where the annotator, the same Fable
+given the whole guide in place of `extract-6c`, finds 21. So on reports the
+prompt's rules were not written from, `extract-6c` is not enough for them;
+whether the guide is, a second probe is to tell.
+
+None fits the hook's time on long reports. They took 4 to 37 seconds a report,
+against the route's 1.4 to 7.0 on the same reports, and on the three longest,
+of 44 to 90 sentences, every one of them passed 20 seconds but Haiku once.
+Their answers ran to 1,100 to 2,400 output tokens at the median, far more than
+the claims need; the rows' count of thinking tokens is not a measure here,
+since the CLI's answer is wrapped as text. Nor is the CLI a route: no
+zero-retention endpoint for these models was looked for. Fourteen reports, one
+pass and 22 independent checkable claims make none of these figures phase 1's.
+The three runs are in `corpus/runs/` as
+`cli-claude-haiku-5-5-extract-6c+bf5a552b.jsonl`, and the same with
+`sonnet-5-5` and `fable-5-1`, with sentence numbers and types and no text; the
+script that sent them is not in the repository. Nothing changed in the hook,
+and phase 1 stays an observer.
