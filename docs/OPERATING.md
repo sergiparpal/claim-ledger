@@ -148,11 +148,13 @@ one you interrupt, and not one that dies on an API error. `capture = false` unde
 Nothing in this repository holds a report's text: the corpus and the holdout are
 distiller's reports, which their annotations and the runs' answers name. A copy
 of distiller's `.claude/claim-ledger/` as it stood on 7 November 2026, its 117
-reports, `claims.jsonl`, `errors.log` and session logs, is kept outside both
-repositories, in `~/code/claim-ledger-corpora/distiller`, with distiller's
-`claim-ledger.toml` and a sha256 manifest. `--root` takes that folder as it
-takes distiller, except where a tool looks among the project's own files
-(DECISIONS).
+reports, `claims.jsonl`, `errors.log` and session logs, is kept in
+`~/code/claim-ledger-corpora/distiller`, with distiller's `claim-ledger.toml`
+and a sha256 manifest. `--root` takes that folder as it takes distiller, except
+where a tool looks among the project's own files. `~/code/claim-ledger-corpora`,
+which also holds `semantic-diff-weaver`'s rebuilt reports and annotations, is a
+git repository of its own, private on GitHub: what changes there is committed
+and pushed there, never here (DECISIONS).
 
 ## Counting what you have
 

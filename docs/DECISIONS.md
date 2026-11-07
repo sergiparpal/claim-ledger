@@ -3151,3 +3151,25 @@ scorer placing a claim by its sentence where the annotation names one. The
 user put that with the line and the readings, since it matters only when the
 reference is annotated again. Until then the figures stand as recorded, with
 this hundredth noted.
+
+### The annotations of semantic-diff-weaver stay out of this repository, and their folder is kept in a private one — 7 November 2026
+
+The entries of 6 and 7 November on `semantic-diff-weaver` left to the user
+whether its annotations should come into this repository, as distiller's spans
+did on 25 October at the user's leave: the annotator's of 100 reports (sha256
+`351d0bdc13c3`) and the user's blind annotation of 5 (`ae367f1dbaf9`). Their
+spans hold 76% of the characters of the reports they annotate, where the
+corpus's hold 53% of its 81. A scan of their 1,279 spans found no path of the
+user's machine, no user name, e-mail address, key or secret, and the three
+other projects they name are public on GitHub.
+
+On 7 November the user decided that they stay out. Instead,
+`~/code/claim-ledger-corpora`, which holds them with `semantic-diff-weaver`'s
+423 rebuilt reports and the copy of distiller's state of the same day, became
+a git repository of its own, private on GitHub, so that they have a copy and a
+history. The 718 files it held were scanned for the key and for secrets before
+the first push, and none was found; with a README beside them, the 719 files
+pushed are the local tree. The figures recorded for `semantic-diff-weaver`
+stand against those files as their digests name them. Nobody outside could
+recompute them either way, since the reports are not published, as distiller's
+are not.
