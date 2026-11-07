@@ -145,16 +145,24 @@ The report is still captured. Nothing is lost for the corpus.
 one you interrupt, and not one that dies on an API error. `capture = false` under
 `[corpus]` turns it off.
 
+Nothing in this repository holds a report's text: the corpus and the holdout are
+distiller's reports, which their annotations and the runs' answers name. A copy
+of the 117 reports distiller held on 7 November 2026 is kept outside both
+repositories, in `~/code/claim-ledger-corpora/distiller`, with a sha256
+manifest, and `--root` takes that folder as it takes distiller (DECISIONS).
+
 ## Counting what you have
 
 ```bash
 ls .claude/claim-ledger/reports/*.md 2>/dev/null | wc -l
 ```
 
-Across every project that has run the plugin:
+Across every project that has run the plugin, leaving out
+`~/code/claim-ledger-corpora`, which holds copies and reports rebuilt from
+transcripts:
 
 ```bash
-find ~ -path '*/.claude/claim-ledger/reports/*.md' 2>/dev/null | wc -l
+find ~ -path ~/code/claim-ledger-corpora -prune -o -path '*/.claude/claim-ledger/reports/*.md' -print 2>/dev/null | wc -l
 ```
 
 The target is **50 annotated reports**, clearing recall 0.90 on checkable claims,

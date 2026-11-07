@@ -2995,3 +2995,64 @@ turn does when one of them fails or is late were neither measured nor
 decided; whether more passes raise the union was not measured; and no vote by
 type was tried. The counts were made from the files named above with the
 scorer's own functions, by a script that is not in the repository.
+
+### Phase 1 stays an observer as it is, and a change of design waits for the decision on distiller — 7 November 2026
+
+With the vote over the route's passes measured (the entry above), the user was
+shown on a page of its own what had been measured against the threshold since
+25 October, and three ways on: the observer as it is; the observer with three
+calls a turn, keeping what all three give; or a change of design, the
+threshold not moving. On 7 November the user chose the first for now, and to
+decide on the third on 14 November, together with whether distiller goes on.
+Nothing changes: the hook sends `extract-6c` to medium, one call a turn, no
+version is shipped, and phase 1 stays an observer.
+
+Three calls a turn were not taken because they bring phase 2 no nearer: the
+three passes together find 0.82 of the corpus's checkable claims, and what all
+three give has a spurious share of 0.39. They would change SPEC § Extractor
+contract, which makes one call a turn, and an open question REQUIREMENTS
+settled, one call a turn in v1, to show fewer claims that match nothing, at
+three times the calls and with each turn waiting for the slowest. Where
+distiller runs, in the desktop app's Code tab, the appendix is not shown but
+only recorded in the session's transcript, as seen in October. And a vote
+drops exactly the claims on which the passes disagree.
+`docs/precision-step.md` read I-2 as allowing a step that drops claims, since
+a dropped claim cannot produce `VERIFIED` and is counted as recall lost, but
+the review it describes keeps what the rules leave open, and R-11 says that
+anything ambiguous is emitted as `NOT_CHECKABLE`. Whether a vote fits the two
+is left open, since none is taken.
+
+A change of design has four directions, none of them measured. An extractor of
+the annotator's family is the only reading measured inside the threshold, at
+0.95 and 0.03 against the user on five reports annotated blind and 0.96 to
+0.98 and 0.04 to 0.06 against itself on 40, and A-12 rules out measuring it
+against an annotator of its own family: it would be measured against the
+user's own annotations, 14 reports today, or against an annotator of a third
+family checked against them. One call for each checkable type would go at the
+claims typed otherwise, 29% to 33% of those that match nothing in each corpus
+pass of `extract-6c`; were every one of them typed right, the share would
+still be 0.31 to 0.35 on the corpus, and 0.11 on `semantic-diff-weaver`, where
+71% are typed otherwise. A reviewer of another family, or one that reviews one
+type at a time, was left untried when the review step was measured. And more
+time, for models that reason, changes R-13 and the 20, 23 and 28 seconds, and
+every turn would wait for it at its end. If the user takes this way, the first
+step proposed is a probe before A-12 is touched: an extractor of the
+annotator's family against the 14 reports the user annotated by hand, with the
+sentence contract and the 20 seconds.
+
+The decision on distiller bears on the corpus as well. The texts of the 117
+reports captured there, the corpus's 81 and the holdout's 35 among them, are
+only in distiller's `.claude/claim-ledger/reports/`, which git ignores; this
+repository holds their annotations and the runs' answers, not the reports. So,
+at the user's leave, they were copied on 7 November to
+`~/code/claim-ledger-corpora/distiller`, outside both repositories, as
+`semantic-diff-weaver`'s are kept. Every copy has its original's sha256, with
+a manifest beside them, and `tools/measure_recall.py recall` gives the same
+output with `--root` on the copy as on distiller, for `extract-6c`'s stored
+passes over the corpus and the holdout. OPERATING says so, and its count of
+reports across projects now leaves that folder out: it counted 657 where the
+plugin has captured 117, since the copies and the reports rebuilt from
+`semantic-diff-weaver`'s transcripts are under it too. The calibration log,
+`errors.log` and the 168 session logs beside distiller's reports were not
+copied, and the phase-1 sample, in which no false `VERIFIED` may be found
+before phase 3, is in them.
