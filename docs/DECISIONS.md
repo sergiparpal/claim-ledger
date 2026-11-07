@@ -3106,3 +3106,48 @@ into the guide, and to annotate the reference again, only if the change of
 design goes ahead (§ Phase 1 stays an observer as it is, and a change of
 design waits for the decision on distiller). Until then every figure stands
 against the reference as it is.
+
+### Eleven claims of the reference are placed in more than one sentence, and the line on `s` waits for the guide — 7 November 2026
+
+The entry on spans typed by hand (§ A span typed by hand must fall in the
+sentence it is typed for) left to the user whether `docs/ANNOTATING.md` should
+say what `tools/annotate.py` refuses since 6 November: a span typed by hand
+that is in another sentence and not in this one, or in this one and another as
+well. The guide says only that a span not in the report word for word is
+refused, which stays true. The whole guide is in the annotator's prompt, so
+the line is the annotator's as well as the person's, and changing it changes
+the digest the reference was annotated under. On 7 November the user decided
+that the guide is to say so, and that the line goes in with the three readings
+above, only if the change of design goes ahead.
+
+Looking at how the reference places its spans, for that decision, showed what
+the line would not reach. None of the 238 claims annotated by hand, those of
+the anchor, of the three reports annotated blind and of the five of
+`semantic-diff-weaver`, is placed in more than one sentence. Of the
+annotator's, 11 are: 3 of the corpus's 2,270 claims and 8 of the holdout's
+1,489, and none of `semantic-diff-weaver`'s 1,199. Each is text that recurs
+word for word in its report: 7 are whole sentences, such as a short
+recommendation repeated in a long report, and 4 are pieces of a sentence,
+three counts of passed tests and a single verb. An annotation keeps a claim's
+span, not its sentence, and `tools/annotate_model.py` keeps one of two claims
+with the same span and type, so the scorer places each of the eleven in every
+sentence that holds its text. Whether the annotator marked one of those
+sentences or all of them cannot be told from the file.
+
+The effect on the figures is a hundredth at most. Were every match that goes
+through those eleven claims lost, `extract-6c`'s worst corpus pass would find
+774 of 991 checkable claims instead of 776, still 0.78, and its worst spurious
+share would go from 1,269 of 2,617 (0.48) to 1,272 (0.49); on the holdout its
+worst recall would go from 602 of 711 (0.85) to 600 (0.84), and its worst
+spurious share would stay 0.55. No conclusion drawn from them changes.
+
+The line on `s` does not reach whole sentences, which are typed without it,
+and `tools/annotate.py` keeps a whole sentence by its text as well, though
+none typed by hand so far recurs in its report. What would reach them is in
+the tools: an annotation, by hand or by the annotator, that keeps each claim's
+sentence number beside its span; `tools/annotate_model.py` keeping two claims
+with the same span and type when they are in different sentences; and the
+scorer placing a claim by its sentence where the annotation names one. The
+user put that with the line and the readings, since it matters only when the
+reference is annotated again. Until then the figures stand as recorded, with
+this hundredth noted.
