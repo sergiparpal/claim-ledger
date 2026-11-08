@@ -127,15 +127,18 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   17 of the 20 it missed were items of three lists, which its guide did not
   decide then and decides now. Its newest rules were written from those
   reports and from the six of the anchor, where it now finds all of the
-  person's checkable claims, so that measure is not independent. On five
+  person's checkable claims, so that measure is not independent. On 17
   reports of another project, `semantic-diff-weaver`, rebuilt from its
-  transcripts and annotated blind by the same person, it found 21 of the
-  person's 22 checkable claims (0.95), and 20 of its 21 were the person's,
-  while the route found 16 of the 22 (0.73); five reports are too few for a
-  figure of their own. On 27 reports captured after the corpus was frozen
-  the route reaches 0.85, where `extract-5c` reached 0.77,
-  `extract-4` 0.68 and `extract-3` 0.45. Read the appendix as an instrument
-  that, measured so, misses about a fifth of the checkable claims.
+  transcripts and annotated blind by the same person, five and then twelve
+  more, it found 59 of the person's 66 checkable claims (0.89), and 57 of its
+  72 were the person's, while the route's passes found 39 to 40 of the 66
+  (0.59 to 0.61). On the five alone it had found 21 of 22 and the route 16;
+  the twelve are harder for both, 38 of 44 for it and 23 to 24 for the route.
+  On 27 reports captured after the corpus was frozen the route reaches 0.85,
+  where `extract-5c` reached 0.77, `extract-4` 0.68 and `extract-3` 0.45.
+  Read the appendix as an instrument that, measured so, misses about a fifth
+  of the checkable claims on the corpus and the reports captured after it,
+  and two in five on those of `semantic-diff-weaver` the person annotated.
 - Nothing blocks a turn, and in v1 nothing ever will. Blocking is phases 2 and
   3, and each is gated on evidence from the phase before it.
 - Nothing aggregates several claims in one sentence into one verdict. Each
