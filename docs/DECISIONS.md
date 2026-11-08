@@ -2619,6 +2619,12 @@ or a few on long reports move a worst pass by two to four hundredths, which
 is the size of the differences between the three prompts. By its worst pass,
 neither candidate does better than `extract-6c`.
 
+Corrected on 8 November 2026: 22 to 48 and 5 to 14 count the reports two
+passes gave the same number of claims, not the same claims. Given the same
+sentences with the same types, they are 14 to 40 of the corpus's reports and
+3 to 11 of the holdout's, and for `extract-6c` 14 to 25 and 3 to 10. The route
+repeats itself less than this said, and the conclusion stands.
+
 So the hook keeps sending `extract-6c`, and the two candidates stay as
 `prompts/extract-7.md` and `prompts/extract-7b.md`, measured and not taken, as
 the user agreed on 6 November. Their runs are in `corpus/runs/`, four files for
@@ -2852,6 +2858,12 @@ of 0.04 and 0.06 (§ Two rules make the annotator repeat itself again). Six of
 the eight differ only at the border of `judgment`, `intent` and no claim, as
 64 of those 107 did. Three move a figure.
 
+Corrected on 8 November 2026: the two counts follow different rules. The 64
+of the 107 are sentences one annotation left unmarked and the other typed
+only `judgment` or only `intent`, and by that rule 4 of the eight are at the
+border. Six of the eight differ only in `judgment` or `intent`, as 78 of the
+107 do.
+
 - The annotator's one miss is the opening sentence of `4bf464e8-…-95`, which
   says that a pull request was opened and what it takes out of the package:
   the user typed it `command_run` and `file_changed`, the annotator and the
@@ -2871,6 +2883,10 @@ the eight differ only at the border of `judgment`, `intent` and no claim, as
 - The other is a sentence of `4bf464e8-…-126` that offers a further change
   and says how a name will be shown on GitHub: the annotator typed it
   `judgment`, and the user left it unmarked, as an offer.
+
+Corrected on 8 November 2026: the item just above the third, [4] of
+`4bf464e8-…-95`, names another file; the one that names the packaging file is
+[3], the first. Both typed both of them `file_changed`.
 
 The other five are claims the user typed and the annotator did not, and none
 of them is checkable: `judgment` beside `command_run` in two sentences of
@@ -2899,6 +2915,12 @@ permission, which both left unmarked. The rest, in two passes or three: the
 item of the list, a heading that names a file, a sentence that says when a
 workflow will run, a line of timings under a label, and the two misses typed
 otherwise.
+
+Corrected on 8 November 2026: of the two sentences that give a run, the route
+left `54939a91-…-58` [6] unmarked in the first and third passes and typed it
+`judgment` in the second; its `command_run` is missed in all three. Of the 15
+or 16 claims a pass marked that are not the user's, 8 or 9 are `file_changed`,
+six of them in sentences both typed `judgment`.
 
 What it showed. On these five reports the annotator agrees with the user, on
 recall and on the spurious share, about as closely as two of its own
@@ -2950,6 +2972,10 @@ type were in one pass or more, two or more, or all three, and what was kept
 was scored by the scorer's rule. Only reports with an answer in all three
 passes count: 78 of the corpus's 81, 34 of the holdout's 35 and 94 of the 100.
 
+Corrected on 8 November 2026: as the note under the entry of 6 November says,
+22 to 48 is the count of reports two passes gave the same number of claims;
+given the same claims it is 14 to 40.
+
 | Recall on checkable claims, and spurious share | Corpus, 78 reports | Holdout, 34 | `semantic-diff-weaver`, 94 |
 | --- | --- | --- | --- |
 | Each pass | 0.78 to 0.81, 0.47 to 0.48 | 0.85 to 0.86, 0.52 to 0.56 | 0.73 to 0.74, 0.37 |
@@ -2974,6 +3000,12 @@ the reference, 713 of 1,715 (42%) are in all three on the corpus, 531 of
 1,530 (35%) on the holdout and 270 of 412 (66%) on `semantic-diff-weaver`;
 of those that match it, 77%, 75% and 82%. A vote keeps the first with the
 second: they are the route's reading, not its noise.
+
+Corrected on 8 November 2026: "most" holds of each pass, where 57% to 63% of
+what a pass marks that matches nothing on the corpus is in all three passes,
+51% to 56% on the holdout and 78% to 81% on `semantic-diff-weaver`. Of the
+distinct claims, which the figures above count, it is under half on
+distiller's sets.
 
 And no choice among these passes' claims, by a vote, a review or anything
 else, can find more than their union does: 0.82 on the corpus, 0.87 on the
@@ -3064,6 +3096,10 @@ verdicts` and `defects` give the same output with `--root` on the copy as on
 distiller; `referents` counts fewer `command_run` referents there, since it
 looks for a command among the project's own files, and distiller's code was
 not copied.
+
+Corrected on 8 November 2026: the 288 are the copies, each with its
+original's sha256; the folder holds 290 files, with the manifest of their
+digests and a README.
 
 ### Three readings the blind reports left open are decided, and wait for the guide — 7 November 2026
 
@@ -3162,6 +3198,9 @@ spans hold 76% of the characters of the reports they annotate, where the
 corpus's hold 53% of its 81. A scan of their 1,279 spans found no path of the
 user's machine, no user name, e-mail address, key or secret, and the three
 other projects they name are public on GitHub.
+
+Corrected on 8 November 2026: 76% is the share of the annotator's spans
+alone; with the user's five, 77%.
 
 On 7 November the user decided that they stay out. Instead,
 `~/code/claim-ledger-corpora`, which holds them with `semantic-diff-weaver`'s
@@ -3276,6 +3315,11 @@ The three runs are in `corpus/runs/` as
 script that sent them is not in the repository. Nothing changed in the hook,
 and phase 1 stays an observer.
 
+Corrected on 8 November 2026: the route's 1.4 to 7.0 seconds are its medians
+by report over its three passes, as in the table, and the Claude models' 4 to
+37 seconds are single answers; the route's single answers took 1.2 to 11.2
+seconds.
+
 ### Sonnet given the guide at low effort marks a tenth that the user did not, at the route's recall — 7 November 2026
 
 The entry above left to a second probe whether the guide, in place of
@@ -3292,6 +3336,12 @@ another route nor the guide itself brings the spurious share down), at
 `--effort low`, and, so that the prompt's part could be told from the
 effort's, `extract-6c` at `--effort low` as well. All 56 answers were usable,
 with no defect.
+
+Corrected on 8 November 2026: `MAX_THINKING_TOKENS=0` changed nothing in
+Sonnet's answer; Haiku's went from 1,703 output tokens to 2,077 and from 13
+claims to 12. At low effort Sonnet's answer kept eight claims but not the same
+eight: two sentences it had typed `suite_passed` it typed `judgment`. The
+seconds are the API's; the whole calls took 11.4 and 4.3.
 
 | Against the user's annotations of 14 reports, one pass | Recall on checkable claims | Spurious share | The 5 of `semantic-diff-weaver` | Median time; over 20 seconds |
 | --- | --- | --- | --- | --- |
@@ -3324,6 +3374,10 @@ seconds, at the same recall and a share of 0.19 for 0.15. Haiku's answers do
 not shorten, and with `extract-6c` its share went from 0.22 to 0.35 with the
 effort alone, most of it in one of the three reports annotated blind: in one
 pass, with temperature not pinned, a few hundredths say nothing.
+
+Corrected on 8 November 2026: Haiku's answers shorten a little at low effort,
+from 2,408 output tokens to 2,065 at the median and from 11.1 seconds to 10.2,
+where Sonnet's take half the time.
 
 Recall stays short of 0.90: 0.85 over the 14, and 0.73 on the five independent
 reports, where the annotator, Fable given the guide at the CLI's own effort,
@@ -3365,6 +3419,11 @@ reports of 49 and 90 sentences passed 20 seconds, which in the hook would make
 those turns `UNKNOWN`. Neither reaches 0.90 and 0.10 at once, and medium
 effort has one pass.
 
+Corrected on 8 November 2026: not the first. `claude-fable-5-1` given the
+hook's request had found 91 of 99 on these reports the same day (§ Claude
+models sent the hook's request mark far less that the user did not); this was
+Sonnet's first.
+
 OpenRouter lists zero-retention endpoints for `claude-sonnet-5.5` and
 `claude-haiku-5.5` through Amazon Bedrock and Google Vertex, in the EU, the US
 and globally. Only Vertex's declare structured outputs, which the hook asks
@@ -3387,6 +3446,10 @@ itself either: two of its passes give a report the same claims for only 22 to
 with the guide's two rules of 5 November, stay out of the hook). Whether a
 candidate whose sampling cannot be pinned may be taken, judged by its worst of
 three passes as every candidate is, is for the user to say.
+
+Corrected on 8 November 2026: as the note under that entry says, 22 to 48 is
+the count of reports given the same number of claims; given the same claims it
+is 14 to 40, so the route repeats itself less than this said.
 
 Not checked: the time through a Vertex route, for which the CLI's times only
 stand in; more reports annotated independently than the five; more passes at
@@ -3563,6 +3626,11 @@ distiller).
    is `file_changed`; that they are useful is `judgment`. Two distribution
    files said to be built, `4bf464e8-…-182` [7], are `file_changed`.
 
+Corrected on 8 November 2026: the annotator marked five of the six sentences,
+four `judgment` and `4bf464e8-…-182` [7] `command_run` and `judgment`, and
+left only `54939a91-…-37` [2] unmarked; they are six claims of the user's it
+missed.
+
 Read so, 8 of the 19 sentences change: [4] and [5] of `54939a91-…-37` and a
 part of [9] of `e646d70c-…-6` become `command_run`, and [12] to [16] of
 `695d4141-…-2` gain `file_changed`. The twelve then hold 52 checkable claims,
@@ -3589,6 +3657,10 @@ which holds spans, is `anchor-blind-2-adjudicated.jsonl` (sha256
 `e0fd3506bf26`) in the private repository, at its commit `12b3181`, and the
 eight changes above rebuild it from the blind file. Nothing changed in the
 hook, and phase 1 stays an observer.
+
+Corrected on 8 November 2026: Haiku's pass comes nearer 0.90, from 0.52 to
+0.56 on the twelve; what holds is that no candidate comes near it under
+either reading.
 
 ### The route's misses on long reports come from what it reads in them, not from their length, and most are a run's results typed otherwise — 8 November 2026
 
@@ -3637,6 +3709,11 @@ each set drawn with seed `20261108`, was read one by one:
 - 10 describe how code behaves, or would behave, and the reference types them
   `command_run` because they stand under a run, by the guide's rule on what a
   command returned. There the doubt is the reference's more than the route's.
+
+Corrected on 8 November 2026: the route typed three of the six git operations
+`file_changed`, in `09faaac3-…-10`, `54939a91-…-8` and `94212a41-…-4`, in
+every pass that answered; of the other three it left one unmarked, and typed
+one `judgment` and one `suite_passed`, in all three passes.
 
 On `semantic-diff-weaver` the git operations weigh more. A search over its 74
 finds 24 sentences that name one, 18 of them operations once 4 that name
@@ -3733,6 +3810,10 @@ sentence.
 | The user's 26, blind where blind | 0.75, 0.41 | 0.82, 0.44 | 0.82, 0.41 |
 | The user's 17 of `semantic-diff-weaver` | 0.59, 0.41 | 0.71, 0.41 | 0.71, 0.41 |
 
+Corrected on 8 November 2026: in the row of the user's 17, the spurious share
+of `extract-6c` and `extract-run` is 83 of 200, exactly 0.415. The scorer
+prints 0.41; rounded half up from the counts it is 0.42.
+
 On `command_run` alone the new call finds more than `extract-6c` on every
 set: 0.65 to 0.66 of the corpus's against 0.55 to 0.61, 0.72 to 0.77 of the
 holdout's against 0.68 to 0.75, 0.67 to 0.70 of `semantic-diff-weaver`'s
@@ -3744,6 +3825,13 @@ match no `command_run` of the reference, where 0.38 to 0.51 of
 which the prompt tells it to leave out, and 215 and 245 on sentences with no
 claim. On `semantic-diff-weaver`, 148 of its 277 match none, most of them
 judgments.
+
+Corrected on 8 November 2026: the new call finds more `command_run` than
+`extract-6c` over each set's three passes, though not in every pass: in the
+holdout's first it finds 127 where `extract-6c` finds 128. Of the 148 on
+`semantic-diff-weaver`, 63 fall on sentences the reference typed `judgment`
+alone and 73 on sentences with `judgment` among their types: the largest
+group, and under half.
 
 The third column keeps the new call's claims only where `extract-6c` typed
 the sentence neither `suite_passed` nor `intent`. It was chosen after those
@@ -3820,6 +3908,16 @@ to 0.77 against 0.62 to 0.72; on the holdout it finds 0.71 to 0.78 against
 0.91 to 0.93.
 Each call raises the spurious share: 0.48, 0.55 and 0.58 on the corpus.
 
+Corrected on 8 November 2026: the calls for `file_changed` and `suite_passed`
+add less than the call for `command_run` on `semantic-diff-weaver` and the
+user's reports, not on distiller's. Over the three passes they add 107 claims
+on the corpus where it adds 90, and 78 on the holdout where it adds 49; by the
+worst pass, 0.783 to 0.816 to 0.854 on the corpus, which rounding hid, and
+0.85 to 0.87 to 0.91 on the holdout. Without `extract-6c` the three find less
+than it does alone on every set but the user's 17, where they find 0.61
+against 0.59. In the table, the user's 17 with `extract-run` holds the tie the
+note under the entry above gives, 83 of 200.
+
 The calls answered in 0.9 to 2.0 seconds at the median. Two answers on the
 holdout passed 20 seconds, one of `extract-file` at 70.8 and one of
 `extract-suite` at 23.7, so with the four calls in parallel 4 of the
@@ -3857,6 +3955,12 @@ of them runs one as a simple command: the five that are simple read a check
 script with `sed`. The agent there sets a scratchpad variable, chains with
 `&&` and pipes the output to `tail`.
 
+Corrected on 8 November 2026: the 55 counted the folder's entries, 38
+transcripts and 17 session folders, and the calls are those of the 38. Of the
+6,547, 495 are the same row copied into a second transcript. Counted once
+each, there are 6,052 calls, 449 of them simple (7%); 1,225 mention a check,
+and the 4 of those that are simple read a check script with `sed`.
+
 By SPEC § Configuration a command with a shell operator is never a check, and
 for a reason this form shows: a pipe ends with the exit code of its last
 command, so a test run piped to `tail` exits 0 when the tests fail. So in
@@ -3874,6 +3978,12 @@ and of its 1,020 checkable ones it verified 393 (39%) and left 622
 unsupported: 92 of 417 `suite_passed` claims verified, 322 unsupported and 3
 contradicted; 97 of 221 `command_run` claims verified, 122 unsupported and 2
 unknown; 204 of 382 `file_changed` claims verified and 178 unsupported.
+
+Corrected on 8 November 2026: counted once each, since 11 are copied rows,
+distiller's calls are 1,199, 416 of them simple (35%), and of the 543 that
+mention one of its checks 354 are simple (65%). The log holds 2,020 rows:
+2,012 claims and 8 rows for defects, with no type or verdict. The checkable
+figures are exact.
 
 So neither an install nor a rebuilt log would show the observer checking what
 the agent says about its checks in `semantic-diff-weaver`: both would confirm
@@ -3903,3 +4013,9 @@ that a test passed in `semantic-diff-weaver` is the pipe, and a pipe can never
 be a check. It would check one there only if the agent ran its checks without
 one, which would have to be asked of it in that project's `AGENTS.md`, and is
 the user's to decide.
+
+Corrected on 8 November 2026: counted once each, as the notes above say,
+`semantic-diff-weaver`'s commands that run a check are 1,076: 973 (90%) piped,
+608 of them ending in `tail`, and 103 (10%) chained. Distiller's are 522: 354
+(68%) plain, 125 (24%) piped and 42 (8%) chained, and one more would be left
+plain. The conclusion stands.
