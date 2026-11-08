@@ -4019,3 +4019,75 @@ Corrected on 8 November 2026: counted once each, as the notes above say,
 608 of them ending in `tail`, and 103 (10%) chained. Distiller's are 522: 354
 (68%) plain, 125 (24%) piped and 42 (8%) chained, and one more would be left
 plain. The conclusion stands.
+
+### The five severe verdicts of real use fell on no claim the log contradicts, and phase 2 as written would have blocked the two turns that hold them — 8 November 2026
+
+Asked on 8 November what was left before 14 November, distiller's calibration
+log was read back from its copy for the claims phase 2 would block on. From 6
+October to 1 November it holds 2,012 claims in 86 turns, and only five are
+`CONTRADICTED` or `UNKNOWN`, the two verdicts R-30 blocks on from phase 2. All
+five are in two turns of one session, `64907bb0-…-2` and `64907bb0-…-4`,
+answered by `extract-3` on 28 October, and none is a claim the log
+contradicts.
+
+The three `CONTRADICTED` are sentences that say `make lint` and `make types`
+fail, and the last run of each, at 18:39 UTC, had failed. They are typed
+`suite_passed`, as the guide's row for that type ("saw a check or a suite
+pass, or fail") and the prompt's definition ("passed, or failed") type a
+sentence about a failing check, and R-17 gives failed evidence `CONTRADICTED`
+"whatever the report says". So the verdict says what the sentence said, under
+the name of a contradiction. Both checks passed later that day, in the
+session's fifth turn.
+
+The two `UNKNOWN` are `command_run` claims about `make test-red`, which that
+turn ran twice: in the foreground, ending at 18:37 UTC with exit code 2, as it
+is meant to fail, and then in the background, a record ending at 18:39 with
+the outcome `unknown` that SPEC § Evidence log gives a call that may still be
+running. One claim says the second run is under way, which is what its record
+says. The other reports the first run, but the last matching record is the
+one a claim is judged on (SPEC § Join, verdicts and coverage), so it was
+judged on the second and came back `UNKNOWN`; on the first it would have been
+`VERIFIED`, with the failure in its scope.
+
+It is not the route's doing. The holdout's reference (`86126b791b69`) types
+four of the five sentences as the hook did; the one that reports the first
+run it types `suite_passed` only, where the hook typed `command_run`.
+`extract-6c`, in its three stored passes over the holdout, gives each of the
+five the hook's type in every pass, beside another type in three of them. The
+passes keep no referents, so types were compared and the verdicts were not
+re-derived.
+
+Distiller's configuration declares no `LOW` tier and `REVIEW` as the default,
+which blocks on `CONTRADICTED` from phase 2, and R-30 blocks on `UNKNOWN`, so
+both turns would have been blocked. R-32 gives two ways out, to run the check
+or to reword the claim. Running a check again clears nothing while it fails,
+so the way left is to reword a sentence that is true.
+
+R-17 has stood since phase 0 (`feef038`, 23 September), and no entry here
+weighs it. Its consequence was foreseen once, for `make test-red`, left out of
+distiller's checks on 20 October because a claim that it failed as expected
+would come back `CONTRADICTED` (§ The freshness test reads the working tree
+once a join). As written, R-17 holds for any evidence, while SPEC's verdict
+table gives a `command_run` on a failed run `VERIFIED`, with the outcome in
+its scope, and a `file_changed` on a failed write `UNSUPPORTED`, and says why.
+Whether that is a disagreement between the requirements and SPEC is the
+user's to say, and it is not resolved here. It bears on this case because the
+table already holds a way out that leaves it as it is: a sentence that says a
+check failed, typed `command_run`, would come back `VERIFIED` with the failure
+in its scope. That would change the guide's row, the reference and the
+prompt, which is frozen.
+
+Phase 2 would also have blocked the turns the pipeline failed. Distiller's
+`errors.log` holds 26 failures over the same weeks, each marking its turn
+`UNKNOWN` (I-9): 15 calls past their deadline, 9 HTTP errors, a report over
+the extractor's size limit and an answer with a claim without its referents.
+Since the deadline went to 20 seconds on 31 October there has been one, the
+last, on 1 November, and `extract-6c` gave an answer of that kind in 6 of its
+348 stored answers over the corpus and the holdout, on 4 reports.
+
+Put to the user with the decisions of 14 November: whether phase 2 is wanted
+as R-17 and R-30 write it. Not checked: the verdicts `extract-6c` would give
+those five sentences, for want of referents; the counts the claim on the
+first run gives, which the log does not hold; how many of the 622
+`UNSUPPORTED` claims are work claimed and not done, and how many are runs the
+join could not match.
