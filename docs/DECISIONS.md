@@ -4120,6 +4120,13 @@ work the transcripts do not show. By type, 115 of the 122 `suite_passed`
 claims are work done, 29 of the 70 `file_changed` and 25 of the 50
 `command_run`.
 
+Corrected on 8 November 2026: read as the user read the blind sample of the
+entry below, two of the 22 descriptions are work done: sentences that give
+what `git status` showed, typed `file_changed` on the file it listed, which no
+write of their session touched. So 171 (71%) are work done, 15 (6%) say that
+something was not done, and 56 (23%) claim no work, 36 plans and 20
+descriptions; by type, 31 of the 70 `file_changed` claims are work done.
+
 The 169 fall to six forms. 87 are test results from a claim that names no
 suite: in 69 the session had run several checks, so the join would not pick
 one, and in 18 it had run none; most are results of `make test-red`, red on
@@ -4132,6 +4139,10 @@ by their base name, with a line number, as a directory, as another file, or
 kept in a scratchpad outside the project. 7 are files changed by a shell
 command or by git, which the recorder keeps as calls, not mutations.
 
+Corrected on 8 November 2026: with the two sentences of the note above, the
+work done is 171, and they fall to a seventh form: the result of a run, typed
+as a change to a file the run listed.
+
 Of the 380 that could match nothing, a sample of 40 drawn with the seed
 202611083 was read the same way: 25 are work done, 1 says something was not
 done, 7 are plans and 7 descriptions, and none claims work the transcripts do
@@ -4139,6 +4150,12 @@ not show. One names a command its session did not run, `make test-red`,
 beside the count of passing tests another run gave, so its result is true and
 its command is not. None in 40 puts the share of claims of work not done among
 the 380 below 8% at 95% confidence.
+
+Corrected on 8 November 2026: read as the user read the blind sample of the
+entry below, two of the 7 descriptions are work done: rows of a table of
+mutants that give the tests that killed each, results of the batches of
+`make test-red` that ran them. So 27 are work done, 1 says something was not
+done, 7 are plans and 5 descriptions.
 
 So no claim read, among the 242 the join could have matched and the 40, is
 work claimed and not done. In this log `UNSUPPORTED` marked work the log could
@@ -4195,3 +4212,30 @@ as for the 9 the entry of 3 November left to the user, is the user's to
 decide, and goes to 14 November. Not checked: the labels are one reading, not
 the user's; the 185 of the 225 outside the sample; the counts in claims,
 which the log does not hold.
+
+### The user's blind reading of twenty labelled claims agrees on eighteen, and finds none false — 8 November 2026
+
+The two entries above rest on one reader, Claude, so on 8 November the user
+read twenty of the 490 claims it had labelled: 10 of the 282 `UNSUPPORTED`
+and 10 of the 208 `VERIFIED` it had read, drawn with the seed 202611085 and
+shuffled. Each came with its sentence, the three before it, and the calls of
+its session that name what it names, or the last four commands of its turn,
+with no verdict and no label. The user asked for more on six of them and was
+given a report's table with its heading, the whole output of a `make verify`,
+the runs of the mutants of three turns with the names of the tests that
+failed, and a test run against git with its version, all taken from the
+transcripts.
+
+The two readings agree on 18 of the 20: on all 10 `VERIFIED` and on 8 of the
+10 `UNSUPPORTED`. Neither reader found a claim false. Both differences are
+claims Claude read as descriptions and the user as work done, and the user's
+reading holds: a row of a table of mutants giving the tests that killed one,
+which a batch of `make test-red` failing exactly 51 tests bears out, and a
+sentence giving what `git status` showed, which is the output of a run.
+
+Applied to all of Claude's labels, the user's reading changes exactly four:
+the two sentences that give what `git status` showed among the 242, and two
+rows of the same table of mutants in the sample of 40. The notes beneath the
+entry on the unsupported claims give the figures as they then stand; no
+conclusion changes. Not checked: the 470 claims outside the sample, read by
+Claude alone.
