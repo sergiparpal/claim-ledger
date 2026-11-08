@@ -3769,3 +3769,76 @@ hook. `extract-run` is a candidate, not in the hook, and its three runs are
 in `corpus/runs/` as `mistral-medium-3.1-extract-run+72370b26.jsonl` and the
 same with `holdout-` and `sdw-` before it, with sentence numbers and types and
 no text. Nothing changed in the hook, and phase 1 stays an observer.
+
+### Extraction by type reaches 0.85 on the corpus with four calls a turn, and the spurious share moves further from phase 1 — 8 November 2026
+
+The entry above left the claims `extract-6c` and `extract-run` still miss
+together, and they are spread over the three checkable types: of the
+corpus's 1,019, 156 are missed in every pass, 60 `file_changed`, 61
+`command_run` and 35 `suite_passed`; of the holdout's 744, 79; of
+`semantic-diff-weaver`'s 422, 60. So on 8 November, at the user's leave, the
+two other checkable types were given a call each, as `command_run` was:
+`extract-file` (`src/ledger/prompts/extract-file.md`,
+`extract-file+ca637f0b`) and `extract-suite`
+(`src/ledger/prompts/extract-suite.md`, `extract-suite+9a89cc7a`). Each asks
+for its type only and keeps `extract-6c`'s rules for it; `extract-file` adds
+the user's readings of 7 and 8 November, that an item naming a file in a list
+of what a change touched, files said to be built or generated again, tests
+said to be written and a tool's findings on what a change added are
+`file_changed`. Their examples are invented, and none is in the 748 files of
+the captured reports and the tests. One example of `extract-6c`'s own
+prompt, the one of what a check is expected to give, is word for word in two
+reports of `semantic-diff-weaver`, `4bf464e8-…-5` and `4bf464e8-…-15`,
+rebuilt after it was written; the candidate says it otherwise. Three passes
+each over the three sets: 1,296 answers, all usable, with no defect.
+
+They were joined with `extract-6c`'s and `extract-run`'s passes, pass with
+pass, each call adding the claims of its type where `extract-6c` has none of
+that type in the sentence.
+
+| Recall on checkable claims, then the spurious share; the worst pass on each | `extract-6c` alone | And `extract-run` | And all three calls by type | The three calls by type alone |
+| --- | --- | --- | --- | --- |
+| The corpus, 81 reports | 0.78, 0.48 | 0.82, 0.55 | 0.85, 0.58 | 0.74, 0.60 |
+| The holdout, 35 | 0.85, 0.55 | 0.87, 0.64 | 0.91, 0.68 | 0.72, 0.69 |
+| `semantic-diff-weaver`'s 100 | 0.73, 0.38 | 0.82, 0.42 | 0.84, 0.45 | 0.71, 0.48 |
+| The user's 26 | 0.75, 0.41 | 0.82, 0.44 | 0.83, 0.46 | 0.72, 0.50 |
+| The user's 17 of `semantic-diff-weaver` | 0.59, 0.41 | 0.71, 0.41 | 0.71, 0.45 | 0.61, 0.57 |
+
+With four calls a turn, recall reaches 0.85 on the corpus, by which phase 1
+judges, and 0.91 on the holdout, where the spurious share is 0.68. What the
+calls for `file_changed` and `suite_passed` add is less than what the call
+for `command_run` added: 0.82 to 0.85 on the corpus, 0.82 to 0.84 on
+`semantic-diff-weaver`, nothing on the user's 17. They add to `extract-6c`
+without standing in for it: without it the three find less than it does
+alone, 0.74 against 0.78 on the corpus. The call for `file_changed` finds
+0.70 to 0.72 of the corpus's `file_changed` claims, where `extract-6c` finds
+0.82 to 0.83, and 0.61 to 0.68 of `semantic-diff-weaver`'s, where it finds
+0.82 to 0.83. The call for `suite_passed` finds a little less than
+`extract-6c` on the corpus and on `semantic-diff-weaver`, 0.83 to 0.89
+against 0.87 to 0.92, and on those two more of what it marks is right, 0.70
+to 0.77 against 0.62 to 0.72; on the holdout it finds 0.71 to 0.78 against
+0.91 to 0.93.
+Each call raises the spurious share: 0.48, 0.55 and 0.58 on the corpus.
+
+The calls answered in 0.9 to 2.0 seconds at the median. Two answers on the
+holdout passed 20 seconds, one of `extract-file` at 70.8 and one of
+`extract-suite` at 23.7, so with the four calls in parallel 4 of the
+holdout's 104 turns would come late, where 2 do with `extract-6c` alone; on
+the corpus none would, and on `semantic-diff-weaver` the 6 of 294 that are
+late with `extract-6c` alone. Per answer, `extract-file` spent 818, 1,140 and
+577 input tokens on the corpus, the holdout and `semantic-diff-weaver`, and
+208, 354 and 48 output tokens; `extract-suite` 770, 1,094 and 531, and 157,
+370 and 41.
+
+No design measured reaches 0.90 and 0.10 together. Recall comes near 0.85
+to 0.91 only by marking far more, with a spurious share of 0.45 to 0.68, and
+what marks little, Sonnet given the guide at 0.12 (§ On twelve more reports
+annotated blind), stays at 0.75 against the user. While the threshold does
+not move, extraction alone is no way into phase 2. Whether the change of
+design goes ahead for another end, such as a better appendix, is the user's
+question for 14 November. Not checked: Sonnet's low share joined with calls
+by type; a turn that keeps the other calls' answers when one comes late;
+prompts that mark less. The two prompts are candidates, not in the hook,
+and their six runs are in `corpus/runs/` with the same names as
+`extract-run`'s, with sentence numbers and types and no text. Nothing
+changed in the hook, and phase 1 stays an observer.
