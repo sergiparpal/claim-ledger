@@ -3589,3 +3589,73 @@ which holds spans, is `anchor-blind-2-adjudicated.jsonl` (sha256
 `e0fd3506bf26`) in the private repository, at its commit `12b3181`, and the
 eight changes above rebuild it from the blind file. Nothing changed in the
 hook, and phase 1 stays an observer.
+
+### The route's misses on long reports come from what it reads in them, not from their length, and most are a run's results typed otherwise — 8 November 2026
+
+Against the annotator, the route's recall on `semantic-diff-weaver`'s 100
+falls with a report's length: 0.85 on reports of fewer than 15 sentences,
+0.75 from 15 to 29, 0.46 from 30 to 59. If length were the cause, sending a
+report to the extractor in sections would be a change of design to measure
+before 14 November. On 8 November, at the user's leave, the three stored
+passes of `extract-6c` were read against the annotator on that sample, on the
+corpus and on the holdout, by where each checkable claim stands and what the
+route typed there. Nothing was called.
+
+Length is not the cause:
+
+- The share of sentences the route marks does not fall toward the end of a
+  long report. On reports of 30 sentences or more it marks 0.63, 0.66 and
+  0.75 of the sentences in the first, middle and last third on
+  `semantic-diff-weaver`, 0.54, 0.67 and 0.57 on the corpus, and 0.53, 0.65
+  and 0.55 on the holdout.
+- On distiller's reports of 30 sentences or more, recall is 0.79 on the
+  corpus and 0.86 on the holdout, against 0.88 and 0.80 from 15 to 29.
+- The 0.46 of `semantic-diff-weaver` comes mostly from two reports of one
+  session, `695d4141-…-2` and `695d4141-…-8`, both among the twelve the user
+  annotated: in each pass the route finds 1 of their 19 checkable claims. On
+  the second it answers with an empty list in all three passes; on the first
+  it leaves the table of findings unmarked and types the lines that give the
+  run's results otherwise. The other six long reports find 88 of 141 over the
+  three passes (0.62), and in 49 of their 53 misses the route marked the
+  sentence with another type.
+
+What the route misses is `command_run`, at every length and in both
+projects. Its recall is 0.59 on `semantic-diff-weaver`, 0.58 on the corpus
+and 0.73 on the holdout, where `file_changed` is at 0.79 to 0.83 and
+`suite_passed` at 0.88 to 0.92. Of the checkable claims missed in all three
+passes, `command_run` is 74 of 105 on `semantic-diff-weaver`, 84 of 179 on
+the corpus and 40 of 93 on the holdout. A sample of 42 of those 198, 14 from
+each set drawn with seed `20261108`, was read one by one:
+
+- 26 give what a run returned: a tool's risk and findings, lines of its
+  output copied or listed, results under a heading. The route typed them
+  `judgment`, `file_changed` where the sentence names files, `suite_passed`
+  where it reads as a check's result, or nothing where they are rows of a
+  table or items of a list.
+- 6 are about a git or GitHub operation: a branch deleted or merged, a
+  commit, a pull request. The route typed them `file_changed`.
+- 10 describe how code behaves, or would behave, and the reference types them
+  `command_run` because they stand under a run, by the guide's rule on what a
+  command returned. There the doubt is the reference's more than the route's.
+
+On `semantic-diff-weaver` the git operations weigh more. A search over its 74
+finds 24 sentences that name one, 18 of them operations once 4 that name
+commits or pull requests only within a run's results and the 2 links the user
+adjudicated `judgment` (§ The user adjudicates the nineteen sentences) are set
+aside, and the route typed 16 of the 24 `file_changed`. On distiller's the
+search finds 5 of 84 and 2 of 40.
+
+So sending a report in sections is not measured: nothing points at length.
+Two candidates go to the change of design, neither measured. One is a rule
+that a branch deleted or merged, a pull request opened or a tag pushed is
+`command_run`, with `file_changed` only for what the sentence says changed,
+which could recover some 18 claims of `semantic-diff-weaver`'s 100, about
+0.04 of its recall, and next to nothing on distiller's. The other concerns
+what a run returned, the largest share: `extract-6c` already carries rules
+for it, and Sonnet given the guide finds no more than the route does (§ On
+twelve more reports annotated blind), so what may move it is a change in
+what the extractor is shown, such as which lines stand under a run. Not
+checked: the misses of `file_changed` and `suite_passed`; the descriptions of
+behaviour against the user's own annotations; why the route answers with
+nothing on `695d4141-…-8`. The proportions of the sample stand for 42 of 198
+claims. Nothing changed in the hook, and phase 1 stays an observer.
