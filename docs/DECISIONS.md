@@ -3700,3 +3700,72 @@ whether marking these lines for the route would help it despite how little of
 what it marks is `command_run`. The detector is not kept in the repository;
 its rules are the ones above. Nothing changed in the hook, and phase 1 stays
 an observer.
+
+### A call for `command_run` alone finds more of it on every set, and marks far more that is not — 8 November 2026
+
+The two entries above leave two candidates for the change of design: a rule
+for git operations, and a way to find what a run returned, which would need a
+model. A call for `command_run` alone is both, and it is one form of
+extracting by type, a call for each checkable type, among the directions the
+change of design would weigh. On 8 November, at the user's leave, a prompt
+for it, `extract-run` (`src/ledger/prompts/extract-run.md`,
+`extract-run+72370b26`), was run on the route, three passes over the corpus,
+the holdout and `semantic-diff-weaver`'s 100, with `tools/measure_route.py
+run --corpus`. It asks for `command_run` only. It keeps `extract-6c`'s rules
+on what a run returned and on checks, adds that a commit made, a branch
+created, deleted or merged, a pull request opened or merged, a tag created or
+pushed, or a push is `command_run`, and leaves out, as the user read them on
+8 November, a sentence that only links a pull request or says what a tag is
+or where it is. Its examples are invented, and none is in the 748 files of
+the captured reports and the tests; one that a test holds was replaced. All
+648 answers were usable, with no defect, and none came after 20 seconds.
+
+Its answers were joined with `extract-6c`'s stored passes, pass with pass, as
+a design with two calls a turn would join them: `extract-6c`'s answer whole,
+and the new call's `command_run` claims where `extract-6c` has none in that
+sentence.
+
+| Recall on checkable claims, then the spurious share; the worst pass on each | `extract-6c` alone | `extract-6c` and `extract-run` | The same, without new claims where `extract-6c` saw a check or a plan |
+| --- | --- | --- | --- |
+| The corpus, 81 reports | 0.78, 0.48 | 0.82, 0.55 | 0.81, 0.51 |
+| The holdout, 35 | 0.85, 0.55 | 0.87, 0.64 | 0.87, 0.58 |
+| `semantic-diff-weaver`'s 100 | 0.73, 0.38 | 0.82, 0.42 | 0.80, 0.41 |
+| The user's 26, blind where blind | 0.75, 0.41 | 0.82, 0.44 | 0.82, 0.41 |
+| The user's 17 of `semantic-diff-weaver` | 0.59, 0.41 | 0.71, 0.41 | 0.71, 0.41 |
+
+On `command_run` alone the new call finds more than `extract-6c` on every
+set: 0.65 to 0.66 of the corpus's against 0.55 to 0.61, 0.72 to 0.77 of the
+holdout's against 0.68 to 0.75, 0.67 to 0.70 of `semantic-diff-weaver`'s
+against 0.58 to 0.59, and 0.59 to 0.64 of the user's 17 against 0.51. But on
+distiller's reports most of what it marks is not `command_run`. In its first
+pass, 651 of its 807 marks on the corpus and 614 of its 743 on the holdout
+match no `command_run` of the reference, where 0.38 to 0.51 of
+`extract-6c`'s match one. Of those, 290 and 258 fall on a check's result,
+which the prompt tells it to leave out, and 215 and 245 on sentences with no
+claim. On `semantic-diff-weaver`, 148 of its 277 match none, most of them
+judgments.
+
+The third column keeps the new call's claims only where `extract-6c` typed
+the sentence neither `suite_passed` nor `intent`. It was chosen after those
+errors were seen, on the same sets, so it flatters. With it the spurious
+share rises less, from 0.48 to 0.51 on the corpus and from 0.55 to 0.58 on
+the holdout, at a hundredth or two of recall. Replacing `extract-6c`'s
+`command_run` claims with the new call's, instead of adding them, does
+worse: 0.80 and 0.54 on the corpus, 0.77 and 0.42 on `semantic-diff-weaver`.
+
+The new call answered in 1.1 to 2.3 seconds at the median and 12.6 at the
+slowest, so beside `extract-6c` it would make no turn late that `extract-6c`
+alone does not: 8 of the 636 pairs passed 20 seconds, all by `extract-6c`.
+Per answer it spent 747, 1,057 and 525 input tokens on the three sets, and
+236, 501 and 78 output tokens, where `extract-6c` spent 764, 1,035 and 342,
+and 817, 1,424 and 251, as the route reported them.
+
+It is the first design measured that raises recall on every set, and none of
+it comes near phase 1: 0.82 on the corpus, where the union of `extract-6c`'s
+three passes reached as well (§ A vote over the route's three passes), with a
+spurious share of 0.51 to 0.55. Not checked: a version of the prompt that
+keeps a check's results out; the cost in money; the two calls inside the
+hook. `extract-run` is a candidate, not in the hook, and its three runs are
+in `corpus/runs/` as `mistral-medium-3.1-extract-run+72370b26.jsonl` and the
+same with `holdout-` and `sdw-` before it, with sentence numbers and types and
+no text. Nothing changed in the hook, and phase 1 stays an observer.
