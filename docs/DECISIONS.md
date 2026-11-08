@@ -4149,3 +4149,49 @@ Put to the user with the question of distiller for 14 November. Not checked:
 the labels are one reading, not the user's; the counts results give, which
 the log does not hold; the 340 of the 380 outside the sample; whether a
 `VERIFIED` claim was verified on a run other than the one it names.
+
+### No verified claim of real use read is false, and fourteen rest on a record that says nothing of them — 8 November 2026
+
+The entry above left open whether a `VERIFIED` claim of distiller's log was
+verified on a run other than the one it describes. Its 393 `VERIFIED` claims
+are 204 `file_changed`, 97 `command_run` and 92 `suite_passed`. Four groups
+hold the ways a wrong one could arise, 168 claims between them, and all were
+read against the transcripts: the 47 that `tools/daily_use.py verdicts` lists
+as verified on one referent while another reaches no record, the 112 it lists
+with a negative word, the 17 `suite_passed` claims that name no suite and
+were verified on the one check their session ran, and the 17 `command_run`
+claims verified on a failed run. Of the other 225, a sample of 40 drawn with
+the seed 202611084 was read the same way.
+
+None of the 208 is false. Of the 168, 143 are true and verified on what they
+describe, counting as such a result of `ruff` or `pyright` on one file
+verified on `make verify`, which runs them over the project; 14 are true but
+verified on a record that says nothing of them; 5 are plans and 3
+descriptions, verified on a record that happened to match; and 3 deny
+touching part of a file and are verified on a write to it, and no edit of
+their turns contradicts them. Of the 40, 39 are true and verified on what
+they describe, and 1 is a plan.
+
+The 14 are of two kinds. 9 are the results of programs run by hand that §
+Nine claims about runs by hand were verified against a check that says
+nothing of them found on 3 November, verified on `make verify` by the
+one-check fallback. The other 5 are `command_run` claims about one run of a
+command, verified on its last run, as SPEC § Matching, per type says: one
+says a run in the background ended with 0, which its notice confirms, and is
+verified on a later run that failed, so that the appendix sets the opposite
+outcome beside it; one gives a first attempt that failed and is verified on
+the run that passed; one is a line of `make test-red`'s error output,
+verified on `make types`, since its referent was `make`; one is one mutant's
+run among many; one is git run in a shallow clone, verified on a `git status`.
+The 6 plans are verified on a run made earlier in their turn, so that a step
+still to come reads as verified.
+
+So no `VERIFIED` read rests on a false claim, and the scope that travels with
+each (I-4) names the record it was verified on, which for 14 of the 208 is
+not the one the sentence describes. With the two entries above, no verdict
+from 6 October to 1 November was found on a claim the transcripts do not bear
+out. Whether the 5, and the 6 plans, count as false `VERIFIED` for phase 2,
+as for the 9 the entry of 3 November left to the user, is the user's to
+decide, and goes to 14 November. Not checked: the labels are one reading, not
+the user's; the 185 of the 225 outside the sample; the counts in claims,
+which the log does not hold.
