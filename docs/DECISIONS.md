@@ -3659,3 +3659,44 @@ checked: the misses of `file_changed` and `suite_passed`; the descriptions of
 behaviour against the user's own annotations; why the route answers with
 nothing on `695d4141-…-8`. The proportions of the sample stand for 42 of 198
 claims. Nothing changed in the hook, and phase 1 stays an observer.
+
+### Which lines stand under a run cannot be told from a report's layout and words, so showing them to the extractor would take a model — 8 November 2026
+
+The entry above left, as a candidate for the change of design, showing the
+extractor which lines stand under a run, the largest share of what the route
+misses. Whether that can be done without a model was measured on 8 November,
+at the user's leave, with a detector that reads only a report's layout and
+words. It is built from the guide's rule, a line stands under a run when the
+run is said in the line itself, in the line it is an item of, or in the
+heading or the lead line of its section, and it comes in two versions: v0 as
+the rule reads, with verbs and nouns of running, commands in backticks and
+words of output; and v1, tuned on the corpus alone, where a run is said in
+the past tense, a question or an offer says none, and a line that opens as a
+result says one. It was set against the reference of each set and against
+the user's blind annotation of the 17 reports of `semantic-diff-weaver`.
+Nothing was called.
+
+| Detector v0 / v1 | Corpus, where v1 was tuned | Holdout | `semantic-diff-weaver`'s 100 | The user's 17 |
+| --- | --- | --- | --- | --- |
+| Sentences it flags | 32% / 20% | 36% / 21% | 23% / 16% | 22% / 16% |
+| `command_run` claims of the reference it covers | 59% / 47% | 82% / 71% | 40% / 33% | 36% / 36% |
+| The route's `command_run` misses in all three passes it covers | 38% / 24% | 70% / 52% | 41% / 38% | 53% / 53% |
+| Of what it flags, `command_run` | 10% / 13% | 13% / 19% | 23% / 28% | 19% / 27% |
+| Of what it flags, no claim | 32% / 27% | 49% / 42% | 21% / 21% | 34% / 40% |
+
+It covers between a quarter and two thirds of the `command_run` claims the
+route misses in every pass, and fewer than half on `semantic-diff-weaver`'s
+100. What escapes it is a run the report names a paragraph before, or never
+names with a verb; results told in prose, or in a table under a line that
+does not name the run; and git operations, which are not a run's results. Of
+what it flags, a tenth to a little over a quarter is `command_run`: the rest
+are the lines of a check, changes of files, judgments, and offers, plans and
+descriptions that mention a run without telling one. Tuned on the corpus, it
+flags less and covers less, and holds on no other set.
+
+So showing the extractor which lines stand under a run would need a model to
+find them, a second call each turn inside the same 20 seconds. Not checked:
+whether marking these lines for the route would help it despite how little of
+what it marks is `command_run`. The detector is not kept in the repository;
+its rules are the ones above. Nothing changed in the hook, and phase 1 stays
+an observer.
