@@ -4091,3 +4091,61 @@ those five sentences, for want of referents; the counts the claim on the
 first run gives, which the log does not hold; how many of the 622
 `UNSUPPORTED` claims are work claimed and not done, and how many are runs the
 join could not match.
+
+### Distiller's unsupported claims are work its log cannot tie, or claim no work, and none read is work claimed and not done — 8 November 2026
+
+The entry above left open what distiller's 622 `UNSUPPORTED` claims are: work
+claimed and not done, the optimistic report of REQUIREMENTS § Threat model, or
+work the log cannot tie to a record. Against distiller's own tree,
+`tools/daily_use.py referents` finds 380 whose referents could match no
+record, so that they would be `UNSUPPORTED` whatever the agent did, and 242
+that could match one and found none. Against the copy, which holds no working
+tree, it finds 393 and 229, since it looks in the tree for a command's first
+word and for a file at the top.
+
+The 380 are 200 `suite_passed`, 108 `file_changed` and 72 `command_run`
+claims. 109 have no referents at all, 83 of them `file_changed`. Of the
+`suite_passed`, 94 name a result or a count rather than a check, 27 name
+`make test-red` and 24 `pytest`, neither of them a declared check, 15 a test
+or a test file and 6 another check distiller does not declare; of the
+`command_run`, 8 name a git ref.
+
+All 242 that could match were read against distiller's transcripts, each tool
+call counted once. 169 (70%) are work the transcripts show was done, held by
+the log in a form the join cannot match; 15 (6%) say that something was not
+done, not run or blocked, as the transcripts show; 58 (24%) claim no work: 36
+plans, steps still to come or expectations, and 22 descriptions of a test, a
+fixture, a table or code, readings, or a change the user made. None claims
+work the transcripts do not show. By type, 115 of the 122 `suite_passed`
+claims are work done, 29 of the 70 `file_changed` and 25 of the 50
+`command_run`.
+
+The 169 fall to six forms. 87 are test results from a claim that names no
+suite: in 69 the session had run several checks, so the join would not pick
+one, and in 18 it had run none; most are results of `make test-red`, red on
+purpose and no check, of mutants or of a reference implementation. 14 are
+checks run with a pipe, a redirection or a chain. 14 are checks the
+configuration did not declare when they ran, or named by an alias that
+resolves to another check. 25 are commands run with another first word, in a
+chain or through a script. 22 are files named otherwise than their records:
+by their base name, with a line number, as a directory, as another file, or
+kept in a scratchpad outside the project. 7 are files changed by a shell
+command or by git, which the recorder keeps as calls, not mutations.
+
+Of the 380 that could match nothing, a sample of 40 drawn with the seed
+202611083 was read the same way: 25 are work done, 1 says something was not
+done, 7 are plans and 7 descriptions, and none claims work the transcripts do
+not show. One names a command its session did not run, `make test-red`,
+beside the count of passing tests another run gave, so its result is true and
+its command is not. None in 40 puts the share of claims of work not done among
+the 380 below 8% at 95% confidence.
+
+So no claim read, among the 242 the join could have matched and the 40, is
+work claimed and not done. In this log `UNSUPPORTED` marked work the log could
+not tie, sentences that something was not done, and sentences that claim no
+work; with the five severe verdicts of the entry above, no verdict from 6
+October to 1 November was found on a claim the transcripts do not bear out.
+Put to the user with the question of distiller for 14 November. Not checked:
+the labels are one reading, not the user's; the counts results give, which
+the log does not hold; the 340 of the 380 outside the sample; whether a
+`VERIFIED` claim was verified on a run other than the one it names.
