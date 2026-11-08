@@ -3505,3 +3505,87 @@ the 12 at medium effort to
 to `cli-claude-haiku-5-5-low-extract-guide+35709cd6.jsonl`, with sentence
 numbers and types and no text. Nothing changed in the hook, and phase 1 stays
 an observer.
+
+### The user adjudicates the nineteen sentences, and read so the twelve hold 52 checkable claims where the blind annotation holds 44 — 8 November 2026
+
+The entry above set out where the annotator and the user typed the twelve
+reports differently. On 8 November, having read the annotator's types, the
+user adjudicated the 19 sentences in which the two differ on a checkable type,
+grouped in six readings. The blind annotation stays the reference as it was
+typed (`f7b9a7e3e681`, 44 checkable claims): the adjudication was made after
+seeing the annotator's annotation, so a figure against it leans toward the
+annotator, and it is reported beside the blind one, never in its place. Like
+the three readings of 7 November, none of the six is in `docs/ANNOTATING.md`,
+and they go in only if the change of design goes ahead (§ Phase 1 stays an
+observer as it is, and a change of design waits for the decision on
+distiller).
+
+1. **A sentence that only gives a pull request's link is `judgment`.** The
+   two the user typed so, `4bf464e8-…-182` [1] and `90b14c04-…-7` [2], say
+   where the work is. A sentence that says the agent opened the request is
+   `command_run`. The reading of 7 November was made on a sentence that says
+   a request was opened; the entry above left open the one that only links
+   it, and this decides it.
+2. **A tag's state is `judgment`.** In `4bf464e8-…-160`, [4] says what kind
+   of tag it is and [5] where it is, and both stay as typed. The sentence
+   before them that says a branch is deleted stays `command_run`, as typed:
+   in the account of the merge, the word names an operation given as done. A
+   sentence that says the agent pushed a tag would be `command_run`, one that
+   says the tag is on GitHub `judgment`.
+3. **What a run returned, under a lead line that names the run, is
+   `command_run`,** as the guide reads it, and the user corrects both marks.
+   In `54939a91-…-37` the lead line names one test, in a new session, and
+   [4], its turns and its cost, and [5], the two refusals it recorded, are
+   results observed in that run. In [5] the claim is that the run recorded two
+   refusals; the programs it names are the attempts refused. The rest of [5]
+   stays `judgment`.
+4. **A check told in passing is two cases.** In `54939a91-…-4` [1] the
+   sentence names which token was checked and leaves open how, and it stays
+   `judgment`, as typed. In `e646d70c-…-6` [9] the agent names the software
+   it used to check something by hand, as the guide's example of a program
+   tried by hand does, and that part becomes `command_run`: a literal command
+   line is not needed. The rest of [9] stays `judgment`.
+5. **The five rows of the table of findings in `695d4141-…-2`, [12] to [16],
+   are `file_changed` as well as `command_run`,** as the guide reads them by
+   its rules on what a command returned about files and on what a commit is
+   said to have changed. The user's marks held what the analyser returned and
+   left out what each row says of the file: under the column of what was
+   detected, each names new conditions, assignments, calls or functions, or
+   how a loop changed. A row with only an id and a category would be
+   `command_run` alone.
+6. **The six sentences the annotator did not mark keep the user's reading.**
+   What the watcher returned, in `e646d70c-…-6` [5], is `command_run`, and
+   which run it was is `judgment`. A lead line that says a report file was
+   generated again, `54939a91-…-37` [2], is `file_changed`, though it heads a
+   section. Which files that analysis left out, `695d4141-…-2` [6], and what
+   the run's output left out, [23] of the same report, are `command_run`. Read
+   where it stands, `695d4141-…-8` [24] says that two tests were written, and
+   is `file_changed`; that they are useful is `judgment`. Two distribution
+   files said to be built, `4bf464e8-…-182` [7], are `file_changed`.
+
+Read so, 8 of the 19 sentences change: [4] and [5] of `54939a91-…-37` and a
+part of [9] of `e646d70c-…-6` become `command_run`, and [12] to [16] of
+`695d4141-…-2` gain `file_changed`. The twelve then hold 52 checkable claims,
+the 17 of `semantic-diff-weaver` 74, and all 26 the user annotated 151.
+
+| Against the user, the worst pass on each figure: recall on checkable claims, then the spurious share | The 12, blind (44) | The 12, adjudicated (52) | All 26, blind (143) | All 26, adjudicated (151) |
+| --- | --- | --- | --- | --- |
+| `extract-6c` on `mistral-medium-3.1`, the route, three stored passes | 23 of 44 (0.52), 0.43 | 25 of 52 (0.48), 0.41 | 107 of 143 (0.75), 0.41 | 109 of 151 (0.72), 0.40 |
+| `claude-sonnet-5-5`, the guide, low effort, three passes | 22 of 44 (0.50), 0.13 | 22 of 52 (0.42), 0.13 | 107 of 143 (0.75), 0.12 | 107 of 151 (0.71), 0.12 |
+| `claude-sonnet-5-5`, the guide, medium effort, one pass | 28 of 44 (0.64), 0.08 | 33 of 52 (0.63), 0.05 | 119 of 143 (0.83), 0.10 | 124 of 151 (0.82), 0.09 |
+| `claude-haiku-5-5`, the guide, low effort, one pass | 23 of 44 (0.52), 0.18 | 29 of 52 (0.56), 0.15 | 110 of 143 (0.77), 0.17 | 116 of 151 (0.77), 0.15 |
+| The annotator, `claude-fable-5-1` given the guide | 38 of 44 (0.86), 0.10 | 46 of 52 (0.88), 0.06 | 136 of 143 (0.95), 0.08 | 144 of 151 (0.95), 0.06 |
+
+Against the adjudicated reading, the annotator finds 67 of the user's 74
+checkable claims on the 17 of `semantic-diff-weaver` (0.91), and 13 of the
+249 claims it marks there (0.05) are not the user's; against the blind one,
+59 of 66 (0.89) and 21 of 249 (0.08). The route and Sonnet at low effort lose
+recall, since their worst passes find two and none of the eight claims: on the
+twelve the route's falls from 0.52 to 0.48 and Sonnet's from 0.50 to 0.42, and
+over the 26 to 0.72 and 0.71. Sonnet's one pass at medium effort finds five of
+the eight and stays at 0.63 to 0.64, and Haiku's finds six and rises from 0.52
+to 0.56. No candidate comes nearer 0.90 either way. The adjudicated reading,
+which holds spans, is `anchor-blind-2-adjudicated.jsonl` (sha256
+`e0fd3506bf26`) in the private repository, at its commit `12b3181`, and the
+eight changes above rebuild it from the blind file. Nothing changed in the
+hook, and phase 1 stays an observer.
