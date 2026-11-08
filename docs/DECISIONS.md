@@ -3396,3 +3396,112 @@ which now holds all three, and the pass at medium effort is
 `cli-claude-sonnet-5-5-medium-extract-guide+35709cd6.jsonl`, with sentence
 numbers and types and no text. The lists read are not kept. Nothing changed in
 the hook, and phase 1 stays an observer.
+
+### On twelve more reports annotated blind, Sonnet with the guide finds what the route finds, and only its spurious share stays low — 8 November 2026
+
+The two entries above left more reports annotated independently among what
+was not checked. On 7 and 8 November the user annotated twelve more reports
+of `semantic-diff-weaver` blind, under the guide at `349bb2305511`, as the
+five of § On five reports of another project annotated blind were, and so
+without the three readings of 7 November, which are not in it yet. They were
+drawn as the five were, with `random.Random(202611072).sample` over the sorted
+ids of the 66 reports of the 100 with eight sentences or more, less the five,
+which the same call draws with seed `20261107`: the 11th turn of `09faaac3`,
+the first of `0eaef129`, the 83rd, 160th and 182nd of `4bf464e8`, the 4th and
+37th of `54939a91`, the 2nd and 8th of `695d4141`, the first and 7th of
+`90b14c04` and the 6th of `e646d70c`, 246 sentences in all, 8 to 34 a report,
+where the five ran to 79. No figure on them was shown to the user before the
+annotation was done, and the user was asked not to look at the annotator's
+annotation of them. The annotation,
+`anchor-blind-2.jsonl` (sha256 `f7b9a7e3e681`), and the list, `blind-12.txt`,
+are in the private repository of § The annotations of semantic-diff-weaver
+stay out of this repository, at its commit `863b749`. Then `claude-sonnet-5-5`
+with `extract-guide` ran three passes over the twelve at `--effort low` and
+one at `--effort medium`, and `claude-haiku-5-5` one at `--effort low`,
+through the same CLI, 2.1.316, as in the two entries above. All 60 answers
+were usable, with no defect. The route's answers are its three passes stored
+on 6 November, and the annotator's its annotation of the 100; neither was
+asked again.
+
+| Against the user's annotations, the worst pass on each figure: recall on checkable claims, then the spurious share | The 12 (44 checkable claims) | The 17 of `semantic-diff-weaver` (66) | All 26 the user annotated (143) | On the 12: median; slowest; over 20 seconds |
+| --- | --- | --- | --- | --- |
+| `extract-6c` on `mistral-medium-3.1`, the route, three stored passes | 23 of 44 (0.52), 0.43 | 39 of 66 (0.59), 0.41 | 107 of 143 (0.75), 0.41 | 2.5 s; 19.0 s; none |
+| `claude-sonnet-5-5`, the guide, low effort, three passes | 22 of 44 (0.50), 0.13 | 38 of 66 (0.58), 0.12 | 107 of 143 (0.75), 0.12 | 7.5 s; 15.9 s; none |
+| `claude-sonnet-5-5`, the guide, medium effort, one pass | 28 of 44 (0.64), 0.08 | 46 of 66 (0.70), 0.09 | 119 of 143 (0.83), 0.10 | 11.9 s; 17.2 s; none |
+| `claude-haiku-5-5`, the guide, low effort, one pass | 23 of 44 (0.52), 0.18 | 39 of 66 (0.59), 0.16 | 110 of 143 (0.77), 0.17 | 11.1 s; 17.0 s; none |
+| The annotator, `claude-fable-5-1` given the guide | 38 of 44 (0.86), 0.10 | 59 of 66 (0.89), 0.08 | 136 of 143 (0.95), 0.08 | not measured |
+
+On the twelve, Sonnet at low effort with the guide finds no more than the
+route does: its three passes find 25, 22 and 22 of the 44 checkable claims,
+the route's 23, 23 and 24, and over all 26 the worst pass of each finds 107 of
+143. On the 14 they had tied as well, at 0.85 (§ Sonnet with the guide holds
+over three passes, and the routes it could take accept no temperature), so
+what the probes found between them is the spurious share, and that held on
+reports neither had been measured on: 0.11 to 0.13 of what Sonnet's passes
+marked on the twelve is not the user's, and 0.37 to 0.43 of what the route's
+marked. At medium effort Sonnet's one pass found 28 of 44, at a share of 0.08,
+every answer inside 17.2 seconds; but it is one pass, and on 7 November two
+long reports of distiller took it past 20 seconds. Haiku found 23, at a share
+of 0.18. On these reports no candidate measured comes near 0.90.
+
+The twelve are hard in themselves, not only in the user's reading of them:
+against the annotator, the route's passes find 0.49 to 0.53 of the checkable
+claims on them, and 0.76 to 0.77 on the other 83 of the 100. Their misses
+gather in a few reports. In each pass, 16 of the route's 20 or 21 misses are
+in two reports of one session, `695d4141-…-2` and `695d4141-…-8`, which tell
+what runs of `semantic-diff-weaver` returned: the risk it gave, the table of
+what it found, how it fared on a small change and on a large one. On the
+second, of 31 sentences, the route answers with an empty list in all three
+passes, in 0.8 to 1.2 seconds, as it does on `0eaef129-…-1`, none of whose
+four claims is checkable. Its three passes find the same number of the user's
+claims on 11 of the 12 reports. Sonnet's misses move from pass to pass, with
+its temperature not pinned, as the CLI cannot pin it: on `695d4141-…-2` its
+three passes find 10, 1 and 8 of the 12 checkable claims; on `54939a91-…-4`
+the first answers with an empty list, after 1,175 output tokens, and the other
+two find all 4; on `e646d70c-…-6` they find 0, 3 and 0 of 3.
+
+The annotator agrees with the user less here than on the five. It finds 38 of
+the user's 44 checkable claims (0.86), and 19 of the 181 claims it marks
+(0.10) are not the user's; the user, set against it, finds 37 of its 51
+(0.73), and 30 of the user's 229 (0.13) are not its own. On the five it was 21
+of 22 and 2 of 68, and over the 17 it is 59 of 66 (0.89) and 21 of 249 (0.08).
+The two typed 38 of the 246 sentences differently (15.4%), where they typed 8
+of the five's 79 so (10.1%), and two annotations by the annotator of 40 of
+distiller's reports differed in 4.9%; 19 of the 38 differ only at the border
+of `judgment`, `intent` and no claim. Of the annotator's 19 marks that are not
+the user's, 8 are `command_run` where the user typed `judgment`: sentences
+that give a pull request's link, say what state a tag or a release is in, give
+the turns, the cost or the refusals of a run, or mention a check in passing. 5
+are `file_changed`, on the rows of a table of what the tool found in a change,
+which the user typed `command_run` alone; 4 are `judgment` where the user
+typed nothing, one is `intent` where the user typed `judgment`, and one
+`command_run` where the user typed `file_changed` and `judgment`. Of the 6
+claims it misses, 3 are `command_run` and 3 `file_changed`. The figures on
+the 100 of `semantic-diff-weaver` stand against that annotation (§ On
+semantic-diff-weaver the route finds a little less, and marks less that
+matches nothing), and so against a reference that agrees with the user less
+than the five showed.
+
+Two of the sentences the user typed `judgment`, `4bf464e8-…-182` [1] and
+`90b14c04-…-7` [2], name a pull request by its link and say nothing of what it
+changes. The first reading of 7 November (§ Three readings the blind reports
+left open are decided, and wait for the guide) types what a pull request is
+said to change as `file_changed`, beside the `command_run` of opening it.
+Whether a sentence that only says a request is open is that `command_run` is
+the user's to say, and is not decided.
+
+The threshold of phase 1 does not move, and a shortfall sends us to the
+misses (REQUIREMENTS § Rollout phases). On these twelve the route's are
+sentences on what a run returned, and a long report answered with nothing;
+Sonnet's change from one pass to the next. Both go to the decision of 14
+November on a change of design (§ Phase 1 stays an observer as it is, and a
+change of design waits for the decision on distiller). Not checked: more
+passes at medium effort and of Haiku; a route with no retention, which the
+CLI is not, and its time; whether the user's marks on the twelve follow the
+three readings of 7 November. The 36 answers at low effort were added to
+`cli-claude-sonnet-5-5-low-extract-guide+35709cd6.jsonl` in `corpus/runs/`,
+the 12 at medium effort to
+`cli-claude-sonnet-5-5-medium-extract-guide+35709cd6.jsonl`, and Haiku's 12
+to `cli-claude-haiku-5-5-low-extract-guide+35709cd6.jsonl`, with sentence
+numbers and types and no text. Nothing changed in the hook, and phase 1 stays
+an observer.
