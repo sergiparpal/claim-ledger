@@ -3842,3 +3842,49 @@ prompts that mark less. The two prompts are candidates, not in the hook,
 and their six runs are in `corpus/runs/` with the same names as
 `extract-run`'s, with sentence numbers and types and no text. Nothing
 changed in the hook, and phase 1 stays an observer.
+
+### In semantic-diff-weaver the agent runs no check as a plain command, so the ledger would verify no claim that a check passed there — 8 November 2026
+
+Distiller is stopped, so on 8 November the user asked whether observing
+`semantic-diff-weaver`, by installing the plugin there (§ A live install in
+semantic-diff-weaver waits for 14 November) or by rebuilding its evidence log
+from its transcripts, would show what the observer's verdicts are worth.
+Before anything was built, its transcripts were counted. Of the 6,547 Bash
+calls on the main thread of its 55 transcripts, 478 (7%) are simple in the
+loader's sense, with no `;`, `&`, `|`, `<`, `>`, parenthesis, backtick or line
+break. 1,295 mention pytest, ruff, mypy or one of its check scripts, and none
+of them runs one as a simple command: the five that are simple read a check
+script with `sed`. The agent there sets a scratchpad variable, chains with
+`&&` and pipes the output to `tail`.
+
+By SPEC § Configuration a command with a shell operator is never a check, and
+for a reason this form shows: a pipe ends with the exit code of its last
+command, so a test run piped to `tail` exits 0 when the tests fail. So in
+`semantic-diff-weaver`, as the ledger stands, no run would be recorded as a
+check, and every `suite_passed` claim would be `UNSUPPORTED`. Most
+`command_run` claims would be as well, since a claim is matched by the
+recorded command's first word, which there is an assignment, a `cd`, a
+parenthesis or `.venv/bin/python`. Only `file_changed` claims, matched against
+the records of `Edit` and `Write`, could be verified.
+
+Distiller, where the observer ran, is the contrast. Of the 1,210 Bash calls on
+the main thread of its transcripts, 416 are simple (34%); of the 544 that
+mention one of its checks, 354 (65%). Its calibration log holds 2,020 claims,
+and of its 1,020 checkable ones it verified 393 (39%) and left 622
+unsupported: 92 of 417 `suite_passed` claims verified, 322 unsupported and 3
+contradicted; 97 of 221 `command_run` claims verified, 122 unsupported and 2
+unknown; 204 of 382 `file_changed` claims verified and 178 unsupported.
+
+So neither an install nor a rebuilt log would show the observer checking what
+the agent says about its checks in `semantic-diff-weaver`: both would confirm
+the count above. The observer could be of use there only if the agent ran its
+checks as plain commands, which would mean telling it so in that project's
+`AGENTS.md`, or if the ledger learned to read some chained forms safely, a
+`cd` or an assignment in front but never a pipe, which changes a rule SPEC
+chose on purpose and would belong to the change of design. The rebuilt log
+was not built, and no configuration was drafted for `semantic-diff-weaver`:
+the configuration is the user's (I-8), and inferring it from a repository is
+one of SPEC's traps. Both questions go to 14 November with the rest. Not
+checked: the verdicts on files and the coverage there, which only a rebuilt
+log or an install would give; a form of running a check that the count above
+missed.
