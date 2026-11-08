@@ -3888,3 +3888,18 @@ one of SPEC's traps. Both questions go to 14 November with the rest. Not
 checked: the verdicts on files and the coverage there, which only a rebuilt
 log or an install would give; a form of running a check that the count above
 missed.
+
+Whether a looser reading would help was counted the same day, from the
+transcripts alone, taking as running a check a command that mentions one and
+does not start by reading a file with `sed`, `cat`, `grep`, `rg`, `head` or
+`less`. Of the 1,137 such commands in `semantic-diff-weaver`'s transcripts,
+1,018 (90%) pipe the check's output, most of them to `tail`, and 119 (10%)
+chain several commands; with a `cd`, assignments, `env -u` and redirections
+in front set aside, none is left a plain command. Of distiller's 523, 354
+(68%) are plain, 125 (24%) piped and 43 (8%) chained, and one more would be
+left plain. So reading chained forms, which this entry left to the change of
+design, would recover nothing: what keeps the observer from checking a claim
+that a test passed in `semantic-diff-weaver` is the pipe, and a pipe can never
+be a check. It would check one there only if the agent ran its checks without
+one, which would have to be asked of it in that project's `AGENTS.md`, and is
+the user's to decide.
