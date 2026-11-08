@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: weaver
-        uses: sergiparpal/semantic-diff-weaver@6e5f5f77061dadb49f8f689e34c9ceb1f1561f8c # v0.19.0
+        uses: sergiparpal/semantic-diff-weaver@d514816bd9b72e4b52bb6a10c4e4c7dc82e8bb49 # v0.19.1
         with:
           base-ref: ${{ github.event.before }}
           head-ref: ${{ github.sha }}
@@ -33,14 +33,6 @@ jobs:
           comment: false
           baseline: none
           fail-on: none
-      - name: Show the review in the job summary
-        if: steps.weaver.outputs.analysis != ''
-        env:
-          ENVELOPE: ${{ steps.weaver.outputs.analysis }}
-        run: >-
-          python3 -c 'import json, os;
-          print(json.load(open(os.environ["ENVELOPE"], encoding="utf-8"))["markdown"])'
-          >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: steps.weaver.outputs.analysis != ''
         with:
