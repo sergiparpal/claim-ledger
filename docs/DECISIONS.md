@@ -3054,6 +3054,20 @@ the review it describes keeps what the rules leave open, and R-11 says that
 anything ambiguous is emitted as `NOT_CHECKABLE`. Whether a vote fits the two
 is left open, since none is taken.
 
+Corrected on 13 November 2026: the Code tab now shows the appendix. Under each
+answer it draws a folded row, "Aviso de Claude Code", and unfolded, that row
+gives the Stop hook's `systemMessage` line by line, each line led by "Stop
+says:". This was seen on 13 November in a session of the desktop app
+(5.11492.2, Claude Code 2.1.321). The session was opened on a scratch folder
+whose fake Stop hook answers in the appendix's form, to try a mod: a plugin of
+function hooks. In October the tab showed nothing of it. The real appendix
+goes out the same way, but has not been seen there yet, since distiller has
+run no turn since 1 November. The same session showed that a mod can also show
+the appendix in three places: above the prompt, in a pane, and in the status
+line. The row the mod is handed carries no text, so it reads the appendix from
+the transcript once the turn completes. No such mod is built. The other
+reasons above for not taking three calls a turn stand.
+
 A change of design has four directions, none of them measured. An extractor of
 the annotator's family is the only reading measured inside the threshold, at
 0.95 and 0.03 against the user on five reports annotated blind and 0.96 to
@@ -3235,6 +3249,10 @@ rebuilt reports count 6 to 87 turns on each day with turns from 31 October to
 the desktop app's Code tab would not show the appendix. Its consequence table,
 which commands are checks and which paths are consequential, would be the
 user's to write (I-8).
+
+Corrected on 13 November 2026: the Code tab now shows the appendix, folded
+under each answer. See the note of that date under § Phase 1 stays an observer
+as it is, and a change of design waits for the decision on distiller.
 
 As the checkout stood on 7 November, on a feature branch with nothing
 uncommitted, three things in it would have to change. Git does not ignore
