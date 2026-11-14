@@ -4316,3 +4316,22 @@ no record: the observer sees only the turns of Claude Code sessions opened in
 distiller. Not checked: what made those commits; that the route answers; the
 account's balance; and the first turn under 0.3.4, which is to be read when it
 comes, in the ledger and in the Code tab.
+
+Later the same day, two of the things left unchecked above were looked at.
+The route answers: `tools/measure_route.py fixture`, run once with
+distiller's configuration and the prompt the hook sends, sent the tests' fixed
+report and had its answer from Mistral in 1.5 seconds: three claims, typed in
+the order recorded on 23 September, `judgment`, `suite_passed` and `intent`,
+and no defect. The spans are now whole sentences, and the `suite_passed`
+names no referent. Distiller's own repository records that its Bet was killed
+on 14 November, at the end of its appetite (its D-007); the user confirmed
+that only the Bet was, and that work on distiller goes on, so the decision
+above stands. By then distiller's main held ten commits after the ledger's
+last turn, three of them made between 14:39 and 15:13 UTC that day. The user
+does not work on distiller with Codex, and no Claude Code session holds a
+command that made one of them: the messages searched for, those of the three
+and of three of the seven before, appear only in sessions that read them
+later, both in `~/.claude` and in the records the desktop app keeps on
+Windows. If they were made by hand, the observer had nothing to audit, since
+it reads an agent's reports, not commits. Not checked: what made them; the
+account's balance; and the first turn under 0.3.4.
