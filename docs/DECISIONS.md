@@ -4257,3 +4257,62 @@ rows of the same table of mutants in the sample of 40. The notes beneath the
 entry on the unsupported claims give the figures as they then stand; no
 conclusion changes. Not checked: the 470 claims outside the sample, read by
 Claude alone.
+
+### Distiller goes on with the observer as it is, and nothing else changes — 14 November 2026
+
+On 7 and 8 November six questions were left for 14 November, and the page the
+user decided phase 1 on listed them: whether distiller goes on; the change of
+design; option B, the plugin installed in `semantic-diff-weaver`; whether an
+extractor whose sampling cannot be pinned may be taken; phase 2 as it is
+written; and, added on 13 November, the limits of the join that leave work
+done untied. The recommendation that went with them was that 14 November need
+settle only distiller, and option B if it was wanted, and that the rest could
+wait. On 14 November the user decided all six that way.
+
+Distiller goes on, and the observer runs there as it is: plugin 0.3.4, run
+from the release copy at `6815f74`, sending `extract-6c` to
+`mistral-medium-3.1` on `mistral/zdr`, one call a turn, phase 1 an observer.
+Nothing in the code, the configuration or the version changes. Distiller's
+last turn ran under 0.3.2 and `extract-4`, so its next turns will be the first
+that 0.3.4 and `extract-6c` run in real use, and the first real appendix to be
+seen in the Code tab, which on 13 November showed a test hook's message folded
+under each answer.
+
+Option B is not taken for now. Nothing is installed in `semantic-diff-weaver`,
+and claim-ledger does not learn to read its configuration from `.claude/`.
+As the entry of 8 November found, the ledger would verify no claim there that
+a check passed, since none of the agent's check runs is a plain command.
+
+The change of design is parked. No measured design of the extraction reaches
+0.90 and 0.10 together, so a change would improve the appendix and bring
+phase 2 no nearer, and whether the appendix's noise matters is to be seen in
+real use first, now that the Code tab shows it. The nine readings of the
+guide, the line on `s` and keeping each claim's sentence number wait with it,
+as the entries of 7 and 8 November left them.
+
+The other three wait. The temperature arises only if a route of Claude's
+family is chosen. Phase 2 as written changes nothing while no extractor nears
+the phase-1 threshold; when one does, R-17, runs left in the background, and
+whether the 9 of 3 November and the 5 and the 6 plans of 8 November count as
+false `VERIFIED` are to be decided with it. The limits of the join stand: of
+the 171 unsupported claims that were work done, 46 fall to three rules
+measured in October, 25 commands run with another first word, in a chain or
+through a script, 7 files changed by a shell command or by git, and 14 checks
+undeclared when they ran or named by an alias, all toward `UNSUPPORTED`.
+
+Before distiller resumes, its install was looked at on 14 November without
+changing anything. From distiller, `claude plugin list --json` gives
+claim-ledger 0.3.4, local scope, enabled, read from the release copy.
+Distiller's `claim-ledger.toml` is byte for byte the copy kept on 7 November,
+and has not changed since 31 October. OpenRouter lists the route's endpoint,
+`mistral/zdr`, with an uptime of 100% over the last 30 minutes; no call was
+sent to it.
+
+The ledger's last turn in distiller is session `75d5aae0`'s, at 20:33 UTC on
+1 November, but distiller has seven commits after it, from 22:33 UTC that day
+to 10:01 UTC on 3 November, and no Claude Code transcript under
+`~/.claude/projects` holds a turn in distiller after that time. That work left
+no record: the observer sees only the turns of Claude Code sessions opened in
+distiller. Not checked: what made those commits; that the route answers; the
+account's balance; and the first turn under 0.3.4, which is to be read when it
+comes, in the ledger and in the Code tab.
