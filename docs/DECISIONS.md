@@ -4489,3 +4489,20 @@ nothing: 0.3.5 at `726e2e1`, the copy clean at 0.3.4, the install local,
 enabled and read from the copy, and a session of distiller that had written
 its transcript less than a minute before. Not checked: the script beyond
 `--dry-run` on the real copy and install, which shipping 0.3.5 will be.
+
+Later the same day the script shipped 0.3.5 (the entry above), and its
+checks after the ship passed: the copy at `726e2e1` and clean, and the
+install reporting 0.3.5 both as installed and as the folder holds it. It
+shipped while a session of distiller was in the middle of a turn, 37 seconds
+after that turn began. The line on the last session was taken once, when the
+script started, and nothing looked at the transcripts again once the
+question was answered, though the answer can come long after the line.
+Whether that is what happened here is not known, since nothing records when
+the script was started. Now, after a yes, the script looks at the project's
+transcripts again, and ships nothing if one was written, or a new one begun,
+while the question was open, since a session that writes is running. With
+`--yes` there is no question and no second look. A session open and idle
+still writes nothing, so the question stays. Three tests cover it, written
+first, and the first two failed until the change: a transcript written while
+the question is open, a session begun meanwhile, and transcripts left alone,
+which still let it ship.

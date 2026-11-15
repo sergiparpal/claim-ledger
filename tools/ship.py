@@ -18,8 +18,11 @@ Nothing moves until every check has passed:
 - the release copy is clean, since it is never edited;
 - the plugin is installed in the project at local scope, enabled, and read
   from the release copy;
-- and a person answers yes, after being shown when a session of the project
-  last wrote its transcript, since only a person knows whether one is open.
+- a person answers yes, after being shown when a session of the project
+  last wrote its transcript, since only a person knows whether one is open;
+- and no transcript of the project was written, or begun, while the question
+  was open, since a session that writes is running whatever the answer says.
+  A session open and idle writes nothing, so this catches only a busy one.
 
 Then it fetches, checks COMMIT out detached and runs the update from the
 project, and it checks the result: the copy at COMMIT and clean, and the
@@ -107,15 +110,25 @@ def main(argv: list[str]) -> int:
     if plan.done:
         print("\nalready shipped: nothing to do")
         return 0
-    print(f"  last session  {last_session(project, args.config_dir.expanduser())}")
+    folder = transcript_folder(project, args.config_dir.expanduser())
+    seen = transcripts(folder)
+    print(f"  last session  {last_session(seen, folder)}")
     if not plan.moves:
         print("\nthe release copy is already at the commit: only the update is left to run")
     if args.dry_run:
         print("\ndry run: nothing moved")
         return 0
-    if not args.yes and not confirmed():
-        print("not shipped: nothing moved")
-        return 1
+    if not args.yes:
+        if not confirmed():
+            print("not shipped: nothing moved")
+            return 1
+        running = written_since(seen, transcripts(folder))  # the answer may come much later
+        if running:
+            whose = "its transcript" if len(running) == 1 else "their transcripts"
+            print(f"not shipped: {', '.join(session[:8] for session in running)} wrote {whose} "
+                  f"while the question was open, so a session of the project is running. "
+                  f"Close it, or if you just did, run this again: nothing moved")
+            return 1
 
     try:
         ship(plan)
@@ -269,22 +282,37 @@ def same(path: object, other: Path) -> bool:
     return isinstance(path, str) and bool(path) and Path(path).resolve() == other.resolve()
 
 
-def last_session(project: Path, config_dir: Path) -> str:
-    """Which of the project's transcripts was written last, and when: a hint, not a check.
+def transcript_folder(project: Path, config_dir: Path) -> Path:
+    """Where Claude Code keeps a project's transcripts: a folder named for its path,
+    each character that is not a letter or a digit turned into a dash."""
+    return config_dir / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(project))
 
-    Claude Code keeps a project's transcripts in a folder named for its path,
-    each character that is not a letter or a digit turned into a dash. A
-    session left open and idle writes nothing, which is why a person is asked.
+
+def transcripts(folder: Path) -> dict[str, int]:
+    """Each transcript in the folder, by session, with when it was last written, in nanoseconds."""
+    written = {}
+    for path in folder.glob("*.jsonl"):
+        try:
+            written[path.stem] = path.stat().st_mtime_ns
+        except OSError:
+            continue  # gone between the listing and the look
+    return written
+
+
+def last_session(written: dict[str, int], folder: Path) -> str:
+    """Which transcript was written last, and when: the hint the person is shown.
+
+    A session left open and idle writes nothing, which is why a person is asked.
     """
-    folder = config_dir / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(project))
-    try:
-        written = sorted((path.stat().st_mtime, path.stem) for path in folder.glob("*.jsonl"))
-    except OSError as error:
-        return f"the transcripts in {folder} could not be read: {error}"
     if not written:
         return f"no transcript of the project in {folder}"
-    when, session = written[-1]
-    return f"{session[:8]} wrote its transcript {ago(time.time() - when)}"
+    session = max(written, key=written.__getitem__)
+    return f"{session[:8]} wrote its transcript {ago(time.time() - written[session] / 1e9)}"
+
+
+def written_since(before: dict[str, int], after: dict[str, int]) -> list[str]:
+    """The sessions whose transcript was written, or begun, between two looks at the folder."""
+    return sorted(session for session, when in after.items() if before.get(session) != when)
 
 
 def ago(seconds: float) -> str:

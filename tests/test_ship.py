@@ -15,6 +15,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import unittest.mock
 from pathlib import Path
@@ -95,17 +96,38 @@ class ShipTest(unittest.TestCase):
                  "commit", "-q", "--allow-empty", "-m", f"make it {version}")
         return self.git(self.repo, "rev-parse", "HEAD")
 
-    def run_ship(self, commit, *flags, answer="yes"):
+    def run_ship(self, commit, *flags, answer="yes", while_asked=lambda: None):
         argv = [commit, "--project", str(self.project), "--release", str(self.release),
                 "--config-dir", str(self.config_dir), *flags]
+
+        def ask(prompt):
+            while_asked()  # whatever happens while the person reads the question
+            return answer
+
         out = io.StringIO()
         with contextlib.redirect_stdout(out), \
-                unittest.mock.patch("builtins.input", return_value=answer):
+                unittest.mock.patch("builtins.input", side_effect=ask):
             code = ship.main(argv)
         return code, out.getvalue()
 
     def head(self):
         return self.git(self.release, "rev-parse", "HEAD")
+
+    def transcript(self, session="22e46465-8757-4a49-84b9-8db95e0d5392", ago=0):
+        """A transcript of the project, where Claude Code keeps it, written `ago` seconds back."""
+        folder = self.config_dir / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(self.project))
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / f"{session}.jsonl"
+        path.write_text("{}\n")
+        written = time.time_ns() - ago * 10**9
+        os.utime(path, ns=(written, written))
+        return path
+
+    def assertNothingMoved(self, code, out, says):
+        self.assertEqual(code, 1, out)
+        self.assertIn(says, out)
+        self.assertEqual(self.head(), self.shipped)
+        self.assertEqual(self.cli.updates(), [])
 
 
 class ShipsTest(ShipTest):
@@ -144,12 +166,6 @@ class ShipsTest(ShipTest):
 
 class NothingMovesTest(ShipTest):
     """Every refusal before the ship leaves the copy where it was and runs no update."""
-
-    def assertNothingMoved(self, code, out, says):
-        self.assertEqual(code, 1, out)
-        self.assertIn(says, out)
-        self.assertEqual(self.head(), self.shipped)
-        self.assertEqual(self.cli.updates(), [])
 
     def test_anything_but_yes_ships_nothing(self):
         for answer in ("no", "", "sí"):
@@ -203,15 +219,41 @@ class FailureTest(ShipTest):
 
 class HintTest(ShipTest):
     def test_the_projects_last_transcript_is_shown(self):
-        folder = self.config_dir / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(self.project))
-        folder.mkdir(parents=True)
-        (folder / "22e46465-8757-4a49-84b9-8db95e0d5392.jsonl").write_text("{}\n")
+        self.transcript()
         code, out = self.run_ship(self.raised, "--dry-run")
         self.assertEqual(code, 0, out)
         self.assertIn("22e46465 wrote its transcript less than a minute ago", out)
 
+    def test_the_newest_of_several_transcripts_is_the_one_named(self):
+        self.transcript("0f1e2d3c-4b5a-4978-8a9b-0c1d2e3f4a5b", ago=3 * 3600)
+        self.transcript(ago=5 * 60)
+        self.assertIn("22e46465 wrote its transcript 5 minutes ago",
+                      self.run_ship(self.raised, "--dry-run")[1])
+
     def test_a_project_with_no_transcript_says_so(self):
         self.assertIn("no transcript of the project in", self.run_ship(self.raised, "--dry-run")[1])
+
+
+class WhileAskedTest(ShipTest):
+    """A transcript written while the question is open means a session of the project is running."""
+
+    def test_a_transcript_written_while_asked_stops_the_ship(self):
+        path = self.transcript(ago=3600)
+        self.assertNothingMoved(*self.run_ship(self.raised, while_asked=lambda: os.utime(path)),
+                                says="22e46465 wrote its transcript while the question was open")
+
+    def test_a_session_begun_while_asked_stops_the_ship(self):
+        self.transcript(ago=3600)
+        code, out = self.run_ship(self.raised, while_asked=lambda: self.transcript(
+            "0f1e2d3c-4b5a-4978-8a9b-0c1d2e3f4a5b", ago=3600))
+        self.assertNothingMoved(code, out,
+                                says="0f1e2d3c wrote its transcript while the question was open")
+
+    def test_transcripts_left_alone_while_asked_let_it_ship(self):
+        self.transcript(ago=3600)
+        code, out = self.run_ship(self.raised)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.head(), self.raised)
 
 
 class EnvironmentTest(unittest.TestCase):
