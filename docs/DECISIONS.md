@@ -4436,3 +4436,30 @@ after that run, which is the mtime test doing its work. The plugin is 0.3.5.
 It is not shipped: distiller runs 0.3.4 from the release copy at `6815f74`
 until its sessions are closed and the copy moves to the new commit (OPERATING
 § Ship a version). Not checked: 0.3.5 in real use.
+
+### The release copy stays out of a session's reach, and a script ships it — 15 November 2026
+
+Shipping 0.3.5 showed that a Claude Code session here cannot ship. The
+sandbox the user's settings give every session lets a command write only in
+the session's folder, its temporary folder and `~/.cache/pre-commit`, so the
+release copy is read-only to it, and `~/.claude/plugins`, which `claude plugin
+update` writes, is among the paths Claude Code protects whatever the settings
+allow. The user was shown what the settings' schema says would open them:
+`sandbox.filesystem.allowWrite` naming the release copy in this project's
+`.claude/settings.local.json`, for this project's sessions alone; or, in the
+user's settings, `allowUnsandboxedCommands`, so that a session may ask to run
+a command outside the sandbox, `sandbox.filesystem.disabled`, or no sandbox.
+None is taken. Those set in the user's settings reach distiller's sessions
+too, whose agent is the one the ledger observes, and it could then write the
+plugin that observes it, or ask to. The first would let a session here move
+the copy, which is a clone apart so that nothing done here can (§ distiller
+runs a release copy, not this tree). And none spares the person the ship,
+since the project's sessions close first and only a person can close them.
+
+So the ship stays a person's, in a terminal, and `tools/ship.py` makes it one
+command with its checks, as OPERATING § Ship a version gives them. Run with
+`--dry-run` against distiller on 15 November, it passed every check and moved
+nothing: 0.3.5 at `726e2e1`, the copy clean at 0.3.4, the install local,
+enabled and read from the copy, and a session of distiller that had written
+its transcript less than a minute before. Not checked: the script beyond
+`--dry-run` on the real copy and install, which shipping 0.3.5 will be.

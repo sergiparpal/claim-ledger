@@ -35,13 +35,30 @@ enabled with `readFromFolder` at `~/code/claim-ledger-release`.
 
 An edit in this repository reaches no project until it is shipped. Commit it
 with the version in `.claude-plugin/plugin.json` raised, close the project's
-sessions, and from the project root:
+sessions, and from the project root, in a terminal:
+
+```bash
+python3 ~/code/claim-ledger/tools/ship.py <commit>
+```
+
+It checks before it moves anything: the commit's version is above the one
+the release copy holds, the copy is clean, and the plugin is installed in the
+project at local scope, enabled and read from the copy. It shows when a
+session of the project last wrote its transcript and asks before it ships,
+since only a person knows whether one is still open. `--dry-run` stops after
+the checks. It then runs these three commands, which are the ship by hand:
 
 ```bash
 git -C ~/code/claim-ledger-release fetch
 git -C ~/code/claim-ledger-release checkout --detach <commit>
 claude plugin update claim-ledger@claim-ledger --scope local
 ```
+
+Afterwards it checks that the copy is at the commit and clean, and that the
+install reports the new version, both installed and as the folder holds it.
+It rolls nothing back: on a failure it says where the copy was left and how
+to put it back. A Claude Code session cannot ship, since its sandbox keeps
+the release copy and `~/.claude/plugins` read-only.
 
 The checkout is the ship. A session left open across it would run the new
 scripts from its next hook, which is why the sessions close first. The update
