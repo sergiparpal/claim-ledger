@@ -4335,3 +4335,88 @@ later, both in `~/.claude` and in the records the desktop app keeps on
 Windows. If they were made by hand, the observer had nothing to audit, since
 it reads an agent's reports, not commits. Not checked: what made them; the
 account's balance; and the first turn under 0.3.4.
+
+### Under 0.3.4 distiller's first forty turns answer inside the deadline, and one fails on a write outside the project — 15 November 2026
+
+The entry of 14 November left the first turns under 0.3.4 to be read when they
+came. Distiller resumed that day, and from 17:41 UTC on 14 November to 11:50
+UTC on 15 November it ran 40 turns in two sessions, `ae32113a` with 7 and
+`22e46465` with 33, the first that plugin 0.3.4 and `extract-6c` have run in
+real use. Read back with `tools/daily_use.py` at 11:53 UTC: 34 turns answered,
+3 came back empty and 3 ended `UNKNOWN`. The hook took 2.5 seconds at the
+median and 10.4 at most, on the first turn, whose report of 4,927 characters
+gave 54 claims, so none passed the deadline of 20 seconds and the slowest took
+about half of it. Neither session's log has a hole: of the 173 calls the
+recorder covers, 169 are recorded, and the other 4 were refused before they
+ran.
+
+The 34 answered turns gave 401 claims: 192 `NOT_CHECKABLE`, 152
+`UNSUPPORTED`, 56 `VERIFIED`, one `STALE` and none `CONTRADICTED`. Of the 20
+claims that a suite passed, 16 are `VERIFIED`, and of the 71 that a command
+ran, 30. Of the 118 that a file changed, 108 are `UNSUPPORTED`: 30 name no
+file, and all but one of the other 78 name nothing the session's log holds a
+write for. `TASKS.md` and `.claude/settings.json` are named 16 times each, and
+the agent rewrote `TASKS.md` by running scripts through Bash, as the log
+shows, which the recorder keeps as commands, not writes: the limit recorded on
+17 October. `main` and `origin/main`, which are branches, are named as files
+10 times. Whether the appendix this makes is too noisy is for the review of
+28 November.
+
+Two of the three `UNKNOWN` are the kind SPEC § Extractor contract has
+described since 1 November: an answer holding a claim with no `referents`,
+which the client refuses, in `ae32113a`'s turn 6 and `22e46465`'s turn 2.
+`extract-6c` gave such an answer in 6 of its 348 stored answers when it was
+measured, and 2 in 40 turns are too few to say whether that rate has moved.
+
+The third is new, and the first of its kind in `errors.log`. In `22e46465`'s
+turn 10, `make verify` passed at 21:40 UTC on 14 November, and 16 seconds
+later the agent wrote a file, `commit-3.txt`, into its session's scratchpad,
+outside the project. The recorder keeps such a path absolute, as `record.py`
+says it does and its tests require. At the Stop, a claim that the suite
+passed was joined to that run, and the log-order test of R-18 handed the
+absolute path to `Glob.matches`, which refuses any path that is not
+project-relative; the pipeline failed on its `ValueError` and the turn was
+marked `UNKNOWN`, as I-9 requires. A failed turn writes nothing to
+`claims.jsonl`, so none of its claims kept a verdict. The test runs only for a
+claim that a suite passed, joined to a passing run, so what sets it off is a
+write outside the project after that run with no write in the check's scope
+before it. Distiller's log holds a write outside the project in 22 turns since
+the first, on 10 October; in 7 of them a `make verify` had run earlier in the
+same session, and in the other 6 the turn's last `make verify` came after the
+write.
+
+Put to the user, three ways to mend it and one to leave it:
+
+- (a) The log-order test in `join.py` passes over a path the recorder kept
+  absolute. That is R-18 and SPEC § Join as they stand: a file outside the
+  project is covered by no scope, and files outside a check's scope cannot
+  make it stale. Such a path is one that `realpath` placed outside the
+  project, so no scope glob can name it, and passing over it gives the verdict
+  R-18 gives; were a file inside the project ever recorded absolute, the mtime
+  test would still see it change on disk. The verdict table does not change,
+  but `join.py` is frozen, so this waits for the user's leave.
+- (b) `Glob.matches` answers no for an absolute path instead of raising. It
+  gives the verdicts of (a) and leaves `join.py` alone, but it moves into the
+  configuration's glob what only the evidence log means by an absolute path,
+  and takes from `Glob.matches` the refusal that makes a path left
+  unnormalised fail loudly; `tier_for` keeps its own.
+- (c) The recorder stops writing paths outside the project into `files`. That
+  changes the evidence log, what `record.py` and its tests say of it, and what
+  coverage does with such a write, which it lists today as `UNREPORTED`, as
+  the appendices of `22e46465` show; and the logs already written keep their
+  absolute paths, so the join would need (a) anyway.
+- (d) Nothing changes. The failure is visible, as I-9 asks, and it has cost
+  one turn in 40.
+
+Any of the first three makes a new version, 0.3.5, with a test that a write
+outside the project after a passing run leaves the claim `VERIFIED` and one
+that a write in the check's scope still makes it `STALE`. It reaches
+distiller only when shipped, with distiller's sessions closed first
+(OPERATING § Ship a version), and it goes back on the decision of 14 November
+that nothing in the code or the version changes. The recommendation is (a),
+the one that does what R-18 already says where the log is read.
+
+Not checked: whether the reports of the three empty answers claim anything
+(two of them are 211 and 249 characters long); which of the 401 claims are
+spurious, which the review of 28 November is to read; and how any of these
+appendices looked in the Code tab, which only the user can see.
