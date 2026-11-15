@@ -4437,6 +4437,32 @@ It is not shipped: distiller runs 0.3.4 from the release copy at `6815f74`
 until its sessions are closed and the copy moves to the new commit (OPERATING
 § Ship a version). Not checked: 0.3.5 in real use.
 
+Shipped the same day, at 14:54:23 UTC, with `tools/ship.py` (the entry that
+follows). The release copy is at `726e2e1` and clean, and `claude plugin list
+--json`, run in distiller, reports 0.3.5 both as installed and as the folder
+holds it. Distiller's session `22e46465` was not closed first: a turn it
+began at 14:53:46 UTC had its Stop at 14:56:49, across the checkout, and the
+session went on to turn 68. Nothing came of it this time. From `6815f74` to
+`726e2e1` the code the hooks run differs only in `join.py`: `sentences.py`
+gained functions no hook calls, the prompt the hook sends is unchanged, and
+`record.py` and `hooks.json` are the same, so the turn that crossed the
+checkout was recorded by the same code on both sides of it. The thirteen
+turns whose Stop came after the ship all answered, the hook taking 1.2 to 4.8
+seconds, with no turn `UNKNOWN`, nothing new in `errors.log` and no hole in
+the recording. None of them took the branch the fix changed: where a suite
+claim came back `VERIFIED`, in turns 61, 62 and 65, the writes outside the
+project came before `make verify`, not after it.
+
+Two more turns had failed on the same error under 0.3.4 after the figures
+above were cut: turn 39 at 12:12 UTC and turn 47 at 12:58 UTC. That makes
+three of the 62 turns distiller ran under 0.3.4, where (d) above counted one
+in 40. Both were replayed as turn 10 was, from the log cut at each turn's
+Stop, with a claim that `make verify` passed, read against the log alone. The
+tree of `6815f74` raises the `ValueError` on all three turns; the release
+copy at `726e2e1`, as distiller runs it, gives `VERIFIED` on all three, `make
+verify ok` at 21:40:50 UTC on 14 November and at 11:57:39 and 12:29:19 UTC.
+Not checked: the fix on a turn in real use.
+
 ### The release copy stays out of a session's reach, and a script ships it — 15 November 2026
 
 Shipping 0.3.5 showed that a Claude Code session here cannot ship. The
