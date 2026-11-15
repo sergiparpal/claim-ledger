@@ -28,6 +28,7 @@ sys.path.insert(0, str(REPO / "tools"))
 import ship  # noqa: E402
 
 REAL_CLAUDE = ship.claude
+ROOT = hasattr(os, "geteuid") and os.geteuid() == 0
 
 
 class FakeClaude:
@@ -101,9 +102,11 @@ class ShipTest(unittest.TestCase):
                 "--config-dir", str(self.config_dir), *flags]
 
         def ask(prompt):
+            self.asked += 1
             while_asked()  # whatever happens while the person reads the question
             return answer
 
+        self.asked = 0
         out = io.StringIO()
         with contextlib.redirect_stdout(out), \
                 unittest.mock.patch("builtins.input", side_effect=ask):
@@ -233,6 +236,20 @@ class HintTest(ShipTest):
     def test_a_project_with_no_transcript_says_so(self):
         self.assertIn("no transcript of the project in", self.run_ship(self.raised, "--dry-run")[1])
 
+    @unittest.skipIf(ROOT, "root reads a folder whatever its mode")
+    def test_transcripts_that_cannot_be_read_are_said_so(self):
+        folder = self.transcript().parent
+        for locked in (folder, folder.parent):  # the project's folder, then the one above it
+            with self.subTest(locked=locked.name):
+                os.chmod(locked, 0)
+                try:
+                    code, out = self.run_ship(self.raised, "--dry-run")
+                finally:
+                    os.chmod(locked, 0o700)
+                self.assertEqual(code, 0, out)
+                self.assertIn(f"the transcripts in {folder} could not be read: Permission denied",
+                              out)
+
 
 class WhileAskedTest(ShipTest):
     """A transcript written while the question is open means a session of the project is running."""
@@ -249,9 +266,42 @@ class WhileAskedTest(ShipTest):
         self.assertNothingMoved(code, out,
                                 says="0f1e2d3c wrote its transcript while the question was open")
 
+    def test_two_sessions_written_while_asked_are_both_named(self):
+        paths = [self.transcript(session, ago=3600) for session in
+                 ("22e46465-8757-4a49-84b9-8db95e0d5392", "0f1e2d3c-4b5a-4978-8a9b-0c1d2e3f4a5b")]
+        code, out = self.run_ship(self.raised, while_asked=lambda: [os.utime(p) for p in paths])
+        self.assertNothingMoved(code, out, says="0f1e2d3c, 22e46465 wrote their transcripts while")
+
     def test_transcripts_left_alone_while_asked_let_it_ship(self):
         self.transcript(ago=3600)
         code, out = self.run_ship(self.raised)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.head(), self.raised)
+
+
+@unittest.skipIf(ROOT, "root reads a folder whatever its mode")
+class UnreadableTest(ShipTest):
+    """Transcripts that cannot be read would hide a session at work: nothing ships without --yes."""
+
+    def setUp(self):
+        super().setUp()
+        self.folder = self.transcript(ago=3600).parent
+        self.addCleanup(os.chmod, self.folder, 0o700)  # runs before the folder is removed
+
+    def test_they_stop_the_ship_before_the_question(self):
+        os.chmod(self.folder, 0)
+        self.assertNothingMoved(*self.run_ship(self.raised),
+                                says="could not be read, so a session writing one")
+        self.assertEqual(self.asked, 0)
+
+    def test_they_stop_the_ship_when_they_turn_unreadable_while_asked(self):
+        code, out = self.run_ship(self.raised, while_asked=lambda: os.chmod(self.folder, 0))
+        self.assertNothingMoved(code, out, says="could not be read, so a session writing one")
+        self.assertEqual(self.asked, 1)
+
+    def test_yes_ships_without_a_look_at_them(self):
+        os.chmod(self.folder, 0)
+        code, out = self.run_ship(self.raised, "--yes")
         self.assertEqual(code, 0, out)
         self.assertEqual(self.head(), self.raised)
 

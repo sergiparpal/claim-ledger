@@ -48,8 +48,10 @@ session of the project last wrote its transcript and asks before it ships,
 since only a person knows whether one is still open. If a transcript of the
 project is written, or a new one begun, while the question is open, it ships
 nothing: a session that writes is running, whatever the answer. One open and
-idle writes nothing, which is why it asks. `--dry-run` stops after the
-checks. It then runs these three commands, which are the ship by hand:
+idle writes nothing, which is why it asks. If the transcripts cannot be read,
+it says so and ships nothing, unless `--yes` tells it to ship without asking.
+`--dry-run` stops after the checks. It then runs these three commands, which
+are the ship by hand:
 
 ```bash
 git -C ~/code/claim-ledger-release fetch

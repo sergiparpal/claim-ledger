@@ -4506,3 +4506,25 @@ still writes nothing, so the question stays. Three tests cover it, written
 first, and the first two failed until the change: a transcript written while
 the question is open, a session begun meanwhile, and transcripts left alone,
 which still let it ship.
+
+The review semantic-diff-weaver wrote for that push (run 43734264845) found
+what the change had dropped without a word: an error while reading the
+transcripts' folder was no longer caught. Against the script before it, with
+the folder above the project's made unsearchable, Python 3.11 and 3.12
+stopped on a `PermissionError` where the line had said the transcripts could
+not be read; 3.13 and 3.14 took that folder for an empty one, before and
+after. A project's folder that could not be read passed for one with no
+transcript on all four versions, before and after, which the review could not
+see: the line said there was none, and the second look found nothing written.
+Now the script reads the folder itself, not through `Path.glob`, which treats
+a folder it cannot read differently from one version to the next. A folder
+that is not there holds no transcript; one that cannot be read is named as
+such in the line, and nothing ships, before the question or after it, unless
+`--yes` says to ship without asking. Five tests were added, and three failed
+before the change, one of them on 3.12 with that `PermissionError`: the line
+on such a folder, the refusal before the question, the refusal when the
+folder turns unreadable while the question is open, `--yes` still shipping,
+and the message naming two sessions, which the review had found untested.
+Those two were the findings of its ten worth acting on. The other eight
+restate the change, and its mapping to tests, which leaves test files unread,
+named none of the tests that cover it.

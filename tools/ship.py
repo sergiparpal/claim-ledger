@@ -22,7 +22,9 @@ Nothing moves until every check has passed:
   last wrote its transcript, since only a person knows whether one is open;
 - and no transcript of the project was written, or begun, while the question
   was open, since a session that writes is running whatever the answer says.
-  A session open and idle writes nothing, so this catches only a busy one.
+  A session open and idle writes nothing, so this catches only a busy one,
+  and transcripts that cannot be read would hide even that: then nothing
+  ships, unless --yes says to ship without asking.
 
 Then it fetches, checks COMMIT out detached and runs the update from the
 project, and it checks the result: the copy at COMMIT and clean, and the
@@ -93,7 +95,8 @@ def main(argv: list[str]) -> int:
                         default=Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude"),
                         help="where Claude Code keeps its transcripts (default: ~/.claude)")
     parser.add_argument("--dry-run", action="store_true", help="check everything, move nothing")
-    parser.add_argument("--yes", action="store_true", help="do not ask before shipping")
+    parser.add_argument("--yes", action="store_true",
+                        help="ship without asking, and so without a second look at the transcripts")
     args = parser.parse_args(argv)
     project = args.project.expanduser().resolve()
     release = args.release.expanduser().resolve()
@@ -119,10 +122,17 @@ def main(argv: list[str]) -> int:
         print("\ndry run: nothing moved")
         return 0
     if not args.yes:
+        if isinstance(seen, str):
+            print(f"\nnot shipped: {unseen(folder)}: nothing moved")
+            return 1
         if not confirmed():
             print("not shipped: nothing moved")
             return 1
-        running = written_since(seen, transcripts(folder))  # the answer may come much later
+        now = transcripts(folder)  # the answer may come much later
+        if isinstance(now, str):
+            print(f"not shipped: {unseen(folder)}: nothing moved")
+            return 1
+        running = written_since(seen, now)
         if running:
             whose = "its transcript" if len(running) == 1 else "their transcripts"
             print(f"not shipped: {', '.join(session[:8] for session in running)} wrote {whose} "
@@ -288,22 +298,37 @@ def transcript_folder(project: Path, config_dir: Path) -> Path:
     return config_dir / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(project))
 
 
-def transcripts(folder: Path) -> dict[str, int]:
-    """Each transcript in the folder, by session, with when it was last written, in nanoseconds."""
+def transcripts(folder: Path) -> dict[str, int] | str:
+    """Each transcript in the folder, by session, with when it was last written in
+    nanoseconds; or, when the folder is there but cannot be read, why not.
+
+    A folder that is not there holds no transcript: the project has had no session.
+    Path.glob is not used, since how it treats a folder it cannot read differs
+    between Python versions, and here that folder must not pass for an empty one.
+    """
+    try:
+        with os.scandir(folder) as entries:
+            found = [entry for entry in entries if entry.name.endswith(".jsonl")]
+    except FileNotFoundError:
+        return {}
+    except OSError as error:
+        return error.strerror or type(error).__name__
     written = {}
-    for path in folder.glob("*.jsonl"):
+    for entry in found:
         try:
-            written[path.stem] = path.stat().st_mtime_ns
+            written[entry.name.removesuffix(".jsonl")] = entry.stat().st_mtime_ns
         except OSError:
             continue  # gone between the listing and the look
     return written
 
 
-def last_session(written: dict[str, int], folder: Path) -> str:
+def last_session(written: dict[str, int] | str, folder: Path) -> str:
     """Which transcript was written last, and when: the hint the person is shown.
 
     A session left open and idle writes nothing, which is why a person is asked.
     """
+    if isinstance(written, str):
+        return f"the transcripts in {folder} could not be read: {written}"
     if not written:
         return f"no transcript of the project in {folder}"
     session = max(written, key=written.__getitem__)
@@ -313,6 +338,12 @@ def last_session(written: dict[str, int], folder: Path) -> str:
 def written_since(before: dict[str, int], after: dict[str, int]) -> list[str]:
     """The sessions whose transcript was written, or begun, between two looks at the folder."""
     return sorted(session for session, when in after.items() if before.get(session) != when)
+
+
+def unseen(folder: Path) -> str:
+    """Why nothing ships while the transcripts cannot be read, unless --yes says to."""
+    return (f"the transcripts in {folder} could not be read, so a session writing one while "
+            f"the question is open would not be seen. Make them readable, or pass --yes")
 
 
 def ago(seconds: float) -> str:
