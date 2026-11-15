@@ -233,6 +233,14 @@ class HintTest(ShipTest):
         self.assertIn("22e46465 wrote its transcript 5 minutes ago",
                       self.run_ship(self.raised, "--dry-run")[1])
 
+    def test_a_transcript_gone_before_its_date_is_read_is_passed_over(self):
+        folder = self.transcript(ago=5 * 60).parent
+        # listed in the folder, with no date to read: as if removed between the two
+        (folder / "0f1e2d3c-4b5a-4978-8a9b-0c1d2e3f4a5b.jsonl").symlink_to(self.tmp / "gone")
+        code, out = self.run_ship(self.raised, "--dry-run")
+        self.assertEqual(code, 0, out)
+        self.assertIn("22e46465 wrote its transcript 5 minutes ago", out)
+
     def test_a_project_with_no_transcript_says_so(self):
         self.assertIn("no transcript of the project in", self.run_ship(self.raised, "--dry-run")[1])
 
