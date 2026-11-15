@@ -212,7 +212,11 @@ def _stale_because(check: evidence.Entry, entries: Sequence[evidence.Entry],
             continue
         for written in entry.record.get("files") or []:
             path = written.get("path")
-            if isinstance(path, str) and _covered(path, globs):
+            # The recorder keeps a path outside the project absolute, and every
+            # scope is project-relative, so no check covers such a write.
+            if not isinstance(path, str) or Path(path).is_absolute():
+                continue
+            if _covered(path, globs):
                 return f"{path} was written after it, at log position {entry.position}"
     newest = tree.newest(globs)
     ran_at = check.record.get("ts_end") or ""

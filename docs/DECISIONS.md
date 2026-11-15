@@ -4420,3 +4420,19 @@ Not checked: whether the reports of the three empty answers claim anything
 (two of them are 211 and 249 characters long); which of the 401 claims are
 spurious, which the review of 28 November is to read; and how any of these
 appendices looked in the Code tab, which only the user can see.
+
+Later the same day the user chose (a). With the user's leave, since `join.py`
+is frozen with the verdict table, its log-order test now passes over a path
+the recorder kept absolute; the verdict table did not change. Two tests of
+the freshness rule were written first, and both failed with turn 10's
+`ValueError`: a write outside the project after a passing check scoped `**/*`
+leaves the claim `VERIFIED`, and such a write does not hide a later one
+inside the scope, which still makes the check `STALE`. Turn 10 was then
+replayed from distiller's log, cut at that turn's Stop, with a claim that
+`make verify` passed. Before the change it raised the same error. After it,
+the log alone gives `VERIFIED`, `make verify ok` at 21:40:50 UTC, and
+distiller's tree as it is now gives `STALE`, because `TASKS.md` has changed
+after that run, which is the mtime test doing its work. The plugin is 0.3.5.
+It is not shipped: distiller runs 0.3.4 from the release copy at `6815f74`
+until its sessions are closed and the copy moves to the new commit (OPERATING
+§ Ship a version). Not checked: 0.3.5 in real use.

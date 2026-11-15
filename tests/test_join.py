@@ -204,6 +204,12 @@ class FreshnessTest(JoinTest):
         stamp = 1789000000 if mtime == "old" else 1790000000
         os.utime(path, (stamp, stamp))
 
+    def elsewhere(self):
+        """A folder outside the project, as a session's scratchpad is."""
+        other = tempfile.TemporaryDirectory()
+        self.addCleanup(other.cleanup)
+        return Path(other.name).resolve()
+
     def test_log_order_alone_makes_it_stale(self):
         self.check()
         self.mutation("src/engine.py")     # nothing of this exists on disk
@@ -228,6 +234,25 @@ class FreshnessTest(JoinTest):
         self.mutation("docs/guide.md")     # not in python-suite's scope
         self.assertEqual(self.verdicts(self.claim("the tests pass", "suite_passed", "pytest")),
                          [join.VERIFIED])
+
+    def test_a_write_outside_the_project_cannot_make_it_stale(self):
+        # distiller, 14 November 2026: a file written into the session's scratchpad
+        # after a passing make verify, which the recorder keeps as an absolute path
+        outside = self.elsewhere() / "scratchpad" / "commit-3.txt"
+        self.age(self.root / config.CONFIG_FILENAME)  # the only file lint covers
+        self.check(check_id="lint", command="ruff check .", ts_end=LATER)  # scope **/*
+        self.mutation(outside.as_posix())
+        judged = self.judge_one(self.claim("lint is clean", "suite_passed", "lint"))
+        self.assertEqual(judged.verdict, join.VERIFIED)
+        self.assertEqual(judged.scope, f"ruff check . ok at {LATER}")
+
+    def test_a_write_outside_the_project_hides_no_later_write_inside_it(self):
+        self.check()
+        self.mutation((self.elsewhere() / "scratchpad" / "commit-3.txt").as_posix())
+        self.mutation("src/engine.py")     # covered by python-suite, after the one outside
+        judged = self.judge_one(self.claim("the tests pass", "suite_passed", "pytest"))
+        self.assertEqual(judged.verdict, join.STALE)
+        self.assertIn("src/engine.py was written after it", judged.scope)
 
     def test_the_ledger_writing_its_own_log_does_not_make_a_check_stale(self):
         self.write("README.md", mtime="old")
