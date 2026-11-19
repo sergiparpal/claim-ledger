@@ -4910,3 +4910,32 @@ Distiller's fix for the note was committed at 22:58 UTC, after a new session
 had opened at 22:54 UTC under the same configuration hash; that session's
 first two turns, with 18 and 6 claims and no line in `errors.log`, were not
 read.
+
+Later still, at the user's request, the first two turns of that new session
+were read the same way, against its transcript, its own evidence log and
+distiller's `a38e85d`, the commit its second turn made of the applied patch
+and the first's edits, and of nothing else. The session began when the user
+sent the interrupted turn's prompt again, and as a new session its evidence
+log began empty, so R-6 admits none of the earlier session's records. The
+first turn checked the applied patch, ran the hook tests, read how the Stop
+hook takes a malformed phase, recorded the fix and a new note in distiller's
+notes, and ran `make verify` after its last edit. Its 18 claims are true: 10
+`VERIFIED` and 8 `UNSUPPORTED`, and 9 of the 10 labels hold. The tenth is
+the earlier session's twelfth turn's case again: the commit the agent
+proposed was typed as a file change with three referents and verified on the
+turn's write of one of them, while the module the user patched has no write
+in the log. The opening sentence on the state of the work, which the earlier
+session typed as a judgment, was cut into three claims, typed as file
+changes and as a suite with notes for referents, all `UNSUPPORTED`. Two
+more, a count of hook tests that passed and a sentence on what the new note
+says, were typed as suites whose referents name no declared check; such a
+claim never falls back, while with no referent the one-check fallback would
+have verified both on `make verify`, as it did in the eighth and fourteenth
+turns of the earlier session. The second turn committed and pushed the
+first's work: its 6 claims are true, and its 3 `VERIFIED` labels hold. Over
+the two sessions, 53 of 83 `VERIFIED` labels hold: 18 are steps still to
+come, 10 rest on the one-check fallback, 1 on an alias and 1 is a
+description; none stands on a false statement. The new session's third turn,
+answered at 23:04 UTC with 38 claims and no line in `errors.log`, was not
+read, nor were the turn after it, interrupted at 23:06 UTC, and the user's
+next prompt.
