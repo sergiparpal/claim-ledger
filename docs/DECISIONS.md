@@ -4939,3 +4939,31 @@ description; none stands on a false statement. The new session's third turn,
 answered at 23:04 UTC with 38 claims and no line in `errors.log`, was not
 read, nor were the turn after it, interrupted at 23:06 UTC, and the user's
 next prompt.
+
+Later still, at the user's request, the new session's third turn was read
+the same way, against its transcript and distiller's `a38e85d`. Asked for a
+plan for the note the first turn had logged, the agent read the hooks'
+shared module, the hook that guards edits, how the hook that guards reads
+takes the phase, the hooks' matchers and the two tests that pin the message,
+and edited nothing. Its 38 claims are true, as facts or as steps of the
+plan, but for one that is open to question: it says that the task expressly
+asks for two tests to be changed, which distiller's instructions forbid
+unless the task says so, while the note says only that changing the
+message's words changes those tests. One true claim is loose: a test pins
+that the Stop hook ends the turn, not the sentence it ends it with. Thirteen
+claims came from the code lines of a diff in the report, typed as file
+changes and `UNSUPPORTED`; a diff of the same kind in the earlier session's
+fourteenth turn gave none. None of the 6 `VERIFIED` labels holds. All are
+steps of the plan, verified on the first turn's run of the hook tests, its
+run of `make verify` and its writes of the two notes files, which R-6
+admits; one, on what the two tests would require once the change was made,
+has no referent and was verified through the one-check fallback on `make
+verify`. So the new session's empty log lasted only until it had records of
+its own: this is the fourth plan in the two sessions, after the sixth, tenth
+and fourteenth turns of the earlier one, whose steps read as verified on the
+records of the last turn that did work of the same kind. Over the two
+sessions, 53 of 89 `VERIFIED` labels hold: 24 are steps still to come, 10
+rest on the one-check fallback, 1 on an alias and 1 is a description; none
+stands on a false statement. The new session's fourth turn, the answer to
+the prompt the user sent after the interrupted one, came at 23:10 UTC with
+41 claims and no line in `errors.log`, and was not read.
