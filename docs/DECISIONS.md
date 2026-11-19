@@ -4776,3 +4776,20 @@ for steps still to come, typed the three as a suite that passed and two file
 changes. Whether they count as false `VERIFIED` is the user's to decide with
 phase 2, and is not decided. A seventh turn, answered at 20:29 UTC with 20
 claims, 5 of them `VERIFIED`, was not read.
+
+Later still, at the user's request, the seventh turn was read the same way,
+against the transcript and the files it wrote to its session's scratchpad.
+Told to go ahead with the plan, the agent wrote the patch by hand into its
+scratchpad, since its settings deny it the hooks' folder and the permission
+system refused the copy it tried first, and checked the patch there without
+touching the repository. Its 20 claims are true: 5 `VERIFIED`, 10
+`UNSUPPORTED` and 5 `NOT_CHECKABLE`. The `VERIFIED` that the patch was
+written holds. The other four are the checks run on the patch and on a copy
+of its helper, `git apply --check`, the formatter, the type checker and the
+helper's answers, typed as suites that passed with no referent and verified
+through the one-check fallback on the fourth turn's run of `make verify`,
+which says nothing of them: the fourth turn's case, four times over. Their
+twins typed as command runs, which name the commands that did run, are
+`UNSUPPORTED`, since those commands ran in a chained line that began with an
+assignment, and the first-token rule compares the line's first word. An
+eighth turn, answered at 20:35 UTC with 14 claims, was not read.
