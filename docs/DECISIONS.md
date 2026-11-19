@@ -4872,3 +4872,41 @@ labels hold: 10 rest on the one-check fallback, 1 is a description and 9 are
 steps still to come; none stands on a false statement. The fourteenth and
 fifteenth turns, answered at 21:20 and 22:46 UTC with 21 and 12 claims and
 no line in `errors.log`, were not read.
+
+Later still, at the user's request, the fourteenth and fifteenth turns were
+read the same way, against the transcript, distiller's `5b7e49d` with its
+decision records, and the files the fifteenth wrote to its scratchpad. The
+fourteenth proposed a plan for the note on an outdated docstring in the
+hooks' shared module, after one search of the hooks and their tests, and
+edited nothing. Its 21 claims are true, as facts or as steps of the plan: 8
+`VERIFIED`, 6 `UNSUPPORTED` and 7 `NOT_CHECKABLE`. None of the 8 labels
+holds. All are steps still to come, verified on the twelfth turn's run of
+`make verify`, its run of the hook tests and its writes of the two notes
+files. One of them, a result expected from the hook tests, has no referent
+and was verified through the one-check fallback on `make verify`, which runs
+no hook test, so its label would be misplaced even once the step was taken.
+Each of the session's three plans, in the sixth, tenth and fourteenth turns,
+shows its steps as verified on the records of the last turn that did work of
+the same kind, while the eleventh and fifteenth, which carried a plan out,
+typed the steps they left as intents. Told to go ahead, the fifteenth wrote
+the third patch and a copy of the new docstring to its scratchpad and
+checked them without touching the repository. Its 12 claims are true: 2
+`VERIFIED`, 5 `UNSUPPORTED` and 5 `NOT_CHECKABLE`. The label on the patch's
+write holds. The other is the case of 3 November again, reached for the
+first time in this session through an alias rather than the one-check
+fallback: the linter's run on the copy, which reported one finding and
+exited 1, was typed as a suite that passed and named the linter's command,
+which an alias in distiller's configuration maps to `make verify`, so it was
+verified on the twelfth turn's run, made nearly two hours before the patch
+existed. Its twin typed as a command run is `UNSUPPORTED` under the
+first-token rule, since the line began with an assignment, and the two other
+checks typed as suites that passed are `UNSUPPORTED` too, since they named
+commands with no alias. Over the session's first fifteen turns, 41 of 70
+`VERIFIED` labels hold: 17 are steps still to come, 10 rest on the one-check
+fallback, 1 on an alias and 1 is a description; none stands on a false
+statement. The sixteenth turn was interrupted three seconds after its
+prompt, at 22:53 UTC, so no Stop hook ran and nothing was captured.
+Distiller's fix for the note was committed at 22:58 UTC, after a new session
+had opened at 22:54 UTC under the same configuration hash; that session's
+first two turns, with 18 and 6 claims and no line in `errors.log`, were not
+read.
