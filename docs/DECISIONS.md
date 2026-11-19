@@ -4756,3 +4756,23 @@ the user's to decide and is not decided. Two sentences that state facts gave
 no claim, both true. The session's fifth and sixth turns, answered at 20:19
 and 20:25 UTC with 7 and 36 claims and no line in `errors.log`, were not
 read.
+
+Later still, at the user's request, the fifth and sixth turns were read the
+same way, against the transcript and distiller's `6931580`. The fifth
+committed and pushed the fourth's edits: its 7 claims are true, and its 3
+`VERIFIED` labels hold. The sixth proposed a plan for one of the notes the
+fourth had logged, and edited nothing. Of its 36 claims, 17 state facts about
+distiller's hooks and their tests, all true, and 19 are steps of the plan.
+None of its 4 `VERIFIED` labels covers its claim, and all four rest on
+records of the fourth turn, which R-6 admits. One describes what a test of
+the hooks would run, and is true, but was typed as a command run with `make
+verify` as its referent and verified on the agent's own run of it. The other
+three are steps still to come, running `make verify` and editing two of
+distiller's notes files, verified on that run and on the fourth turn's
+writes of the same files, so that the appendix shows them as done. That is
+the kind of the 6 plans of 8 November, verified on a record made earlier in
+their turn, here made in an earlier turn. `extract-6c`, which carries a rule
+for steps still to come, typed the three as a suite that passed and two file
+changes. Whether they count as false `VERIFIED` is the user's to decide with
+phase 2, and is not decided. A seventh turn, answered at 20:29 UTC with 20
+claims, 5 of them `VERIFIED`, was not read.
