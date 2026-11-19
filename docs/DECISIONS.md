@@ -4643,3 +4643,96 @@ one in use, `c1924bd8`, had had its turns `UNKNOWN` for the change since 13:55
 UTC (I-8). The values are as measured, and the file now differs from
 `corpus/routes/mistral-medium-3-5.toml` in that comment only; its sha256 is
 `85f45c25f8dc`. The private corpora copy is still the configuration of 3.1.
+
+Later still, at the user's request, the private corpora copy was brought to
+the new route too; the copy of 7 November stays in that repository's history.
+
+### Under medium 3.5 distiller's first three turns are answered, and every `VERIFIED` label among their 79 claims holds — 19 November 2026
+
+The entry above left a turn of distiller under the new route unchecked. The
+first session opened under it, `cc5406b6`, hashed the configuration
+`85f45c25f8dc` at 18:12:29 UTC, and its first three turns were answered by
+`mistralai/mistral-medium-3-5` on `mistral/zdr` with `extract-6c+bf5a552b`,
+the route each of their claims carries in `claims.jsonl`. Read back with
+`tools/daily_use.py`: turn 1 at 18:21 UTC, a report of 3,610 characters and 32
+claims, the Stop hook 4.7 seconds; turn 2 at 18:46, 3,883 characters and 28
+claims, 4.8 seconds; turn 3 at 19:56, 1,803 characters and 19 claims, 2.9
+seconds. Under 3.1 the daily medians had been 2.6 to 3.5 seconds, from 14 to 17
+November. None came back empty, and `errors.log` holds no line of the session.
+Its last line is `c1924bd8`'s turn 75 at 18:02:47 UTC, the twelfth of that
+session's turns, 64 to 75, that were `UNKNOWN` for the configuration's change
+(I-8). A fourth turn was answered at 20:09 UTC, in 4.0 seconds with 21 claims,
+and was not read.
+
+At the user's request, Claude read each of the first three turns' 79 claims
+for whether it is true, against what its turn had before it: distiller's tree
+at `e75eeee` for turns 1 and 2, which edited nothing, and at `abc81c3`, the
+commit turn 3 made, for turn 3; the session's transcript, its tool calls and
+the outputs the claims rest on; and, where a report gave a figure that its
+counts determine, the figure computed again. The types the extractor gave
+were not judged, and no report text is quoted here.
+
+| Turn | The report | Claims | `VERIFIED` | `STALE` | `UNSUPPORTED` | `NOT_CHECKABLE` | True in full |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | what is left open | 32 | 1 | 0 | 5 | 26 | 32 |
+| 2 | a plan for a structural change | 28 | 0 | 0 | 15 | 13 | 27 |
+| 3 | the change, committed and pushed | 19 | 7 | 2 | 7 | 3 | 17 |
+| All | | 79 | 8 | 2 | 27 | 42 | 76 |
+
+Every `VERIFIED` label holds: the run or the write it names happened, with the
+outcome and at the time it gives, as none of those read on 8 November failed
+to (§ No verified claim of real use read is false…). Five are claims that a
+command ran and three that a file changed. Turn 1's is a command run inside a
+chained line, with its output: the label vouches for the run, whose `ok` is
+the line's and so its last command's, and the output, which the record does
+not hold, is in the transcript as the report gives it. Turn 3's seven are the
+push, in two claims, the new functions of the module it wrote, its edits of
+`TASKS.md` and `HANDOFF.md`, and the runs of `make verify` and `make check`.
+The last comes from a sentence that also says `make check` adds gitleaks to
+what `make verify` runs, which is inexact: distiller's Makefile has `check:
+verify audit`, and `make verify` already runs gitleaks. The label, `make
+check` ok at 19:55:43 UTC, is right; the sentence's other claim, that a suite
+passed, is one of the two `STALE`, and both are among the three not true in
+full.
+
+Both `STALE` are true in what they say of the runs. The claim that `make
+verify` passed was joined to its run at 19:54:20 UTC, and `TASKS.md`, inside
+its scope `**/*`, was written 28 seconds later, so R-18 made it stale, as it
+should. The claim on `make check` names no declared check: `make check` is not
+among distiller's `[checks]`, and of its referents only `gitleaks` resolved,
+through its alias, to `verify`. So it was joined to that same run of `make
+verify` and given the same verdict and scope, although `make check` ran after
+every edit, at 19:55:43 UTC. That is the downgrade for a check named by an
+alias that resolves to another, among the join's limits counted on 8
+November.
+
+Of the 27 `UNSUPPORTED`, 26 are true. In turn 1 the report lists four
+commands as run, and all four ran, each inside a chained line. Three of the
+lines began with `for` or `echo`, and the first-token rule of SPEC § Join,
+verdicts and coverage found none of them: the commands "run with another first
+word, in a chain" of 8 November, again. The fourth was verified because its
+line began with `git`, from a `git fetch --dry-run` before it, and the rule
+looks for the claim's further tokens anywhere in the line. A claim naming `git`
+with words that ran in different commands of one chain would be verified the
+same way; here the command had run. Nothing is changed for it: `join.py` is
+frozen, and the join's limits were postponed on 14 November.
+
+The one claim read as partly wrong is in turn 2: a sentence of the plan, typed
+as a command run and left `UNSUPPORTED`, whose premise is that with no phase
+open distiller's hooks watch nothing. Its Stop hook, `check_on_stop.py`, runs
+`make verify` inside bubblewrap at the end of every turn when no phase is open,
+and would block a red one; it ran after turn 3, and wrote
+`.claude/stop-state.json` at 19:57:03 UTC. What needs a phase is the guard on
+`tests/` and on the files that configure the checks, which is what the plan
+went on to check with `git diff --stat`.
+
+Four sentences that state facts gave no claim at all, all four true: two in
+turn 1, on what distiller's SPEC records, and two in turn 3, on the size of its
+diff and on a run the agent did not make.
+
+Not checked: nothing was run in distiller, and GitHub was not asked, so the
+push is read from its own output and from the local count `0 0`. Whether `make
+test-hooks` now runs from the agent's shell, which turn 1 left unchecked and
+distiller's D-013 marks [VERIFY], is still open. Distiller's local settings
+file was not read, nor the calls' cost or the balance. This is Claude's
+reading, not the user's, of three turns of one session.
