@@ -4528,3 +4528,103 @@ and the message naming two sessions, which the review had found untested.
 Those two were the findings of its ten worth acting on. The other eight
 restate the change, and its mapping to tests, which leaves test files unread,
 named none of the tests that cover it.
+
+### The route's endpoint is gone, and distiller moves to medium 3.5, which scores the same at six times the cost — 19 November 2026
+
+From 16:18 UTC on 17 November 2026 every turn of distiller ended `UNKNOWN`,
+"the model call returned HTTP 404": 99 turns by 13:44 UTC on 19 November, in
+four sessions, `3d4db943`'s turns 83 to 109, `7f53b9e6`'s 1 to 5,
+`acb7f748`'s 1 to 4 and `c1924bd8`'s 1 to 63. The last turn answered is
+`3d4db943`'s turn 82, at 15:43 UTC on 17 November. Distiller's configuration
+had not changed: its sha256 was `7d04dfe87a91`, as since 31 October.
+OpenRouter's public list of the model's endpoints, read on 19 November, holds
+one, `mistral/eu`, with an uptime of 0 over the last day, and no
+`mistral/zdr`, the endpoint the route pins with fallbacks off, so nothing may
+answer: the case of 18 October again. The client keeps no error body, so
+OpenRouter's own words for the refusal were not read. All 99 reports were
+captured, so the corpus loses nothing, and I-9 held: no turn read as clean.
+It was found on 19 November, when the user asked what was open, about 45
+hours after it began. Before it, from 08:15 to 09:52 UTC on 16 November, 8 of
+`3d4db943`'s turns, between 23 and 39, ended `UNKNOWN` on HTTP 429, the first
+in real use since one on 24 October; whether they had to do with the
+endpoint's going is not known.
+
+Two of Mistral's models were looked at in OpenRouter's lists that day, and
+both have a zero-retention endpoint that answers. `mistralai/mistral-large-4-0`
+reasoned under every switch it accepted on 6 November and took 28 seconds or
+more a call, so it is no candidate. `mistralai/mistral-medium-3-5` had never
+been measured here. It takes a `reasoning` parameter, which 3.1 does not, and
+on `mistral/zdr` it lists $1.50 and $7.50 a million tokens in and out, where
+3.1's run of 5 November cost exactly what $0.40 in, $2.00 out and $0.04 for
+cache reads make. OpenRouter gives it an expiry date, 31 January 2027, so the
+route will have to move again by then. No other model was screened; of those
+screened on 6 November, the one that did better than 3.1, `mimo-v2.6-pro`,
+passed 20 seconds in 28 of its 81 calls.
+
+At the user's leave it was tried. Its file,
+`corpus/routes/mistral-medium-3-5.toml`, is distiller's configuration with the
+model changed and `[extractor.parameters.reasoning]` set to `effort = "none"`,
+the switch the file for `mistral-large-4-0` sends. One call on the fixed
+report answered in 1.5 seconds, with one text block and no thinking tokens,
+for $0.0048. It then ran the annotated corpus once, and, at the user's
+request, twice more, with `extract-6c+bf5a552b`, the fixed report every tenth
+call and a wall clock of 150 seconds:
+`corpus/runs/mistral-medium-3-5-extract-6c+bf5a552b.jsonl`, one pass from
+13:15 to 13:23 UTC, and the same name with `-r2`, two passes from 13:27 to
+13:42 UTC. Both runs use the default seed, so the second one's first pass asks
+in the first one's order. `tools/measure_recall.py` reads a file as one
+candidate, so the three passes were scored from a copy that appends the second
+run to the first with its passes numbered 2 and 3; the files kept are as the
+runs wrote them.
+
+| Against the reference of 5 November | Recall, each pass | Spurious share, each pass | Turns `UNKNOWN`, of 81 | Median call, 95th percentile, max | Three passes |
+| --- | --- | --- | --- | --- | --- |
+| `mistral-medium-3.1`, 5 November | 0.78, 0.79, 0.81 | 0.47, 0.48, 0.47 | 1, 2, 2 | 4.1s, 11.8s, 18.8s | $0.51 |
+| `mistral-medium-3-5`, 19 November | 0.79, 0.79, 0.78 | 0.48, 0.48, 0.48 | 2, 2, 1 | 3.6s, 10.6s, 15.8s | $3.06 |
+
+Judged by its worst pass, as SPEC § Corpus capture judges a candidate, 3.5
+finds 775 of 991 checkable claims, 0.782, and 1,168 of the 2,422 claims it
+extracts match nothing, 0.482; 3.1's worst passes give 0.783 and 0.485. So it
+scores as 3.1 does, nowhere near 0.90 and 0.10, and the route stays
+provisional, phase 1 an observer. All five answers it failed to give hold a
+claim without `referents`: three on `5c242525-9f26-4118-af54-0ffc20d10be3-3`,
+one in each pass, and two on `3b5c0fac-afd7-4b93-b6f5-9f01e39890d2-1`; 3.1
+failed on both reports too, and on one more. None of its 271 calls carried
+thinking tokens. All 243 calls on captured reports came back inside 20
+seconds and 242 inside 15: its first byte comes later, at 3.0 seconds against
+0.7 at the median, and the rest faster, at 574 tokens a second against 232.
+It varies as 3.1 does: 9 of the 81 reports got the same answer in all three
+passes, against 10, and the fixed report 4 distinct answers in 28 calls,
+against 4 in 26. For both, the join could match the referents of 56% of the
+checkable claims.
+
+It costs six times as much: $3.06 for the three passes, $0.0113 a call,
+against 3.1's $0.51 and $0.0019. List prices understate it, since
+`mistral/zdr` bills the cached part of the prompt at the full $1.50: the first
+pass's $1.0111 is exactly 133,017 tokens in and 232,784 read from cache at that
+price, and 61,654 out at $7.50. At $0.0113 a turn, a day of distiller like 18
+November, 64 turns, costs about $0.72, and the $10.60 left on the account
+after the passes lasts about two weeks of such days.
+
+At the user's request distiller's configuration took the route at 13:46 UTC
+on 19 November. Only the model line and the reasoning table changed, so the
+file is byte for byte the one measured; its sha256 is now `96c7abe87ad1`. The
+release copy's code, 0.3.5, loads it as `mistralai/mistral-medium-3-5` on
+`mistral/zdr` with `temperature` 0, `reasoning` `{"effort": "none"}`, a
+deadline of 20 seconds and a turn budget of 23, and `tools/measure_route.py
+fixture` through it had Mistral's answer in 1.3 seconds. Nothing was shipped:
+the route is configuration, and the client sends `[extractor.parameters]` as
+written. Session `c1924bd8` hashed the configuration on 18 November and ran a
+turn two minutes before the change, so any turn it runs after it is `UNKNOWN`
+for the change (I-8), as its turns were for the 404; the route applies from
+the next session. The file it replaced is the copy in the private corpora
+repository, which was not updated.
+
+Left as they are, for the user: SPEC § Extractor contract and its example
+configuration, the repository's sample configuration, which is frozen, and
+CLAUDE.md's FROZEN row for the route, which all name 3.1; and the comment
+above `model` in distiller's configuration, which still tells 3.1's story, so
+that the file stays the one measured. Not checked: a turn of distiller under
+the new route, which needs a new session; 3.5 on the holdout and on
+semantic-diff-weaver's reports; and how its answers differ from 3.1's, report
+by report.
