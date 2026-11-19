@@ -4827,3 +4827,19 @@ are steps still to come; none stands on a false statement, but the eight
 show steps not taken as done. An eleventh turn, answered at 20:45 UTC with
 20 claims, in which the agent wrote and checked the next patch in its
 scratchpad, was not read.
+
+Later still, at the user's request, the eleventh turn was read the same way,
+against the transcript and the files it wrote to its scratchpad. Told to go
+ahead, the agent wrote the second patch there and checked it as it had the
+first, without touching the repository. Its 20 claims are true: 5
+`VERIFIED`, 10 `UNSUPPORTED` and 5 `NOT_CHECKABLE`. The label on the
+patch's write holds. The other four are the seventh turn's case again:
+checks run on the patch and on a copy of its code, typed as suites that
+passed with no referent and verified through the one-check fallback on the
+eighth turn's run of `make verify`, while their twins typed as command runs
+are `UNSUPPORTED` under the first-token rule. Unlike the tenth turn's, its
+four steps still to come were typed as intents, and are `NOT_CHECKABLE`.
+Over the session's first eleven turns, 31 of 50 `VERIFIED` labels hold: 10
+rest on the one-check fallback, 1 is a description and 8 are steps still to
+come. The twelfth and thirteenth turns, answered at 20:48 and 20:49 UTC with
+14 and 8 claims and no line in `errors.log`, were not read.
