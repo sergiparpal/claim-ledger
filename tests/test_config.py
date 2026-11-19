@@ -97,9 +97,10 @@ class ValidConfigTest(ConfigTest):
         self.assertEqual(cfg.default_tier, REVIEW)
         self.assertEqual(cfg.extractor, config.Extractor(
             base_url="https://openrouter.ai/api/v1", auth="x-api-key",
-            key_env="OPENROUTER_API_KEY", model="mistralai/mistral-medium-3.1",
+            key_env="OPENROUTER_API_KEY", model="mistralai/mistral-medium-3-5",
             provider="mistral/zdr", answer_shape="json_schema",
-            parameters={"temperature": 0}, timeout_s=20.0, max_report_chars=20000))
+            parameters={"temperature": 0, "reasoning": {"effort": "none"}},
+            timeout_s=20.0, max_report_chars=20000))
         self.assertEqual(cfg.budget, config.Budget(23.0))
         self.assertEqual(cfg.log, config.Log(2000))
         self.assertEqual(cfg.gate, config.Gate(False))
@@ -112,7 +113,8 @@ class ValidConfigTest(ConfigTest):
                                     "enable_thinking = false\n"))
         self.assertEqual(cfg.extractor.parameters,
                          {"temperature": 0,
-                          "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}})
+                          "extra_body": {"chat_template_kwargs": {"enable_thinking": False}},
+                          "reasoning": {"effort": "none"}})
 
     def test_valid_but_unusual_globs_are_accepted(self):
         for glob in ["**", "a]b", "docs/[!_]*.md", "[]]x", "?.txt", "src/**/**/x"]:
@@ -242,7 +244,7 @@ class NoFallbackTest(ConfigTest):
             ("temperature = 0", "temperature = [0]", "extractor.parameters.temperature"),
             ("max_report_chars = 20000", "max_report_chars = 2.5e4",
              "extractor.max_report_chars"),
-            ('model            = "mistralai/mistral-medium-3.1"', 'model = ""',
+            ('model            = "mistralai/mistral-medium-3-5"', 'model = ""',
              "extractor.model"),
             ('base_url         = "https://openrouter.ai/api/v1"',
              'base_url = "http://openrouter.ai/api/v1"', "extractor.base_url"),

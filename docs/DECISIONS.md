@@ -4628,3 +4628,10 @@ that the file stays the one measured. Not checked: a turn of distiller under
 the new route, which needs a new session; 3.5 on the holdout and on
 semantic-diff-weaver's reports; and how its answers differ from 3.1's, report
 by report.
+
+Later the same day, at the user's request, SPEC § Extractor contract and its
+example configuration, the repository's sample configuration and CLAUDE.md's
+FROZEN row were brought to the new route, and `tests/test_config.py`, which
+holds the sample's route, with them. The sample's `[extractor]` now sends what
+distiller's does; only the comments differ. The comment above `model` in
+distiller's configuration and the private corpora copy were left as they are.

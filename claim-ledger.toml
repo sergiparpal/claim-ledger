@@ -40,11 +40,13 @@ base_url         = "https://openrouter.ai/api/v1"
 auth             = "x-api-key"
 key_env          = "OPENROUTER_API_KEY"
 # Provisional since 18 October 2026, when Morph's endpoint for the route pinned
-# on 23 September, deepseek/deepseek-v4.1-flash, went down. No route measured
-# clears phase 1, stronger models included. With the prompt extract-6c this one
-# reaches recall 0.78 over the annotated corpus and loses 2 turns in 81, and
-# its answers vary from call to call (DECISIONS).
-model            = "mistralai/mistral-medium-3.1"
+# on 23 September, deepseek/deepseek-v4.1-flash, went down, and this model
+# since 19 November, when mistral-medium-3.1's zero-retention endpoint was
+# gone. No route measured clears phase 1, stronger models included. With the
+# prompt extract-6c this one reaches recall 0.78 over the annotated corpus at
+# its worst of three passes, loses up to 2 turns in 81, and its answers vary
+# from call to call (DECISIONS).
+model            = "mistralai/mistral-medium-3-5"
 # Exactly one provider, fallbacks off: a recall figure measured across a
 # shifting set of them means nothing. This is Mistral's zero-retention endpoint.
 provider         = "mistral/zdr"
@@ -57,10 +59,14 @@ max_report_chars = 20000
 
 [extractor.parameters]
 # What this route takes, sent as written; a parameter a model refuses leaves
-# the router with no endpoint at all, so the set belongs to the route. This
-# model does not reason, so there is no thinking to switch off, and a seed was
-# accepted and steadied nothing, so there is none.
+# the router with no endpoint at all, so the set belongs to the route. A seed
+# was accepted by medium 3.1 and steadied nothing, so there is none.
 temperature = 0
+
+[extractor.parameters.reasoning]
+# This model takes a reasoning parameter. "none" keeps it from reasoning: none
+# of the 272 replies measured on 19 November 2026 carried a thinking token.
+effort = "none"
 
 [budget]
 # The pipeline's own wall clock: longer than the extractor's deadline above,
