@@ -4793,3 +4793,19 @@ twins typed as command runs, which name the commands that did run, are
 `UNSUPPORTED`, since those commands ran in a chained line that began with an
 assignment, and the first-token rule compares the line's first word. An
 eighth turn, answered at 20:35 UTC with 14 claims, was not read.
+
+Later still, at the user's request, the eighth turn was read the same way,
+against the transcript and distiller's `76d2bdf`, the commit the ninth turn
+made of the applied patch and the eighth's edits, and of nothing else. The
+user had applied the patch; the agent compared the diff with it, ran the
+hook tests and `make verify`, and recorded the fix in distiller's notes. Its
+14 claims are true: 9 `VERIFIED`, 1 `UNSUPPORTED` and 4 `NOT_CHECKABLE`, and
+8 of the 9 labels hold. The ninth is the fallback's case again, the sixth in
+the session: a claim that the test once skipped now runs and passes, typed
+as a suite that passed with no referent, was verified on `make verify`,
+which runs no hook test. Its twin, typed the same way but naming `make
+test-hooks`, is `UNSUPPORTED`, since a named suite that is not declared
+never falls back. So of two claims about one run, the one that names its
+suite gets the weaker verdict, and the one that names nothing is verified on
+another suite. The ninth and tenth turns, answered at 20:37 and 20:41 UTC
+with 9 and 16 claims and no line in `errors.log`, were not read.
