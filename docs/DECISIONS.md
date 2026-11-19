@@ -4736,3 +4736,23 @@ test-hooks` now runs from the agent's shell, which turn 1 left unchecked and
 distiller's D-013 marks [VERIFY], is still open. Distiller's local settings
 file was not read, nor the calls' cost or the balance. This is Claude's
 reading, not the user's, of three turns of one session.
+
+Later the same day, at the user's request, the fourth turn's 21 claims were
+read the same way, against the transcript and distiller's `6931580`, the
+commit the fifth turn made of the fourth's edits and of nothing else. The
+turn corrected two lines of distiller's handoff notes, ran the hook tests and
+logged two notes. Its claims are 8 `VERIFIED`, 8 `UNSUPPORTED` and 5
+`NOT_CHECKABLE`, and all 21 are true, but one `VERIFIED` label names a run
+that says nothing of its claim. A sentence giving the hook tests' result, 194
+passed and 1 skipped, was cut into two claims. As a command run, with `make
+test-hooks` as its referent, it was verified on that run. As a suite that
+passed, with no referent, it went to the one-check fallback, since `make
+verify` was the only declared check the session had run, and was verified on
+its run at 20:09:11 UTC; distiller's Makefile keeps the hook tests in a
+target of their own, and `make verify` runs none of them. That is the case of
+§ Nine claims about runs by hand were verified against a check that says
+nothing of them, of 3 November, whose count against phase 2's condition is
+the user's to decide and is not decided. Two sentences that state facts gave
+no claim, both true. The session's fifth and sixth turns, answered at 20:19
+and 20:25 UTC with 7 and 36 claims and no line in `errors.log`, were not
+read.
