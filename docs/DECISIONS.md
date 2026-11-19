@@ -4843,3 +4843,32 @@ Over the session's first eleven turns, 31 of 50 `VERIFIED` labels hold: 10
 rest on the one-check fallback, 1 is a description and 8 are steps still to
 come. The twelfth and thirteenth turns, answered at 20:48 and 20:49 UTC with
 14 and 8 claims and no line in `errors.log`, were not read.
+
+Later still, at the user's request, the twelfth and thirteenth turns were
+read the same way, against the transcript, the session's evidence log and
+distiller's `5b7e49d`, the commit the thirteenth turn made of the applied
+patch and the twelfth's edits, and of nothing else. The user had applied the
+second patch; the agent compared the diff with it, ran the hook tests with a
+hash of the hook's state file taken before and after them, recorded the fix
+in distiller's notes and ran `make verify`. The twelfth's 14 claims are
+true: 7 `VERIFIED`, 2 `UNSUPPORTED` and 5 `NOT_CHECKABLE`, and 6 of the 7
+labels hold. The hash taken after the tests was requested together with
+them, and the evidence log shows that its read began once they had ended.
+The seventh label is on a step still to come: the commit the agent proposed,
+with the three files it would hold and its message, was typed as a file
+change with three referents and verified on the turn's own write of one of
+them, since a claim joins to the last write of any path it names; the test
+file, which the user changed, has no write in the log. The eighth turn had
+proposed its own commit in a sentence of the same form, typed there as an
+intent and `NOT_CHECKABLE`, so the same route and prompt gave one kind of
+sentence two types. Unlike the eighth, the twelfth sent no claim to the
+one-check fallback. The thirteenth committed and pushed the twelfth's work:
+its 8 claims are true, and its 3 `VERIFIED` labels hold. In it, a sentence
+on what a file of the hooks still says was typed as a file change, where the
+fifth and ninth turns had made it a judgment; it is `UNSUPPORTED` because
+nothing in the log wrote that file, though a write of it would have verified
+the sentence. Over the session's first thirteen turns, 40 of 60 `VERIFIED`
+labels hold: 10 rest on the one-check fallback, 1 is a description and 9 are
+steps still to come; none stands on a false statement. The fourteenth and
+fifteenth turns, answered at 21:20 and 22:46 UTC with 21 and 12 claims and
+no line in `errors.log`, were not read.
