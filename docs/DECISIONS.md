@@ -4635,3 +4635,11 @@ FROZEN row were brought to the new route, and `tests/test_config.py`, which
 holds the sample's route, with them. The sample's `[extractor]` now sends what
 distiller's does; only the comments differ. The comment above `model` in
 distiller's configuration and the private corpora copy were left as they are.
+
+At 14:08 UTC, at the user's request, the comment above `model` in distiller's
+configuration was brought to the new route too, before any session had opened
+under it: no session's configuration had been hashed since 13:46 UTC, and the
+one in use, `c1924bd8`, had had its turns `UNKNOWN` for the change since 13:55
+UTC (I-8). The values are as measured, and the file now differs from
+`corpus/routes/mistral-medium-3-5.toml` in that comment only; its sha256 is
+`85f45c25f8dc`. The private corpora copy is still the configuration of 3.1.
