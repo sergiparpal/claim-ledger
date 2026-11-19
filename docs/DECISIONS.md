@@ -4809,3 +4809,21 @@ never falls back. So of two claims about one run, the one that names its
 suite gets the weaker verdict, and the one that names nothing is verified on
 another suite. The ninth and tenth turns, answered at 20:37 and 20:41 UTC
 with 9 and 16 claims and no line in `errors.log`, were not read.
+
+Later still, at the user's request, the ninth and tenth turns were read the
+same way, against the transcript and distiller's `76d2bdf`. The ninth
+committed and pushed the eighth's work: 8 of its 9 claims are true, and its
+3 `VERIFIED` labels hold. The other is partly wrong, and `UNSUPPORTED`: it
+says the agent applied the patch, which the user had applied, as the eighth
+turn's prompt says, and the agent never ran `git apply` but to check. The
+tenth proposed a plan for the note on the hook's state file, and edited
+nothing. Its statements of fact are true, and each of its 5 `VERIFIED`
+labels is a step still to come, verified on the eighth turn's run of the
+hook tests, its run of `make verify` or its writes of the two notes files:
+the sixth turn's case again. Over the session's first ten turns, 30 of 45
+`VERIFIED` labels hold. Of the other 15, six rest on the one-check fallback,
+one is a description verified on a run that says nothing of it, and eight
+are steps still to come; none stands on a false statement, but the eight
+show steps not taken as done. An eleventh turn, answered at 20:45 UTC with
+20 claims, in which the agent wrote and checked the next patch in its
+scratchpad, was not read.
