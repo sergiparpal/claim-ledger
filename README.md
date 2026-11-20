@@ -98,12 +98,15 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
   and makes no call. What the step is, and what it gave on 6 November 2026, is
   in [docs/precision-step.md](docs/precision-step.md). `run` needs the same key
   as `extract_report.py`.
-- `python3 tools/daily_use.py recording|latency|verdicts|defects` reads back
-  what daily use recorded: whether every tool call in a session's transcript
-  has its record, how long each Stop took and how its turn ended, an empty
-  answer included, which `VERIFIED` claims a person should read, and how the
-  spans the extractor got wrong differ from the report. It prints spans only
-  with `--spans`, and makes no call.
+- `python3 tools/daily_use.py recording|latency|verdicts|defects|referents|misplaced`
+  reads back what daily use recorded: whether every tool call in a session's
+  transcript has its record, how long each Stop took and how its turn ended, an
+  empty answer included, which `VERIFIED` claims a person should read, how the
+  spans the extractor got wrong differ from the report, how many checkable
+  claims name something the join can match, and how many `VERIFIED` claims of
+  each route match a pattern of verdicts that do not hold, set first against a
+  reading by hand with `--labels`. It prints spans only with `--spans`, and
+  makes no call.
 
 ## What it does not do yet
 

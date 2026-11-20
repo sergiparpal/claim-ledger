@@ -4967,3 +4967,66 @@ rest on the one-check fallback, 1 on an alias and 1 is a description; none
 stands on a false statement. The new session's fourth turn, the answer to
 the prompt the user sent after the interrupted one, came at 23:10 UTC with
 41 claims and no line in `errors.log`, and was not read.
+
+### A count takes over from the readings, and flags 41 of medium 3.5's 105 `VERIFIED` labels against 40 of 243 before it — 20 November 2026
+
+The user asked what reading more turns was for. The later readings had
+mostly found again what the earlier ones found: steps still to come read as
+verified on the records of an earlier turn, claims verified through the
+one-check fallback on a check they do not describe, and once an alias. So
+the readings stop with the entry above, and at the user's choice a count
+takes their place, set first against the 89 `VERIFIED` labels they read.
+`tools/daily_use.py misplaced` counts, for each route in `claims.jsonl`, the
+`VERIFIED` labels that match one of three patterns its docstring defines:
+`fallback`, a `suite_passed` that names nothing; `earlier`, a claim decided
+by a record of an earlier turn, less a file change in a turn that ran `git
+commit`; and `alias`, a `suite_passed` that reached its check only through
+`[checks.aliases]`. Each is read off the record at the claim's `position`,
+and only when that record's end time is the one the claim's scope carries.
+All 741 `VERIFIED` labels of distiller's log pass that test.
+
+Of those 89, 36 do not hold. `fallback` flags 13, of which 12 do not hold;
+`earlier` flags 32, none of which holds; `alias` flags 3, of which 2 do not
+hold, both flagged by `earlier` as well. `fallback` or `earlier` flags 35,
+of which 34 do not hold. It misses 2, the two proposed commits verified on a
+write of their own turn, and flags 1 that holds, a claim about `make verify`
+itself verified through the fallback on `make verify`. That is why the count
+stands on `fallback` or `earlier`, and `alias` is shown beside it. On the
+routes up to 1 November, `fallback` flags the same 17 `suite_passed` claims
+that § No verified claim of real use read is false… read as verified on the
+one check their session ran.
+
+Over distiller's log as it stood at 07:19 UTC on 20 November 2026, its last
+row, the patterns flag, by route and prompt:
+
+| Route | Prompt | Days | `VERIFIED` | `fallback` | `earlier` | `alias` | `fallback` or `earlier` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `deepseek-v4.1-flash` | `extract-1` | 6–17 October | 109 | 0 | 0 | 0 | 0 (0%) |
+| `mistral-medium-3.1` | `extract-2` | 18–24 October | 154 | 4 | 0 | 19 | 4 (3%) |
+| `mistral-medium-3.1` | `extract-3` | 25–31 October | 100 | 7 | 2 | 7 | 9 (9%) |
+| `mistral-medium-3.1` | `extract-4` | 1 November | 30 | 6 | 0 | 1 | 6 (20%) |
+| `mistral-medium-3.1` | `extract-6c` | 14–17 November | 243 | 2 | 39 | 8 | 40 (16%) |
+| `mistral-medium-3-5` | `extract-6c` | 19–20 November | 105 | 15 | 38 | 5 | 41 (39%) |
+
+Under medium 3.5 the rise is in `earlier`: 38 of the 41 are `earlier`, 12 of
+them `fallback` as well, where 39 of the 40 were under medium 3.1 with the
+same prompt. Whether the route brought it or the work did cannot be told
+yet: medium 3.5 has two sessions, over thirteen hours, and four of the turns
+read were plans. 16 of medium 3.5's `VERIFIED` labels were not read by hand,
+and 6 of them are flagged.
+
+The reading is kept in the private repository, as those of 8 November are,
+since it is a reading of distiller's reports:
+`distiller-verdicts/misplaced/labels.jsonl` (sha256 `8ae96393059b`), written
+by `labels.py` beside it, at its commit `58c399b`. `python3
+tools/daily_use.py misplaced --root ~/code/distiller --labels` with that
+file gives the calibration and the table above.
+
+Not checked: the calibration is one day's reading, of two sessions under one
+route, so how the patterns fare on the routes before it is not known. The
+reading of 8 November could tell, with 208 labels in another vocabulary, 168
+of them chosen by kind and 40 at random. `alias` is judged against
+distiller's configuration as it is now. A file change in a turn that
+committed is never flagged, so one there that does not hold is missed, and
+so is a step still to come verified on a record of its own turn, as the two
+proposed commits were.

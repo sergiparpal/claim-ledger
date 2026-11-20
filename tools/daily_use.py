@@ -6,6 +6,7 @@
     python3 tools/daily_use.py verdicts [--root PROJECT] [--spans]
     python3 tools/daily_use.py defects [--root PROJECT] [--spans]
     python3 tools/daily_use.py referents [--root PROJECT]
+    python3 tools/daily_use.py misplaced [--root PROJECT] [--labels FILE]
 
 `recording` sets every tool call in a session's Claude Code transcript beside
 the session's evidence log. A call the recorder's matcher covers that left no
@@ -40,6 +41,24 @@ judged against PROJECT's configuration as it is now, and how many of the
 UNSUPPORTED ones could match nothing. Such a claim stays UNSUPPORTED whatever
 the log holds, and recall, matched by sentence and type, does not see it.
 
+`misplaced` counts, for each route in claims.jsonl, the `VERIFIED` claims that
+match a pattern the readings of 19 and 20 November 2026 found behind verdicts
+that do not hold (docs/DECISIONS.md). `fallback`: a `suite_passed` naming no
+check, so verified through the one-check fallback on whatever check the session
+ran. `earlier`: decided by a record of an earlier turn, which R-6 admits and
+which is how a plan's steps read as verified; a file change in a turn whose log
+holds a `git commit` is left out, since committing an earlier write is what it
+says. `alias`: a `suite_passed` that reached its check only through
+[checks.aliases], judged against PROJECT's configuration as it is now.
+`fallback` or `earlier` is the count that stands for the patterns; `alias` is
+shown beside it, since on the claims read by hand it found nothing the other
+two missed. With --labels FILE the patterns are first set against a reading by
+hand, one JSON object a line, {"claim_id": ..., "label": ...}: `ok` for a
+`VERIFIED` that holds, or what is wrong with one, `plan` for a step still to
+come, `desc` for a description, `fallback` or `alias` for a claim verified on
+a check it does not describe. A claim whose record the log no longer holds is
+counted apart.
+
 Transcripts are read from where Claude Code keeps them for PROJECT, or from
 --transcripts. Nothing is written anywhere.
 
@@ -53,6 +72,7 @@ reports already annotated, or knowingly.
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import difflib
 import json
 import re
@@ -73,6 +93,12 @@ HOOK_OVERHEAD_S = 0.1      # the pipeline around the call, as the too-long turns
 NEGATIVE = re.compile(r"(?<!\w)(no|ni|sin|nada|nunca|not|never|nothing|none|without)(?!\w)"
                       r"|n't", re.IGNORECASE)
 SIZES = ((0, 3000), (3000, 6000), (6000, 10000), (10000, 1_000_000))
+LABELS = ("ok", "plan", "desc", "fallback", "alias")   # what a reading by hand may say
+FLAGGED = {"fallback", "earlier"}                      # the patterns the count stands on
+
+
+class LabelError(Exception):
+    """A reading by hand that cannot be read as one."""
 
 
 def recording(args) -> int:
@@ -272,6 +298,160 @@ def referents(args) -> int:
               f"({sum(matches) / len(rows):.0%}); {', '.join(cells)}; of {len(unsupported)} "
               f"UNSUPPORTED, {unsupported.count(False)} could match nothing")
     return 0
+
+
+def misplaced(args) -> int:
+    cfg = config.load(args.root / config.CONFIG_FILENAME)
+    labels = _hand_labels(args.labels) if args.labels else None
+    judged, unreadable = _misplacement(args.root, cfg)
+    if labels is not None:
+        _calibrate(judged, labels, args.labels)
+        print()
+    routes = defaultdict(list)
+    for row, found in judged:
+        route = row.get("route") or {}
+        routes[(route.get("model", "?"), route.get("prompt_version", "?"))].append((row, found))
+    print(f"VERIFIED claims by route, and those that match a pattern; alias judged against "
+          f"{config.CONFIG_FILENAME} as it is now")
+    for (model, prompt), group in sorted(routes.items(), key=lambda kv: min(
+            str(row.get("ts", "")) for row, _ in kv[1])):
+        known = [found for _, found in group if found is not None]
+        turns = {(row["session"], row["turn_number"]) for row, _ in group}
+        days = sorted(str(row.get("ts", ""))[:10] for row, _ in group)
+        count = Counter(pattern for found in known for pattern in found)
+        flagged = sum(1 for found in known if found & FLAGGED)
+        print(f"  {model}, {prompt}, {days[0]} to {days[-1]}, {len(turns)} "
+              f"turn{'s' if len(turns) != 1 else ''}: {len(group)} VERIFIED"
+              + (f", {len(group) - len(known)} of them without their record"
+                 if len(known) < len(group) else ""))
+        if not known:
+            continue
+        print(f"      fallback {count['fallback']}, earlier {count['earlier']} (not counting "
+              f"{count['committed']} file change{'s' if count['committed'] != 1 else ''} in a "
+              f"turn that ran git commit), alias {count['alias']}; fallback or earlier "
+              f"{flagged} of {len(known)} ({flagged / len(known):.0%})")
+        unread = [found for row, found in group
+                  if found is not None and labels is not None and row["claim_id"] not in labels]
+        if unread and len(unread) < len(known):     # some of this route was read
+            print(f"      of the {len(unread)} not read by hand, "
+                  f"{sum(1 for found in unread if found & FLAGGED)} flagged")
+    for session, error in sorted(unreadable.items()):
+        print(f"  {session[:8]}  the log cannot be read: {error}")
+    return 0
+
+
+def _misplacement(root: Path, cfg: config.Config) -> tuple[list[tuple[dict, set[str] | None]],
+                                                             dict[str, str]]:
+    """Every VERIFIED claim with the patterns it matches, or with None when the log
+    no longer holds the record that decided it; and the logs that cannot be read.
+
+    The record at the claim's position is the one that decided it only if its
+    end time is the one the claim's scope carries: a log replaced since would
+    otherwise lend the claim a stranger's record.
+    """
+    unaliased = dataclasses.replace(cfg, aliases={})
+    logs: dict[str, dict[int, evidence.Entry]] = {}
+    commits: dict[str, set] = {}
+    unreadable: dict[str, str] = {}
+    judged = []
+    for row in _claim_rows(root):
+        if row.get("row") != "claim" or row.get("verdict") != "VERIFIED":
+            continue
+        session = row.get("session")
+        if session not in logs:
+            try:
+                entries = evidence.read(evidence.session_log(root, session))
+            except evidence.EvidenceError as e:
+                entries, unreadable[str(session)] = [], str(e)
+            logs[session] = {e.position: e for e in entries}
+            commits[session] = {e.record.get("turn_number") for e in entries
+                                if join.names_command(["git commit"], e.record)}
+        decided = logs[session].get(row.get("position"))
+        if decided is None or str(decided.record.get("ts_end")) not in str(row.get("scope")):
+            judged.append((row, None))
+            continue
+        judged.append((row, _patterns(row, decided.record, cfg, unaliased,
+                                      row.get("turn_number") in commits[session])))
+    return judged, unreadable
+
+
+def _patterns(row: Mapping, record: Mapping, cfg: config.Config, unaliased: config.Config,
+              committed: bool) -> set[str]:
+    """The patterns a VERIFIED claim matches, given the record that decided it."""
+    found = set()
+    referents = row.get("referents") or []
+    if row.get("type") == "suite_passed":
+        if not referents:
+            found.add("fallback")        # named nothing: the join's one-check fallback
+        elif (record.get("check_id") in join.check_ids_for(referents, cfg)[0]
+              and record.get("check_id") not in join.check_ids_for(referents, unaliased)[0]):
+            found.add("alias")
+    decided_in = record.get("turn_number")
+    if isinstance(decided_in, int) and decided_in < row["turn_number"]:
+        # A file change in a turn that committed says what the commit took in,
+        # and an earlier write is what it took in.
+        found.add("committed" if row.get("type") == "file_changed" and committed
+                  else "earlier")
+    return found
+
+
+def _calibrate(judged: Sequence[tuple[dict, set[str] | None]], labels: Mapping[str, str],
+               path: Path) -> None:
+    """How the patterns fare on the claims a person read."""
+    labelled = [(row, found, labels[row["claim_id"]]) for row, found in judged
+                if row["claim_id"] in labels]
+    stray = sorted(set(labels) - {row["claim_id"] for row, _, _ in labelled})
+    lost = [row for row, found, _ in labelled if found is None]
+    read = [(found, label, row) for row, found, label in labelled if found is not None]
+    wrong = Counter(label for _, label, _ in read if label != "ok")
+    print(f"against {path.name}: {len(read)} VERIFIED claims read by hand, of which "
+          f"{_do_not_hold(sum(wrong.values()))}"
+          + (" (" + ", ".join(f"{k} {n}" for k, n in wrong.most_common()) + ")" if wrong else ""))
+    for name, test in (("fallback", lambda found: "fallback" in found),
+                       ("earlier", lambda found: "earlier" in found),
+                       ("alias", lambda found: "alias" in found),
+                       ("fallback or earlier", lambda found: bool(found & FLAGGED))):
+        hit = [label for found, label, _ in read if test(found)]
+        holding = hit.count("ok")
+        print(f"  {name:19} flags {len(hit):>3}: {_do_not_hold(len(hit) - holding)}, "
+              f"{holding} hold{'s' if holding == 1 else ''}")
+    missed = [(row, label) for found, label, row in read if label != "ok" and not found & FLAGGED]
+    print(f"  not flagged, though they do not hold: {len(missed)}"
+          + "".join(f"\n    {row['claim_id']} ({label})" for row, label in missed))
+    holding = [row for found, label, row in read if label == "ok" and found & FLAGGED]
+    print(f"  flagged, though they hold: {len(holding)}"
+          + "".join(f"\n    {row['claim_id']}" for row in holding))
+    if stray:
+        print(f"  labels naming no VERIFIED claim in claims.jsonl: {len(stray)}"
+              + "".join(f"\n    {claim_id}" for claim_id in stray))
+    if lost:
+        print(f"  labelled claims whose record the log no longer holds: {len(lost)}"
+              + "".join(f"\n    {row['claim_id']}" for row in lost))
+
+
+def _do_not_hold(n: int) -> str:
+    return f"{n} {'does' if n == 1 else 'do'} not hold"
+
+
+def _hand_labels(path: Path) -> dict[str, str]:
+    """A reading by hand: one {"claim_id": ..., "label": ...} object a line, and
+    every label one LABELS knows, so that a misspelt "ok" is not read as a fault."""
+    found = {}
+    for number, line in enumerate(path.read_text(encoding="utf-8").split("\n"), 1):
+        if not line.strip():
+            continue
+        try:
+            given = json.loads(line)
+        except ValueError:
+            given = None
+        if (not isinstance(given, dict) or not isinstance(given.get("claim_id"), str)
+                or given.get("label") not in LABELS):
+            raise LabelError(f"{path}:{number}: wants a claim_id and a label, one of "
+                             + ", ".join(LABELS))
+        if given["claim_id"] in found:
+            raise LabelError(f"{path}:{number}: {given['claim_id']} is labelled twice")
+        found[given["claim_id"]] = given["label"]
+    return found
 
 
 def defects(args) -> int:
@@ -516,12 +696,19 @@ def main(argv: Sequence[str]) -> int:
     common(commands.add_parser("defects", help="how dropped spans differ from the report"),
            spans=True)
     common(commands.add_parser("referents", help="claims naming what the join can match"))
+    counted = commands.add_parser("misplaced",
+                                  help="VERIFIED claims matching a pattern of misplaced ones")
+    common(counted)
+    counted.add_argument("--labels", type=Path,
+                         help="a reading by hand to set the patterns against")
 
     args = parser.parse_args(list(argv[1:]))
     try:
         return {"recording": recording, "latency": latency, "verdicts": verdicts,
-                "defects": defects, "referents": referents}[args.command](args)
-    except (OSError, config.ConfigError, evidence.EvidenceError, turn.TurnError) as e:
+                "defects": defects, "referents": referents,
+                "misplaced": misplaced}[args.command](args)
+    except (OSError, config.ConfigError, evidence.EvidenceError, turn.TurnError,
+            LabelError) as e:
         print(e, file=sys.stderr)
         return 2
 

@@ -4,8 +4,10 @@ What is tested is what would turn a read-back into a wrong finding: a refused
 call counted as a hole in the log or a real hole missed, a resumed session's
 inherited calls counted as holes, a transcript line lost to a character that
 splitlines() breaks on, a turn's ending misread or paired with the next turn's
-hook, a verdict candidate missed, and a span shown to someone who did not ask
-for spans. Every project and transcript here is built in a temporary folder.
+hook, a verdict candidate missed, a pattern of misplaced verdicts read off a
+record other than the one that decided the claim, a reading by hand misread,
+and a span shown to someone who did not ask for spans. Every project and
+transcript here is built in a temporary folder.
 """
 
 import contextlib
@@ -266,6 +268,128 @@ class ReferentsTest(DailyUseCase):
         _, shown = self.run_tool("referents")
         for text in [*self.SPANS, "set_context", "docs/SPEC.md"]:
             self.assertNotIn(text, shown)
+
+
+class MisplacedTest(DailyUseCase):
+    """Turn 1 runs pytest and writes src/app.py, turn 2 commits it, turn 3 does neither."""
+
+    EARLY = {"model": "mistralai/mistral-medium-3.1", "prompt_version": "extract-6c+bf5a552b"}
+    LATE = {"model": "mistralai/mistral-medium-3-5", "prompt_version": "extract-6c+bf5a552b"}
+    RAN, WROTE, COMMITTED = ("2026-11-17T10:01:00.000Z", "2026-11-17T10:02:00.000Z",
+                             "2026-11-19T10:03:00.000Z")
+    SPAN = "Los tests pasan."
+
+    def setUp(self):
+        super().setUp()
+        shutil.copy(REPO / "claim-ledger.toml", self.project / "claim-ledger.toml")
+        commit = "git add src/app.py && git commit -m app"
+        self.record(SESSION, "toolu_1", kind="check", check_id="python-suite", command="pytest",
+                    turn_number=1, ts_end=self.RAN)
+        self.record(SESSION, "toolu_2", tool="Edit", kind="mutation", turn_number=1,
+                    files=[{"path": "src/app.py", "mtime": self.WROTE}], ts_end=self.WROTE)
+        self.record(SESSION, "toolu_3", command=commit, turn_number=2, ts_end=self.COMMITTED)
+        ran, wrote = f"pytest ok at {self.RAN}", f"src/app.py written ok at {self.WROTE}"
+        self.claims(
+            self.claim(1, 0, "suite_passed", [], 1, ran),                 # fallback
+            self.claim(1, 1, "suite_passed", ["pytest"], 1, ran),         # nothing
+            self.claim(1, 2, "suite_passed", ["the tests"], 1, ran),      # alias
+            self.claim(1, 3, "judgment", [], None, None, verdict="NOT_CHECKABLE"),
+            # names lint directly, and was verified on pytest, which it reached by an alias
+            self.claim(1, 4, "suite_passed", ["ruff check .", "the tests"], 1, ran),
+            self.claim(2, 0, "file_changed", ["src/app.py"], 2, wrote),   # what was committed
+            self.claim(2, 1, "suite_passed", ["pytest"], 1, ran),         # earlier
+            self.claim(2, 2, "command_run", ["git commit"], 3,
+                       f"{commit} ok at {self.COMMITTED}"),               # nothing
+            self.claim(3, 0, "file_changed", ["src/app.py"], 2, wrote),   # earlier: no commit
+            self.claim(3, 1, "suite_passed", ["pytest"], 9, ran),         # no record there
+            self.claim(3, 2, "suite_passed", [], 1,
+                       "pytest ok at 2026-11-19T09:00:00.000Z"))          # another record's
+
+    def claim(self, number, index, kind, referents, position, scope, verdict="VERIFIED"):
+        route, day = (self.EARLY, "2026-11-17") if number == 1 else (self.LATE, "2026-11-19")
+        return {"row": "claim", "ts": f"{day}T10:0{number}:30.000Z", "turn_number": number,
+                "claim_id": f"{SESSION}-{number}-{index}", "span": self.SPAN, "type": kind,
+                "referents": referents, "verdict": verdict, "scope": scope,
+                "position": position, "route": route}
+
+    def labels(self, *lines):
+        path = self.project / "labels.jsonl"
+        path.write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
+        return str(path)
+
+    def test_each_pattern_is_read_off_the_record_that_decided_the_claim(self):
+        code, shown = self.run_tool("misplaced")
+        self.assertEqual(code, 0)
+        self.assertIn("mistralai/mistral-medium-3.1, extract-6c+bf5a552b, 2026-11-17 to "
+                      "2026-11-17, 1 turn: 4 VERIFIED\n      fallback 1, earlier 0 (not "
+                      "counting 0 file changes in a turn that ran git commit), alias 2; "
+                      "fallback or earlier 1 of 4 (25%)", shown)
+        self.assertIn("mistralai/mistral-medium-3-5, extract-6c+bf5a552b, 2026-11-19 to "
+                      "2026-11-19, 2 turns: 6 VERIFIED, 2 of them without their record\n"
+                      "      fallback 0, earlier 2 (not counting 1 file change in a turn that "
+                      "ran git commit), alias 0; fallback or earlier 2 of 4 (50%)", shown)
+        # by when a route was first used, not by its name, which sorts 3-5 before 3.1
+        self.assertLess(shown.index("medium-3.1"), shown.index("medium-3-5"))
+        self.assertNotIn("not read by hand", shown)
+
+    def test_the_patterns_are_set_against_a_reading_by_hand(self):
+        code, shown = self.run_tool("misplaced", "--labels", self.labels(
+            json.dumps({"claim_id": f"{SESSION}-1-0", "label": "ok"}),
+            json.dumps({"claim_id": f"{SESSION}-1-2", "label": "alias"}),
+            json.dumps({"claim_id": f"{SESSION}-2-0", "label": "ok"}),
+            json.dumps({"claim_id": f"{SESSION}-2-1", "label": "plan"}),
+            json.dumps({"claim_id": f"{SESSION}-3-1", "label": "ok"}),
+            json.dumps({"claim_id": f"{EARLIER}-1-0", "label": "ok"})))
+        self.assertEqual(code, 0)
+        for line in ("against labels.jsonl: 4 VERIFIED claims read by hand, of which 2 do not "
+                     "hold (alias 1, plan 1)",
+                     "  fallback            flags   1: 0 do not hold, 1 holds",
+                     "  earlier             flags   1: 1 does not hold, 0 hold",
+                     "  alias               flags   1: 1 does not hold, 0 hold",
+                     "  fallback or earlier flags   2: 1 does not hold, 1 holds",
+                     f"  not flagged, though they do not hold: 1\n    {SESSION}-1-2 (alias)",
+                     f"  flagged, though they hold: 1\n    {SESSION}-1-0",
+                     f"  labels naming no VERIFIED claim in claims.jsonl: 1\n    {EARLIER}-1-0",
+                     "  labelled claims whose record the log no longer holds: 1\n"
+                     f"    {SESSION}-3-1",
+                     "(25%)\n      of the 2 not read by hand, 0 flagged",
+                     "(50%)\n      of the 2 not read by hand, 1 flagged"):
+            self.assertIn(line, shown)
+
+    def test_a_route_none_of_whose_claims_were_read_is_not_said_to_be_unread(self):
+        _, shown = self.run_tool("misplaced", "--labels", self.labels(
+            json.dumps({"claim_id": f"{SESSION}-1-0", "label": "ok"})))
+        self.assertIn("(25%)\n      of the 3 not read by hand, 0 flagged", shown)
+        self.assertTrue(shown.endswith("fallback or earlier 2 of 4 (50%)\n"))
+
+    def test_a_reading_that_cannot_be_read_stops_the_count(self):
+        for lines, said in (([json.dumps({"claim_id": f"{SESSION}-1-0", "label": "holds"})],
+                             "labels.jsonl:1: wants a claim_id and a label, one of ok, plan"),
+                            ([json.dumps({"claim_id": f"{SESSION}-1-0", "label": "ok"}),
+                              json.dumps({"claim_id": f"{SESSION}-1-0", "label": "plan"})],
+                             f"labels.jsonl:2: {SESSION}-1-0 is labelled twice")):
+            told = io.StringIO()
+            with contextlib.redirect_stderr(told):
+                code, shown = self.run_tool("misplaced", "--labels", self.labels(*lines))
+            self.assertEqual(code, 2)
+            self.assertIn(said, told.getvalue())
+            self.assertEqual(shown, "")
+
+    def test_a_log_that_cannot_be_read_is_named_and_its_claims_set_apart(self):
+        log = evidence.session_log(self.project, EARLIER)
+        log.write_text("not a record\n", encoding="utf-8")
+        self.claims({**self.claim(3, 3, "suite_passed", ["pytest"], 1, f"pytest ok at {self.RAN}"),
+                     "session": EARLIER, "claim_id": f"{EARLIER}-3-3"})
+        code, shown = self.run_tool("misplaced")
+        self.assertEqual(code, 0)
+        self.assertIn("3 turns: 7 VERIFIED, 3 of them without their record", shown)
+        self.assertIn(f"{EARLIER[:8]}  the log cannot be read: {log}:1: not a JSON record", shown)
+
+    def test_no_span_is_shown(self):
+        label = json.dumps({"claim_id": f"{SESSION}-1-0", "label": "ok"})
+        for args in (["misplaced"], ["misplaced", "--labels", self.labels(label)]):
+            _, shown = self.run_tool(*args)
+            self.assertNotIn(self.SPAN, shown)
 
 
 class DefectsTest(DailyUseCase):
