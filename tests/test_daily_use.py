@@ -356,6 +356,16 @@ class MisplacedTest(DailyUseCase):
                      "(50%)\n      of the 2 not read by hand, 1 flagged"):
             self.assertIn(line, shown)
 
+    def test_the_words_of_the_reading_of_8_november_are_read_too(self):
+        code, shown = self.run_tool("misplaced", "--labels", self.labels(
+            json.dumps({"claim_id": f"{SESSION}-1-1", "label": "other-run"}),
+            json.dumps({"claim_id": f"{SESSION}-1-4", "label": "other-hand"}),
+            json.dumps({"claim_id": f"{SESSION}-2-2", "label": "neg"})))
+        self.assertEqual(code, 0)
+        self.assertIn("3 VERIFIED claims read by hand, of which 3 do not hold (", shown)
+        for kind in ("other-run 1", "other-hand 1", "neg 1"):
+            self.assertIn(kind, shown)
+
     def test_a_route_none_of_whose_claims_were_read_is_not_said_to_be_unread(self):
         _, shown = self.run_tool("misplaced", "--labels", self.labels(
             json.dumps({"claim_id": f"{SESSION}-1-0", "label": "ok"})))

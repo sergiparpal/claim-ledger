@@ -5030,3 +5030,51 @@ distiller's configuration as it is now. A file change in a turn that
 committed is never flagged, so one there that does not hold is missed, and
 so is a step still to come verified on a record of its own turn, as the two
 proposed commits were.
+
+Later the same day, at the user's request, the patterns were set against the
+reading of 8 November (§ No verified claim of real use read is false…),
+which covers the 393 `VERIFIED` labels of 6 October to 1 November. It is
+written out in the form `daily_use.py misplaced` reads, in its own labels,
+which the subcommand now reads as well: `other-hand`, `other-run` and `neg`.
+It was drawn in two ways, so it is set against the patterns as two files:
+the 168 of the four groups read in full, and the 40 drawn at random from the
+other 225. Of the 168, 25 do not hold. `fallback` or `earlier` flags 17 of
+them, all `fallback`: 9 do not hold, results of programs run by hand
+verified on `make verify`, and 8 hold, claims about `make verify` or one of
+its steps. It misses 16: 5 steps still to come verified on a record of their
+own turn, 5 claims about one run of a command verified on another, 3 denials
+verified on a write to the same file and 3 descriptions, none of which a
+pattern can see. Of the 40, 1 does not hold, a step still to come, and none
+is flagged. `earlier` flags 2 of the 393, neither of them read: no session
+of those weeks has more than four turns in `claims.jsonl`.
+
+Weighing the 40 by 225/40, about 31 of the 393 do not hold, 8%, between 6%
+and 14% with an exact 95% interval on that 1 of 40. The patterns find 9 to
+11 of them, about a third, where on medium 3.5 they found 34 of 36; and of
+the 17 they flag that were read, 9 do not hold, where on medium 3.5 34 of 35
+did not. Both readings judge a claim verified through the fallback alike: it
+holds when it describes `make verify` or a step of it run over the project,
+and not when it describes a run by hand or another check. The claims differ:
+up to 1 November, 8 of the 17 were about `make verify` itself, and on medium
+3.5 10 of the 13 were runs by hand or of another check and 2 were steps
+still to come.
+
+So the shares in the table above count the patterns, not the labels that do
+not hold, and do not compare across routes: the patterns are how medium
+3.5's labels fail, and the labels up to 1 November failed in other ways.
+Read by hand, about 8% of the labels up to 1 November do not hold, and 36 of
+the 89 read under medium 3.5, 40%. Medium 3.1 with `extract-6c`, the route
+before medium 3.5 under the same prompt, is in neither reading: 39 of its 40
+flagged are `earlier`, all 32 of whose flags on medium 3.5 were right, and
+what the patterns miss there is not known.
+
+The two files, `labels-8nov-candidates.jsonl` (sha256 `7ecba0121849`) and
+`labels-8nov-sample.jsonl` (`cfa32c407908`), are written by `labels_8nov.py`
+beside the reading of 19 and 20 November, at the private repository's commit
+`5db8e5d`. `daily_use.py misplaced --labels` with each gives the calibration
+above; the estimate over the 393, the sessions' lengths and what the flagged
+claims are about were worked out beside it. The reason the docstring gave
+for leaving `alias` out of the count did not survive the second reading: of
+the 17 labels read that it flags and the other two do not, 1 does not hold,
+and the docstring now says so. Not checked: the 2 `earlier` labels up to 1
+November, and medium 3.1 with `extract-6c`, which no reading covers.

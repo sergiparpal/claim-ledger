@@ -51,13 +51,16 @@ holds a `git commit` is left out, since committing an earlier write is what it
 says. `alias`: a `suite_passed` that reached its check only through
 [checks.aliases], judged against PROJECT's configuration as it is now.
 `fallback` or `earlier` is the count that stands for the patterns; `alias` is
-shown beside it, since on the claims read by hand it found nothing the other
-two missed. With --labels FILE the patterns are first set against a reading by
+shown beside it, since of the 17 claims read by hand that it flagged and the
+other two did not, 1 did not hold. With --labels FILE the patterns are first set against a reading by
 hand, one JSON object a line, {"claim_id": ..., "label": ...}: `ok` for a
 `VERIFIED` that holds, or what is wrong with one, `plan` for a step still to
 come, `desc` for a description, `fallback` or `alias` for a claim verified on
-a check it does not describe. A claim whose record the log no longer holds is
-counted apart.
+a check it does not describe; and, in the reading of 8 November 2026,
+`other-hand` for the result of a program run by hand verified on a check,
+`other-run` for one run of a command verified on another, and `neg` for a
+claim denying a write verified on a write to the same file. A claim whose
+record the log no longer holds is counted apart.
 
 Transcripts are read from where Claude Code keeps them for PROJECT, or from
 --transcripts. Nothing is written anywhere.
@@ -93,7 +96,8 @@ HOOK_OVERHEAD_S = 0.1      # the pipeline around the call, as the too-long turns
 NEGATIVE = re.compile(r"(?<!\w)(no|ni|sin|nada|nunca|not|never|nothing|none|without)(?!\w)"
                       r"|n't", re.IGNORECASE)
 SIZES = ((0, 3000), (3000, 6000), (6000, 10000), (10000, 1_000_000))
-LABELS = ("ok", "plan", "desc", "fallback", "alias")   # what a reading by hand may say
+LABELS = ("ok", "plan", "desc", "fallback", "alias",   # what a reading by hand may say
+          "other-hand", "other-run", "neg")
 FLAGGED = {"fallback", "earlier"}                      # the patterns the count stands on
 
 
