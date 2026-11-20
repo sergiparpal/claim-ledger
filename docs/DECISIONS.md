@@ -5078,3 +5078,62 @@ for leaving `alias` out of the count did not survive the second reading: of
 the 17 labels read that it flags and the other two do not, 1 does not hold,
 and the docstring now says so. Not checked: the 2 `earlier` labels up to 1
 November, and medium 3.1 with `extract-6c`, which no reading covers.
+
+Later still, at the user's request, a sample of medium 3.1 with `extract-6c`
+was read the same way, against the transcripts, the evidence logs and
+distiller's history, in the labels of the two readings before it. The route
+holds 243 `VERIFIED` labels, from 14 to 17 November, in three sessions of
+71, 61 and 6 turns. All 40 that the patterns flag were read, and 40 drawn
+with the seed 202611201 from the other 203. Of the 40 flagged, 38 do not
+hold: 11 are steps still to come, 10 claims about one run verified on
+another, 10 descriptions, 4 denials verified on what they deny, 2 claims
+verified through the fallback on a check they do not describe and 1 through
+an alias. They fail otherwise than medium 3.5's, which were mostly steps
+still to come. Eight of the descriptions are typed as file changes and say
+what `TASKS.md` or `HANDOFF.md` holds or where it stands, six of them in two
+turns that answered what was still open. Six of the claims about another run
+are about commits, pushes and runs of the hook tests that the user made in a
+terminal, verified on the agent's own runs; the other four describe runs of
+the agent's that no record matches by its first word. Three denials say that
+no push was made and are verified on an earlier push, and one says a commit
+is still pending and is verified on the attempt that failed. The 2 that hold
+are file changes that went into a commit or a push of a later turn that the
+commit exception does not cover: the user committed in a terminal, and a
+turn pushed without committing. Of the 40 drawn, 3 do not hold: 2 claims
+about one run verified on another, and a description of what `HANDOFF.md`
+still said, which the commit exception hides because its turn committed.
+
+Weighing the 40 by 203/40, about 53 of the 243 do not hold, 22%, between 17%
+and 33% with an exact 95% interval on that 3 of 40. The patterns find about
+71% of them, between 48% and 92%, and 38 of the 40 they flag do not hold.
+Read by hand, the share of `VERIFIED` labels that do not hold is then about
+8% up to 1 November, about 22% under medium 3.1 with `extract-6c`, and 40%
+of those read under medium 3.5. The three mix the route, the prompt and the
+work, and the sessions differ in length: up to 1 November none had more than
+four turns, under medium 3.1 with `extract-6c` they had 71, 61 and 6, and
+under medium 3.5 15 and 7.
+
+Five of the labels read cite one of three runs that failed while their
+records say `ok`, because the command went on after the failure and ended
+with 0, as § In semantic-diff-weaver the agent runs no check as a plain
+command… found of a pipe: a commit that exited 1 and a `make protected` that
+exited 2, each followed by an `echo` of its exit code, and a run of the hook
+tests with 53 failures, piped to `tail`. All five are among the 38 flagged
+that do not hold, and as far as they were checked their claims are true. Two
+true claims among the flagged rest on a run inside a command that began with
+`git diff`, which the join, matching a command by its first word (§ A
+command claim links only when the report names the command), does not see:
+that `make protected` showed no differences, verified on the run that exited
+2, and that `ls` found no `.Codex`, verified on an `ls` of `.codex` two
+turns earlier.
+
+The reading is in the private repository, at its commit `34f58c1`:
+`labels_6c.py` draws the sample again from the patterns over distiller's
+log, stops unless it is the one read, and writes `labels-6c-flagged.jsonl`
+(sha256 `054800c2ba51`) and `labels-6c-sample.jsonl` (`49ad334563a7`).
+`daily_use.py misplaced --labels` with each gives the counts above; the
+estimates, the sessions' lengths and what the failures are about were worked
+out beside it. Not checked: a claim's truth was checked only where it
+decided the label; the labels are one reading, not the user's; and where a
+description ends and a change begins is open to question when the label
+cites the write that left the file as the sentence describes it.
