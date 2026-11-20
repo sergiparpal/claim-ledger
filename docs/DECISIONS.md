@@ -5466,6 +5466,33 @@ no check, so it too loses nothing checkable. Still, two answers in nine came
 back empty, where none of the 269 on the corpus did, and that is to be
 watched beside the deadline.
 
+Later still, at the user's request, the first turn the new route left
+`UNKNOWN` was recorded. It was found when the user asked what was open, by
+20:36 UTC: `errors.log`, at 151 lines since the `SchemaError` of `b1f0e006`'s
+ninth turn at 08:00 UTC under medium 3.5, held a 152nd,
+`ExtractError: the model call returned HTTP 429`, written at 19:48:53 UTC for
+the eighteenth turn of `107ecfb3`, a report of 439 characters. The client
+retries a 429 once, at once, so the second call was refused with 429 and the
+first failed in one of the ways it retries; the hook took 1.05 seconds in
+all, and the transcript shows the turn's `UNKNOWN` line with that error and 2
+checks seen, so I-9 held. The client keeps no error body, so whether
+OpenRouter or DeepInfra refused is not known. No measurement made here is
+known to have shared the key then: no file under `corpus/`, the private
+corpora repository or the sessions' scratchpads changed between 19:30 and
+19:55 UTC, and the newest file of runs is that of mimo's passes, written at
+12:56 UTC. The turn before it, at 18:53 UTC, and the one after, at 20:13 UTC,
+were answered, the second with 12 claims. It is the tenth turn of distiller's
+use to end on HTTP 429, after the one of 24 October and the eight of 16
+November, all under medium 3.1 through Mistral, and the first under mimo. At
+20:42 UTC `tools/daily_use.py latency` gave, under `668331c6a351`, 21 turns
+in two sessions: 18 answered, 2 empty, the one refused and none past the
+deadline, the answered ones taking 2.4 seconds at the median, 6.9 at the 90th
+percentile and 12.8 at most, 3.38 seconds for each 1,000 characters of
+report. One refusal in 21 turns says nothing yet of how often the endpoint
+refuses. DeepInfra refused another model, `mistral-small-24b`, with 429 for a
+stretch on 18 October; it is to be watched beside the deadline and the empty
+answers.
+
 ### If an earlier turn's record could count only against a claim, 38 of the 45 `VERIFIED` labels of medium 3.5 that do not hold would go, and none that holds — 20 November 2026
 
 The user asked what to do next. The answer put first, for the review of 28
