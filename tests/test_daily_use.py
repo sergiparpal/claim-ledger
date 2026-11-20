@@ -4,10 +4,11 @@ What is tested is what would turn a read-back into a wrong finding: a refused
 call counted as a hole in the log or a real hole missed, a resumed session's
 inherited calls counted as holes, a transcript line lost to a character that
 splitlines() breaks on, a turn's ending misread or paired with the next turn's
-hook, a verdict candidate missed, a pattern of misplaced verdicts read off a
-record other than the one that decided the claim, a reading by hand misread,
-and a span shown to someone who did not ask for spans. Every project and
-transcript here is built in a temporary folder.
+hook, a turn summed up under a configuration its session did not open with or
+timed though it was not answered, a verdict candidate missed, a pattern of
+misplaced verdicts read off a record other than the one that decided the
+claim, a reading by hand misread, and a span shown to someone who did not ask
+for spans. Every project and transcript here is built in a temporary folder.
 """
 
 import contextlib
@@ -20,7 +21,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ledger import evidence, turn
+from ledger import evidence, record, turn
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
@@ -134,13 +135,13 @@ class RecordingTest(DailyUseCase):
 
 
 class LatencyTest(DailyUseCase):
-    def capture(self, number, minute):
-        turn.capture(self.project, {"last_assistant_message": "Done. The tests pass."},
-                     SESSION, number, datetime(2026, 10, 17, 10, minute, tzinfo=timezone.utc),
+    def capture(self, number, minute, session=SESSION, report="Done. The tests pass."):
+        turn.capture(self.project, {"last_assistant_message": report},
+                     session, number, datetime(2026, 10, 17, 10, minute, tzinfo=timezone.utc),
                      [], None)
 
-    def stop(self, minute, seconds, message):
-        return {"type": "attachment", "sessionId": SESSION,
+    def stop(self, minute, seconds, message, session=SESSION):
+        return {"type": "attachment", "sessionId": session,
                 "timestamp": f"2026-10-17T10:{minute:02d}:30.000Z",
                 "attachment": {"type": "hook_success", "hookEvent": "Stop",
                                "durationMs": int(seconds * 1000),
@@ -180,6 +181,58 @@ class LatencyTest(DailyUseCase):
         self.assertIn("answered", endings["6"])
         self.assertIn("of the 4 turns whose call answered or ran out of time, 1 passed the "
                       "deadline and 1 came back empty", shown)
+
+    def test_turns_are_summed_up_by_the_configuration_their_session_opened_with(self):
+        """A turn that left no claim counts with its session's configuration, only
+        answered turns are timed, and the configurations come in the order they ran."""
+        third = "16fd2706-8baf-433b-82eb-8c7fada847da"
+        report = "The tests pass. " * 125                        # 2,000 characters
+        record.seed_config_baseline(self.project, EARLIER, "b" * 64)
+        record.seed_config_baseline(self.project, SESSION, "a" * 64)
+        for session, number, minute in [(EARLIER, 1, 1), (EARLIER, 2, 2), (SESSION, 1, 10),
+                                        (SESSION, 2, 11), (SESSION, 3, 12), (SESSION, 4, 13),
+                                        (third, 1, 20), (third, 2, 21)]:
+            self.capture(number, minute, session, report)
+        old = {"model": "m/old", "provider": "Old", "prompt_version": "extract-1+aaaa",
+               "base_url": "https://openrouter.ai/api/v1"}
+        new = {**old, "model": "m/new", "provider": "New", "prompt_version": "extract-2+bbbb"}
+        claim = {"row": "claim", "span": "The tests pass.", "type": "suite_passed",
+                 "referents": []}
+        self.claims({**claim, "session": EARLIER, "turn_number": 1, "route": old},
+                    *({**claim, "turn_number": n, "route": new} for n in (1, 2, 3)),
+                    *({**claim, "session": third, "turn_number": n, "route": old}
+                      for n in (1, 2)))
+        (self.project / evidence.STATE_DIR / "errors.log").write_text(
+            json.dumps({"component": "turn", "session": EARLIER, "turn_number": 2,
+                        "error": "ExtractError: the model call passed its 20.0s deadline"})
+            + "\n", encoding="utf-8")
+        answered = "claim-ledger · 1 unchecked · 0 checks seen"
+        self.transcript(EARLIER, [self.stop(1, 2.0, answered, EARLIER),
+                                  self.stop(2, 20.1, "claim-ledger · UNKNOWN · …", EARLIER)])
+        self.transcript(SESSION, [self.stop(10, 4.0, answered), self.stop(11, 6.0, answered),
+                                  self.stop(12, 9.0, answered),
+                                  self.stop(13, 1.0, "claim-ledger · 0 verified, 0 unchecked")])
+        self.transcript(third, [self.stop(20, 3.0, answered, third)])   # turn 2 left no Stop
+        code, shown = self.run_tool("latency", "--transcripts", str(self.transcripts))
+        self.assertEqual(code, 0)
+        summary = shown.split("by the configuration each session opened with")[1]
+        self.assertEqual(summary.splitlines()[1:], [
+            "  bbbbbbbbbbbb  m/old via Old, extract-1+aaaa, 2026-10-17 to 2026-10-17, "
+            "2 turns in 1 session",
+            "      answered 1, 1 past the deadline",
+            "      answered in 2.0s median, 2.0s at the 90th percentile, 2.0s at most; "
+            "1.00s for each 1,000 characters of report",
+            "  aaaaaaaaaaaa  m/new via New, extract-2+bbbb, 2026-10-17 to 2026-10-17, "
+            "4 turns in 1 session",
+            "      answered 3, empty answer 1, 0 past the deadline",
+            "      answered in 6.0s median, 8.4s at the 90th percentile, 9.0s at most; "
+            "3.00s for each 1,000 characters of report",
+            "  none recorded  m/old via Old, extract-1+aaaa, 2026-10-17 to 2026-10-17, "
+            "2 turns in 1 session",
+            "      answered 2, 0 past the deadline",
+            "      answered in 3.0s median, 3.0s at the 90th percentile, 3.0s at most; "
+            "1.50s for each 1,000 characters of report; no hook time found for 1 more "
+            "answered"])
 
     def test_an_ending_needs_no_guess(self):
         self.assertEqual(daily_use.ending("ExtractError: the report is 25575 characters, "

@@ -5437,3 +5437,31 @@ and push, with the message it proposes: it claims no work done and no check,
 so an empty list is a valid answer there. None of mimo's 269 answers on the
 corpus had come back empty. Four turns say nothing of a slow window such as
 that of 6 November, which is the risk the move took.
+
+Later still, at the user's request, `tools/daily_use.py latency` came to end
+with the same figures for every configuration, so that they take one command:
+the turns grouped by the hash each session opened with, which I-8 keeps, so
+that a turn that left no claim, past the deadline, empty or refused, counts
+with the configuration it ran under; beside each hash the route its claims
+name, how its turns ended, how many passed the deadline, and how long the
+answered ones took, at the median, at the 90th percentile and at most, and for
+each 1,000 characters of report. An answered turn whose transcript holds no
+hook time is counted apart, as for the sessions of October, whose Stop times
+were not found. A test in `tests/test_daily_use.py` sets out sessions under
+two configurations and one with no hash, a turn past the deadline, an empty
+answer and an answered turn with no Stop; ten faults put into the code on
+purpose each made it fail. At 17:45 UTC it gave, for the two latest
+configurations:
+
+| Configuration | Turns | Past the deadline | Answered: median, 90th percentile, max | Seconds a 1,000 characters |
+| --- | --- | --- | --- | --- |
+| `85f45c25f8dc`, `mistral-medium-3-5` | 45: 44 answered, 1 `UNKNOWN` | 0 | 3.5s, 5.2s, 6.7s | 2.14 |
+| `668331c6a351`, `mimo-v2.6-pro` | 9: 7 answered, 2 empty | 0 | 2.7s, 10.5s, 12.8s | 3.00 |
+
+Mimo's median is the lower for the shorter reports its session wrote; for a
+report's length it takes about 1.4 times as long. The second empty answer, the
+fifth turn of `107ecfb3`, is an answer of eight sentences to the user's
+question of which date to write, which claims no command, no file changed and
+no check, so it too loses nothing checkable. Still, two answers in nine came
+back empty, where none of the 269 on the corpus did, and that is to be
+watched beside the deadline.

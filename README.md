@@ -101,7 +101,8 @@ This is phase 1: the ledger records, audits and reports. It never blocks.
 - `python3 tools/daily_use.py recording|latency|verdicts|defects|referents|misplaced`
   reads back what daily use recorded: whether every tool call in a session's
   transcript has its record, how long each Stop took and how its turn ended, an
-  empty answer included, which `VERIFIED` claims a person should read, how the
+  empty answer included, both summed up by the configuration each session
+  opened with, which `VERIFIED` claims a person should read, how the
   spans the extractor got wrong differ from the report, how many checkable
   claims name something the join can match, and how many `VERIFIED` claims of
   each route match a pattern of verdicts that do not hold, set first against a

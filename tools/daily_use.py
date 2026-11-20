@@ -22,7 +22,14 @@ to claims.jsonl and no line to errors.log, and is told from a hook that never
 ran only by the appendix in the transcript, `0 verified, 0 unchecked`. The
 `x fast` column is a rough guess at how slow the route was: the hook's time
 against what the fast run of 17 October 2026 would have taken over the claims
-kept, read at 3.2 characters a token.
+kept, read at 3.2 characters a token. Last, the turns are summed up by the
+configuration their session opened with, the sha256 of claim-ledger.toml that
+I-8 keeps for each session, so that a turn that left no claim, past the
+deadline, empty or refused, counts with the configuration it ran under: how
+the turns ended, how many passed the deadline, and how long the answered ones
+took, at the median, at the 90th percentile and at most, and for each 1,000
+characters of report. Beside each hash stands the route claims.jsonl names for
+its turns.
 
 `verdicts` lists the `VERIFIED` claims a person should read, of the two kinds
 docs/DECISIONS.md records: a claim verified on one of several referents while
@@ -88,7 +95,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(REPO / "src"), str(REPO / "tools")]
 
-from ledger import config, evidence, join, turn  # noqa: E402
+from ledger import config, evidence, join, record, turn  # noqa: E402
 import measure_route  # noqa: E402  the fast run, the yardstick for "x fast"
 
 CHARS_PER_TOKEN = 3.2      # characters of answer per output token, 17 October 2026
@@ -191,7 +198,8 @@ def latency(args) -> int:
                       "ended": ending(errors.get((session, number)), what, run),
                       "claims": what["claims"] if what else 0,
                       "defects": what["defects"] if what else 0,
-                      "kept_chars": what["chars"] if what else 0})
+                      "kept_chars": what["chars"] if what else 0,
+                      "route": what["route"] if what else None})
     print(f"{'captured UTC':16}  {'session':8} {'n':>2} {'chars':>6} {'hook s':>6}  "
           f"{'ended':14} {'claims':>6} {'defects':>7} {'x fast':>6}")
     for t in sorted(turns, key=lambda t: t["captured"]):
@@ -218,7 +226,51 @@ def latency(args) -> int:
         sized = f"{low}-{high - 1}" if high < SIZES[-1][1] else f"{low} or more"
         print(f"  reports of {sized:>11} characters: {len(those):>2} turns, "
               f"{sum(1 for t in those if t['ended'] == 'deadline'):>2} past the deadline")
+    _by_configuration(args.root, turns)
     return 0
+
+
+def _by_configuration(root: Path, turns: Sequence[Mapping]) -> None:
+    """The turns summed up by the configuration their session opened with (I-8).
+
+    A turn that left no claim, past the deadline, empty or refused, names no
+    route, so the session's opening hash, not a claim's route, is what groups
+    the turns; the routes shown beside it are those its answered turns named.
+    """
+    groups = defaultdict(list)
+    for t in turns:
+        groups[record.read_config_baseline(root, t["session"])].append(t)
+    print(f"\nby the configuration each session opened with, the sha256 of "
+          f"{config.CONFIG_FILENAME} (I-8):")
+    for digest, those in sorted(groups.items(),
+                                key=lambda kv: min(t["captured"] for t in kv[1])):
+        those = sorted(those, key=lambda t: t["captured"])
+        routes = list(dict.fromkeys(t["route"] for t in those if t["route"]))
+        sessions = len({t["session"] for t in those})
+        print(f"  {digest[:12] if digest else 'none recorded'}  "
+              f"{'; '.join(routes) or 'no claim kept'}, "
+              f"{those[0]['captured'][:10]} to {those[-1]['captured'][:10]}, "
+              f"{len(those)} turn{'s' if len(those) != 1 else ''} in {sessions} "
+              f"session{'s' if sessions != 1 else ''}")
+        ended = Counter(t["ended"] for t in those)
+        late = ended.pop("deadline", 0)
+        print("      " + ", ".join([f"{k} {n}" for k, n in ended.most_common()]
+                                   + [f"{late} past the deadline"]))
+        answered = [t for t in those if t["ended"] == "answered"]
+        timed = [t for t in answered if t["seconds"]]
+        untimed = len(answered) - len(timed)
+        if not timed:
+            if untimed:
+                print(f"      no hook time found for the {untimed} answered")
+            continue
+        seconds = [t["seconds"] for t in timed]
+        per = [t["seconds"] / t["chars"] * 1000 for t in timed if t["chars"]]
+        print(f"      answered in {statistics.median(seconds):.1f}s median, "
+              f"{measure_route.percentile(seconds, 90):.1f}s at the 90th percentile, "
+              f"{max(seconds):.1f}s at most"
+              + (f"; {statistics.median(per):.2f}s for each 1,000 characters of report"
+                 if per else "")
+              + (f"; no hook time found for {untimed} more answered" if untimed else ""))
 
 
 def ending(error: str | None, kept: Mapping | None, run: tuple | None) -> str:
@@ -621,14 +673,18 @@ def _errors(root: Path) -> dict[tuple[str, int], str]:
 
 
 def _kept(root: Path) -> dict[tuple[str, int], dict]:
-    """What claims.jsonl holds for each turn: claims, defects, and their size."""
-    found = defaultdict(lambda: {"claims": 0, "defects": 0, "chars": 0})
+    """What claims.jsonl holds for each turn: claims, defects, their size, the route."""
+    found = defaultdict(lambda: {"claims": 0, "defects": 0, "chars": 0, "route": None})
     for row in _claim_rows(root):
         what = found[(row.get("session"), row.get("turn_number"))]
         if row.get("row") == "claim":
             what["claims"] += 1
             answer = {k: row.get(k) for k in ("span", "type", "referents")}
             what["chars"] += len(json.dumps(answer, ensure_ascii=False)) + 2
+            route = row.get("route")
+            if what["route"] is None and isinstance(route, dict):
+                what["route"] = (f"{route.get('model')} via {route.get('provider')}, "
+                                 f"{route.get('prompt_version')}")
         elif row.get("row") == "defect":
             what["defects"] += 1
     return dict(found)
