@@ -5380,3 +5380,39 @@ Not checked: mimo on the holdout, on the anchor and on
 account's balance after the run. The counts by type come from the claims
 `tools/measure_recall.py` lists as missed, kept in the scratchpad with the
 lists read and the passes split for timing.
+
+Later the same day the user chose the move, with the deadline kept at 20
+seconds, to be made once distiller's open session had ended, since a change
+during a session makes its later turns `UNKNOWN` (I-8). The new configuration
+was checked first without being written: the release's loader accepted it,
+its `[extractor]` equals the measured route's, and no other table changed. A
+script waiting on that session's process copied it in at 14:36:10 UTC, the
+moment the process ended, having found the file still the one hashed
+`85f45c25f8dc`, no other session running in distiller and none that had
+hashed the configuration meanwhile. Distiller's `claim-ledger.toml` is now
+`668331c6a351`: the model, the provider, `thinking` disabled in place of
+`reasoning` set to none, and the comments above the first two, and nothing
+else. The tests' fixed report, sent once through it, was answered by
+DeepInfra in 2.1 seconds with 6 claims.
+
+The first session under it, `202166fe`, hashed `668331c6a351` at 14:37:47
+UTC, and by 16:44 UTC two of its turns had been answered by `mimo-v2.6-pro`
+through DeepInfra, with no line in `errors.log`. The first, at 14:41 UTC,
+holds 39 claims, 1 `VERIFIED`, 4 `UNSUPPORTED` and 34 `NOT_CHECKABLE`, and
+its hook took 12.8 seconds for a report of 3,807 characters, where medium 3.5
+had taken 6.7 for one of 3,681 in the session before; the second, at 16:41
+UTC, holds 31, 1 `VERIFIED`, 3 `UNSUPPORTED` and 27 `NOT_CHECKABLE`, in 5.6
+seconds for 3,117 characters. Both inside the deadline, and the first about
+twice as long as medium 3.5 would have taken, which fits the corpus passes.
+`tools/daily_use.py misplaced` flags one of the two `VERIFIED` labels, decided
+by a record of the session's first turn; it was not read.
+
+At the user's request SPEC § Extractor contract and its example
+configuration, the repository's sample configuration and CLAUDE.md's FROZEN
+row now name the new route, and `tests/test_config.py`, which holds the
+sample's route, follows them; the sample's `[extractor]` sends what
+distiller's does, and only the comments differ. SPEC's note of when it was
+last edited, which the change of 19 November had left at 6 November, now
+names both moves. The private corpora copy of distiller's configuration is
+still medium 3.5's. Not checked: how often the deadline is passed over days
+of use, which `tools/daily_use.py latency` counts.
