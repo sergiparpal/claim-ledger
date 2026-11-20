@@ -5416,3 +5416,24 @@ last edited, which the change of 19 November had left at 6 November, now
 names both moves. The private corpora copy of distiller's configuration is
 still medium 3.5's. Not checked: how often the deadline is passed over days
 of use, which `tools/daily_use.py latency` counts.
+
+Later still, at the user's request, the private corpora copy was brought to
+the new route too; the copy of 19 November stays in that repository's
+history. Then, also at the user's request, the turns under the new route were
+timed with `tools/daily_use.py latency` at 17:21 UTC: four, in `202166fe` and
+in `107ecfb3`, a session opened at 16:44 UTC that hashed `668331c6a351` as
+well. None passed the deadline, and `errors.log` gained no line. The hook took
+12.8, 5.6 and 8.9 seconds for the three that were answered, reports of 3,807,
+3,117 and 2,221 characters, and 1.3 seconds for the fourth, of 527, which
+came back empty. Over distiller's 45 turns under medium 3.5, 44 answered and
+one `UNKNOWN` for a refused answer, the hook took 3.5 seconds at the median,
+5.2 at the 90th percentile and 6.7 at most: 2.16 seconds per 1,000 characters
+against mimo's 3.36, and 5.0 at the median for the ten reports of 3,000
+characters or more against 9.2 for mimo's two. So mimo takes between one and a
+half and two and a half times as long, about what the corpus passes showed,
+and so far stays well inside 20 seconds. The empty answer was to a report of
+seven sentences in which the agent only asks whether to commit four files
+and push, with the message it proposes: it claims no work done and no check,
+so an empty list is a valid answer there. None of mimo's 269 answers on the
+corpus had come back empty. Four turns say nothing of a slow window such as
+that of 6 November, which is the risk the move took.
