@@ -5580,3 +5580,60 @@ configuration is today's for every session; the labels are Claude's
 readings, of which the user read twenty of 8 November blind; the figures for
 medium 3.1 and up to 1 November extrapolate samples of 40; and the 13 labels
 C' would take away that nobody has read.
+
+### The decision page is brought to the review of 28 November, and 0.3.5's fix has kept seven turns from `UNKNOWN` — 20 November 2026
+
+At the user's request the private decision page, "Fase 1 de claim-ledger",
+was brought up to date for the review of 28 November, at which the user is
+to choose, from two weeks of distiller's use, between resuming (c), a mod
+that keeps the appendix in view, and neither. Its version 21, of 20
+November, opens with the review. It sets the decisions in the order
+recommended: first whether a `VERIFIED` label resting on a record that says
+nothing of its claim counts as a false one; then, if it does, rule C' in the
+join (§ If an earlier turn's record could count only against a claim…);
+then (c), the mod or neither; and last whether the folded appendix is read
+at all, which only the user can say. Beneath them stand what C' takes away
+against the three readings, distiller's use since 14 November by
+configuration and by route, and what is to be counted again on the day. A
+card records what happened from 17 to 20 November, and `mimo-v2.6-pro` now
+stands as the hook's route in the key figures, in the corpus table, which
+gains rows for medium 3.5 and Mistral Small 4, and in its chart. The
+balance stays off the page, as it has since 14 November. Nothing in this
+repository changed for it. The page was not seen rendered, since the
+session had no way to preview it: its tags were checked to close, its
+script to parse under node, and the published file to equal the local copy.
+
+Distiller's use, counted at 18:45 UTC on 20 November by the configuration
+each session opened with:
+
+| Configuration | Route and days | Turns | Answered | Empty | `UNKNOWN` | Hook when answered: median, 90th percentile, max |
+| --- | --- | --- | --- | --- | --- | --- |
+| `7d04dfe87a91` | medium 3.1, 1 and 14–19 November | 276 | 145 | 6 | 125 | 2.8s, 5.0s, 15.2s |
+| `85f45c25f8dc` | medium 3.5, 19–20 November | 45 | 44 | 0 | 1 | 3.5s, 5.2s, 6.7s |
+| `668331c6a351` | `mimo-v2.6-pro`, from 20 November | 16 | 14 | 2 | 0 | 2.7s, 8.0s, 12.8s |
+
+Of medium 3.1's 125 `UNKNOWN` turns, 99 are the HTTP 404 of 17 to 19
+November, 8 the HTTP 429 of 16 November, 12 the change of configuration on
+19 November while a session was open (I-8), 3 a claim without its referents
+and 3 the failure 0.3.5 fixed; no turn passed the deadline under any of the
+three. Since 14 November, medium 3.1 with `extract-6c` made 1,791 claims in
+138 turns, 14% `VERIFIED`, 38% `UNSUPPORTED` and 48% `NOT_CHECKABLE`, with
+14 `STALE` and 1 `CONTRADICTED`; medium 3.5 made 740 in 44 turns, 23%, 34%
+and 42%, with 4 `STALE`; and mimo 205 in 14 turns, 12%, 20% and 68%.
+`tools/daily_use.py misplaced` flags 40 of medium 3.1's 243 `VERIFIED`
+labels, 51 of medium 3.5's 171 and 4 of mimo's 25.
+
+0.3.5's fix has now served in real use, where the entry of 15 November found
+that none of the turns after the ship had taken the branch it changed
+(§ Under 0.3.4 distiller's first forty turns…). Since the ship, seven turns
+have, three under medium 3.1 and four under medium 3.5: in each, a
+`suite_passed` claim was decided by a check that passed, and a write outside
+the project followed the check before any write the check covers. Run on
+those turns' records, the half of 0.3.4's freshness test that reads the
+log, from `726e2e1^`, raises `ValueError`, as it did in the three turns of
+15 November, while all seven kept their claims under 0.3.5.
+
+Not checked: the page as rendered; whether mimo's two empty answers, to
+reports with nothing checkable, left anything unlisted; and how many
+appendices since 15 November list scratchpad writes as `UNREPORTED`, which
+the page leaves for the day.
