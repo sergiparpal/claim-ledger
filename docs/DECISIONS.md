@@ -5137,3 +5137,43 @@ out beside it. Not checked: a claim's truth was checked only where it
 decided the label; the labels are one reading, not the user's; and where a
 description ends and a change begins is open to question when the label
 cites the write that left the file as the sentence describes it.
+
+Later still, at the user's request, the new session's fourth to seventh
+turns were read the same way, against the transcript, the evidence log and
+distiller's `05c296a`. Asked for the plan the third turn had offered, in
+which the agent writes a broken phase file again itself, the agent planned
+it in the fourth turn, tested a patch of the hooks in a clone in the
+scratchpad in the fifth, checked and documented it once the user had applied
+it in the sixth, and committed and pushed it as `05c296a` in the seventh.
+Their 84 claims are true, as facts or as steps of the plan, and 7 of their
+16 `VERIFIED` labels hold. The fourth turn's 3 are steps of the plan
+verified on the first turn's records: its run of `make verify`, through the
+aliases of `ruff` and `pyright`, and its writes of `TASKS.md` and
+`HANDOFF.md`. It is the fifth plan in the two sessions to read so. The fifth
+turn's 3 describe runs in the clone, the red and green runs of the hook
+tests and a `make format lint types`, and are verified on that same `make
+verify`, two through the fallback and one through the aliases. In the sixth,
+a proposed commit is verified on a write of its own turn, as two were
+before, and a claim that the hook tests' 201 include the one that runs `make
+verify` is verified on the agent's own `make verify` two minutes later,
+another run. In the seventh, what `TASKS.md`'s `## Open` holds is verified
+on the sixth turn's write, and the commit exception hides it, since the turn
+committed. The patterns flag 6 of the 16, none of which holds, and miss 3.
+
+With them every `VERIFIED` label of medium 3.5 up to the session's ninth
+turn is read: of 105, 45 do not hold, 43%, where 36 of the first 89 did not.
+28 are steps still to come, 12 rest on the one-check fallback, 2 on an
+alias, 2 are descriptions and 1 is verified on another run. `fallback` or
+`earlier` flags 41 of the 105, 40 of which do not hold, and misses 5: the
+three proposed commits, the other run and that description. The reading is
+in the private repository, where `labels.py` now writes all 105 to
+`labels.jsonl` (sha256 `6737b1f61149`), at its commit `6c2d3a9`. There
+`labels_6c.py`'s note on one claim of the reading of medium 3.1 called
+commit `2bff724` the user's; the agent made it the turn before, from the
+user's patch, and the note now says so. Its label does not change.
+
+The session's eighth turn, at 07:54 UTC, has 28 claims and no `VERIFIED`
+among them, and was not read. Its ninth, at 08:00 UTC, is medium 3.5's first
+line in `errors.log`: the model returned a claim without its `referents`,
+the schema refused the answer, and the turn kept no claim. Its tenth and
+eleventh, by 08:18 UTC, hold 4 more `VERIFIED` labels and were not read.
