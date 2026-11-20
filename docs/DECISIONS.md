@@ -5177,3 +5177,43 @@ among them, and was not read. Its ninth, at 08:00 UTC, is medium 3.5's first
 line in `errors.log`: the model returned a claim without its `referents`,
 the schema refused the answer, and the turn kept no claim. Its tenth and
 eleventh, by 08:18 UTC, hold 4 more `VERIFIED` labels and were not read.
+
+Later still, at the user's request, the route was told from the work with
+the readings already made: no claim was read anew. A turn acted when its
+records hold a write, a check, or a `git commit` or `git push`, and
+otherwise only looked. In turns that acted, the share of `VERIFIED` labels
+that do not hold is about 16% under medium 3.1 with `extract-6c`, between 9%
+and 29%, and 24% under medium 3.5, 19 of 78, between 15% and 35%; leaving
+commits and pushes out of acting gives 17% and 29%, and the intervals
+overlap either way. The turns that only looked were not the same work under
+the two routes: under medium 3.5 they were mostly plans asked for as such,
+under medium 3.1 mostly answers on what was open or on what the user's runs
+had given. So plans were set apart, listed by hand: a turn whose prompt asks
+for a plan, a proposal or a recommendation, or whose report is one. In plan
+turns nearly every `VERIFIED` label fails under either route, 26 of 26 under
+medium 3.5, between 87% and 100%, and about 82% under medium 3.1, between
+82% and 100%: they are steps still to come, verified on what an earlier turn
+did. Under medium 3.5 a single `VERIFIED` label stood in the other turns
+that only looked, too few to compare.
+
+What differs is the mix. The two sessions under medium 3.5 had 7 plan turns
+among 23, of about 30 claims each, naming files and checks the session had
+already written or run, and 25% of their `VERIFIED` labels stand in them;
+under medium 3.1 with `extract-6c`, 16 turns among 138 were plans, of about
+10 claims, and 5% of the labels stand in them. Medium 3.5's labels at medium
+3.1's rates for each type of turn would give 32% that do not hold, against
+43% observed and 22% under medium 3.1: the mix accounts for about 10 of the
+21 points, and the other 11 are rates somewhat higher within each type,
+inside the intervals. On the annotated corpus the two routes scored the same
+(§ The route's endpoint is gone…). So nothing here shows that medium 3.5
+places `VERIFIED` worse, and nothing rules it out: it has two sessions,
+mostly spent on patches of the hooks that the agent prepared and tested
+outside the repository, which is where the 12 labels resting on the fallback
+come from. Medium 3.5 in sessions of other work would tell, through
+`daily_use.py misplaced`, whose flags held for 40 of 41 on that route.
+
+`by_turn_type.py` in the private repository, at its commit `12b2d53`, gives
+the shares, intervals and counts above from the three readings, and holds
+the list of plan turns. Not checked: the list is one judgment, five plan
+turns are counted by their reports rather than their prompts, and medium
+3.1's rates are estimates from 40 of its 203 unflagged labels.
