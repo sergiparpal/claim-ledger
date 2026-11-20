@@ -5298,3 +5298,85 @@ reports, since the corpus rules it out; mimo's three passes, so its share past
 the list, most of them never measured here; and what drew the account down on
 19 November beyond the hook. The lists read, the join of medium 3.5's runs and
 the count by type were kept in the scratchpad only.
+
+Later the same day, at the user's request, mimo's three passes were run after
+all (§ `mimo-v2.6-pro` finds as much as medium 3.5…, below). In that window 5
+of its 243 calls passed 20 seconds, all in the third pass, where the estimate
+above gave 10 to 12 in 81.
+
+### `mimo-v2.6-pro` finds as much as medium 3.5 at a twelfth of the cost, and how often it is slow is not known — 20 November 2026
+
+At the user's request, `xiaomi/mimo-v2.6-pro` on `deepinfra/fp8` ran the
+annotated corpus three times, the passes the entry before this one left
+unrun. Its file, `corpus/routes/mimo-v2.6-pro.toml`, is the one of 6
+November, unchanged (sha256 `9ad48a03de95`), with temperature 0 and thinking
+disabled. The run sent `extract-6c+bf5a552b` with the default seed and a wall
+clock of 150 seconds, from 12:23 to 12:56 UTC, 269 calls:
+`corpus/runs/mimo-v2.6-pro-extract-6c+bf5a552b-r2.jsonl`, beside the one pass
+of 6 November in the file without `-r2`.
+
+| Against the reference of 5 November | Recall, each pass | Spurious share, each pass | Turns `UNKNOWN`, of 81 | Median call, 95th percentile, max | Three passes |
+| --- | --- | --- | --- | --- | --- |
+| `mistral-medium-3-5`, 19 November | 0.79, 0.79, 0.78 | 0.48, 0.48, 0.48 | 2, 2, 1 | 3.6s, 10.6s, 15.8s | $3.06 |
+| `mistral-small-2603`, 20 November | 0.60, 0.58, 0.59 | 0.50, 0.51, 0.54 | 0, 0, 0 | 2.5s, 8.2s, 17.9s | $0.17 |
+| `mimo-v2.6-pro`, 20 November | 0.78, 0.84, 0.81 | 0.44, 0.40, 0.41 | 0, 0, 5 | 5.7s, 16.8s, 36.5s | $0.26 |
+
+By its worst pass mimo finds 790 of 1,019 checkable claims, 0.775, against
+medium 3.5's 775 of 991, 0.782, and its other two passes find 851 and 823.
+Medium 3.5's figures are over the answers it could use: one or two reports a
+pass got none, and their claims leave the count, where mimo's answers were
+all usable, for every report in every pass. At each route's worst pass mimo
+finds more `command_run`, 148 of 232 against 119 of 221, more
+`file_changed`, 343 of 391 against 310 of 387, and less `suite_passed`, 299
+of 396 against 346 of 383, the type on which its passes differ most, from 299
+to 354. It extracts more, 3,056, 2,849 and 2,930 claims, about 36 a report
+against about 30, so its spurious share is lower, 1,343 of 3,056 at worst,
+0.439, against 0.482, while the spurious claims in a report stay about as
+many, 14 to 17 against about 15. No answer came back empty or carried a
+defect, and none of the 269 calls reasoned. 8 of the 81 reports got the same
+answer in all three passes, against 9, and the fixed report got 2 distinct
+answers in 26 calls. The three passes cost $0.2591, $0.00096 a call, about a
+twelfth of medium 3.5's $0.0113. Judged by recall on the annotated corpus, as
+the FROZEN row asks, it is a candidate: within 0.01 of medium 3.5 by its
+worst pass, and above it in the other two.
+
+Its speed is what is not settled. Over the 243 calls on the corpus the median
+was 5.7 seconds, the 95th percentile 16.8, the 99th 22.9 and the slowest
+36.5; 238 came inside 20 seconds, 241 inside 25 and all of them inside 45.
+The first byte came at 3.02 seconds at the median, as medium 3.5's does at
+3.03; what differs is what follows, 280 tokens a second at the median against
+medium 3.5's 527 and 636 in its two runs, and 25 at the least against 220 or
+more. The first two passes, from 12:23 to 12:43 UTC, had no call past 20
+seconds, the slowest taking 16.8 and 19.2. In the third, from 12:43 to 12:56,
+the median after the first byte fell to 212 tokens a second, from 333 and
+312, and five calls passed 20 seconds, two of them past 28. The slowest, 36.5
+seconds, answered a report of 4,645 characters with 1,013 tokens; the same
+report took 5.7 and 6.5 seconds in the first two passes, for 990 and 950, so
+it was the endpoint that slowed, not the answer that grew. In the hook those
+five turns would have been `UNKNOWN`, 6% of that pass, where the entry before
+this one estimated 10 to 12 in 81 from five calls. On 6 November the same
+route passed 20 seconds in 28 of 81 calls, 16 of them past 28 and 7 past 60,
+the slowest taking 123 seconds. Its speed moved within half an hour, and far
+more between the two days, and 34 minutes do not say how often it runs as it
+did on 6 November.
+
+OpenRouter's lists, read after the run, give mimo no expiry date, where
+medium 3.5 has 31 January 2027, and hold `deepinfra/fp8` among the 1,051
+zero-retention endpoints, up for all of the last day, at $0.387 and $0.783 a
+million tokens in and out, and $0.00324 for cached input. On that route the
+reports would go to DeepInfra, where they go to Mistral now.
+
+The route stays medium 3.5 until the user decides. A move would change only
+the `[extractor]` table of distiller's configuration, between sessions
+(I-8): the model, the provider, and `thinking` disabled where medium 3.5
+takes `reasoning` set to none. The deadline would stay at 20 seconds, so no
+version of the plugin would change; a turn the endpoint made slow would be
+`UNKNOWN`, as I-9 asks, and `tools/daily_use.py latency` shows how each
+turn's hook ended. The FROZEN row, SPEC's extractor contract and the sample
+configuration would follow, as they did for medium 3.5.
+
+Not checked: mimo on the holdout, on the anchor and on
+`semantic-diff-weaver`'s reports; its speed outside this window; and the
+account's balance after the run. The counts by type come from the claims
+`tools/measure_recall.py` lists as missed, kept in the scratchpad with the
+lists read and the passes split for timing.
