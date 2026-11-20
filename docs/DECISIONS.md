@@ -5217,3 +5217,84 @@ the shares, intervals and counts above from the three readings, and holds
 the list of plan turns. Not checked: the list is one judgment, five plan
 turns are counted by their reports rather than their prompts, and medium
 3.1's rates are estimates from 40 of its 203 unflagged labels.
+
+### A cheaper route is looked for: Mistral Small 4 finds a quarter less, and `mimo-v2.6-pro` is still too slow — 20 November 2026
+
+The user asked whether a cheaper model could take the route. Medium 3.5 costs
+about $0.011 a call over the corpus, six times what medium 3.1 did (§ The
+route's endpoint is gone…), and the account held $9.39 at 09:15 UTC on 20
+November, $1.21 less than after the passes of 19 November. The key's own
+count for 20 November up to then was $0.094, for the 11 calls the hook had
+made that day, about $0.009 a call, as the corpus predicts. How the rest
+divides between the hook's long turns on the evening of 19 November and
+anything else is not known, since the client keeps no cost per call. From
+09:15 to 11:16 UTC the account spent $0.19, this measurement's $0.17 and two
+turns of distiller, and $9.21 was left.
+
+OpenRouter's public list of zero-retention endpoints, read at 10:52 UTC,
+holds 1,051. The tests of the screen of 6 November were applied to it, less
+the one for reasoning: a model outside the annotator's family that reads and
+writes text, holds 32,000 tokens or more and takes a temperature and a JSON
+schema, on an endpoint that is up and answered at least 90% of the last day or
+gives no figure. 511 such endpoints, of 132 models, cost less a call than
+medium 3.5 at the tokens its corpus passes used, about 4,020 in and 677 out.
+Medium 3.1 is listed again, on `mistral/eu`, with an uptime of 0 over the last
+day, so it is no route.
+
+The first measured was `mistralai/mistral-small-2603`, Mistral Small 4, on
+`mistral/zdr`: the route's own endpoint, so no report goes anywhere new; $0.15
+and $0.60 a million tokens in and out, with cached input at a tenth, which
+medium 3.5's endpoint bills in full; no expiry listed, where medium 3.5's is
+31 January 2027; and a `reasoning` parameter, as medium 3.5 has. Its file,
+`corpus/routes/mistral-small-2603.toml`, is medium 3.5's with the model line
+changed (sha256 `f2703ed755e5`). It answered the fixed report in 1.9 seconds,
+with two claims and no defect, and two reports of the corpus with one text
+block and no thinking tokens. It then ran the annotated corpus three times
+with `extract-6c+bf5a552b`, the default seed and a wall clock of 150 seconds,
+from 10:57 to 11:15 UTC, 269 calls:
+`corpus/runs/mistral-small-2603-extract-6c+bf5a552b.jsonl`. Medium 3.5's three
+passes were scored again beside it from its two runs joined in the
+scratchpad, as on 19 November, and gave that day's figures.
+
+| Against the reference of 5 November | Recall, each pass | Spurious share, each pass | Turns `UNKNOWN`, of 81 | Median call, 95th percentile, max | Three passes |
+| --- | --- | --- | --- | --- | --- |
+| `mistral-medium-3-5`, 19 November | 0.79, 0.79, 0.78 | 0.48, 0.48, 0.48 | 2, 2, 1 | 3.6s, 10.6s, 15.8s | $3.06 |
+| `mistral-small-2603`, 20 November | 0.60, 0.58, 0.59 | 0.50, 0.51, 0.54 | 0, 0, 0 | 2.5s, 8.2s, 17.9s | $0.17 |
+
+By its worst pass Small 4 finds 594 of 1,019 checkable claims, 0.583, against
+medium 3.5's 775 of 991, 0.782, and 1,032 of the 1,926 claims it extracts
+match nothing, 0.536, against 0.482. It finds less of every checkable type, at
+each route's worst pass: `command_run` 77 of 232 against 119 of 221,
+`file_changed` 255 of 391 against 310 of 387, and `suite_passed` 262 of 396
+against 346 of 383, counted from the claims `tools/measure_recall.py` lists
+as missed. It answered every turn inside 20 seconds, and none of its 269 calls
+reasoned, but 4 of its answers came back empty, one named a sentence the
+report does not have, and its answers vary more: 6 of the 81 reports got the
+same answer in all three passes, against 9. The three passes cost $0.1664,
+$0.00062 a call, about an eighteenth of medium 3.5's. Judged by recall on the
+annotated corpus, as the FROZEN row asks, it is no candidate.
+
+Of the routes measured, the one that found more than medium is
+`mimo-v2.6-pro` (§ Neither another route nor the guide itself…: 0.81 and 0.43
+in its one pass), whose `deepinfra/fp8` endpoint lists about a fifth of medium
+3.5's price a call; its other zero-retention endpoint lists more than medium
+3.5's. It was set aside for its speed: on 6 November 28 of its 81 calls passed
+20 seconds. At the user's request its file was run unchanged at 11:19 UTC,
+one pass over the fixed report and three reports of the corpus. The two short
+reports took 1.2 and 3.3 seconds, against 5.0 and 6.0 on 6 November, and the
+report of 8,130 characters 14.1 seconds for 1,021 tokens out, against 33.2 for
+932, with no thinking tokens, at $0.0001 to $0.0019 a call. At that speed, by
+the long report's ratio or at 79 tokens a second after the first 1.2 seconds,
+10 to 12 of 6 November's 81 answers would still pass 20 seconds, where medium
+3.5 lost 1 or 2 turns in 81: about one turn in seven `UNKNOWN`, the longest
+reports first. So its three passes were not run. It would fit only a longer
+deadline, which the end of every turn would wait for, and that is the user's
+to set.
+
+So the route stays medium 3.5, until 31 January 2027 at the latest. Not
+checked: Small 4 on the holdout, on the anchor and on `semantic-diff-weaver`'s
+reports, since the corpus rules it out; mimo's three passes, so its share past
+20 seconds is an estimate from five calls in one window; the other models of
+the list, most of them never measured here; and what drew the account down on
+19 November beyond the hook. The lists read, the join of medium 3.5's runs and
+the count by type were kept in the scratchpad only.
