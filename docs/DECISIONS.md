@@ -5465,3 +5465,118 @@ question of which date to write, which claims no command, no file changed and
 no check, so it too loses nothing checkable. Still, two answers in nine came
 back empty, where none of the 269 on the corpus did, and that is to be
 watched beside the deadline.
+
+### If an earlier turn's record could count only against a claim, 38 of the 45 `VERIFIED` labels of medium 3.5 that do not hold would go, and none that holds — 20 November 2026
+
+The user asked what to do next. The answer put first, for the review of 28
+November, the question the entry of 14 November left with phase 2: whether
+a `VERIFIED` label resting on a record that says nothing of its claim counts
+as a false one. Read by hand, such labels are about 8% of those up to 1
+November, about 22% under medium 3.1 with `extract-6c` and 43% under medium
+3.5 (§ A count takes over from the readings…), none of medium 3.5's on a
+false statement, and REQUIREMENTS § Rollout phases asks that no `VERIFIED`
+in the phase-1 sample be false before phase 3. If they count, the place to
+act is the join rather than the extractor: the prompt already carries a rule
+for steps still to come, and in plan turns nearly every `VERIFIED` label
+fails under either route. At the user's request, before anything is
+decided, every join distiller's hook made was replayed with the join's rules
+changed, to see what each change would take away and what it would cost. No
+model was called, and nothing was changed in distiller or in this
+repository's code.
+
+The replay is `distiller-verdicts/misplaced/replay_join.py` in the private
+repository (sha256 `86fecd6f52fd`), beside the readings it is set against.
+It reads distiller's `claims.jsonl` and session logs up to the last claim
+stamped at 17:58:50 UTC, and calls `ledger.join` as it is, giving each
+turn's claims the records its join saw, those of the session up to that
+turn; it changes only what the join is given, or which of its helpers it
+calls. The half of the freshness test that reads the working tree cannot be
+replayed, since the tree has moved on, so it is put back from the recorded
+scopes: a check found stale by a covered file modified after it names that
+file and its time, and every other scope is taken to hold no newer file. So
+replayed, the join gives back 4,679 of the 4,684 verdicts recorded, each
+with the record that decided it. The other five are `suite_passed` claims of
+one session of 18 October naming pyright, ruff, import-linter and gitleaks,
+which the configuration made aliases of `verify` the next day; the replay
+reads the configuration as it is now.
+
+Three changes were tried, alone and together. Under A only the records of
+the report's own turn are evidence, which reverses R-6. Under B there is no
+one-check fallback, and a `suite_passed` that names nothing stays
+`UNSUPPORTED`. Under C an earlier turn's record counts only against a claim:
+the verdict is the join's, except that a `VERIFIED` decided by a record of
+an earlier turn becomes `UNSUPPORTED`, so that a `STALE` or `CONTRADICTED`
+resting on an earlier turn stands. A' and C' keep the exception
+`tools/daily_use.py misplaced` makes for a file change in a turn whose own
+records hold a `git commit`, since committing an earlier write is what such
+a claim says. A turn is told by its prompt id, as the hook tells it, where
+`misplaced` goes by the turn number. The two differ for two labels of 28
+October, in a session where one prompt ran through three Stops after a Stop
+hook sent the agent back, so C' keeps the two labels `misplaced` counts as
+resting on an earlier turn there.
+
+A takes away what it was meant to, and more. Twelve `STALE` claims, all in
+sessions of medium 3.1 with `extract-6c`, become `UNSUPPORTED`, since the
+check they rest on ran in an earlier turn. Two `UNSUPPORTED` claims become
+`VERIFIED`: each names no check, in a session that had run four, and the
+one-check fallback, counting only the turn's own checks, finds `verify`
+alone; both lean on the tree being taken as unchanged. A rule that raises a
+verdict goes against I-2, and one that turns a stale check into an
+unsupported claim takes away what phase 3 would block on. C does neither by
+construction, and in the replay no verdict becomes milder under it: the 18
+`STALE` and 4 `CONTRADICTED` verdicts stand.
+
+What C' takes away from the labels read by hand:
+
+| Reading | `VERIFIED` read | Do not hold | C' takes away | Of those that hold, C' takes away |
+| --- | --- | --- | --- | --- |
+| Medium 3.5, 19–20 November | all 105 | 45 | 38 | 0 of 60 |
+| Medium 3.1 with `extract-6c`, 14–17 November | 80 of 243 | 41; about 53 over the route | 37; about 37 | 2 of 39; about 2 |
+| Routes up to 1 November, read on 8 November | 208 of 393 | 26; about 31 | 0 | 0 of 182 |
+
+Over a route, each claim drawn at random stands for its share of those not
+read in full, 203 under medium 3.1 and 225 up to 1 November. Under medium
+3.5 the 38 are 25 steps still to come, 10 claims verified through the
+fallback on a check run in an earlier turn, 2 through an alias and 1
+description. The 7 left are 3 proposed commits verified on a write of their
+own turn, 2 claims on the fallback whose check ran in their own turn, a
+claim verified on another run in its own turn, and a description the commit
+exception keeps. Under medium 3.1 the 2 that hold and go are file changes
+reported in a later turn that did not itself commit: one the user had
+committed from a terminal, one in a turn that only pushed. Sessions up to 1
+November were short, one to four turns with claims each, and C' takes none
+of the labels read there. Without the exception, C takes one more that does
+not hold under each of the two later routes, a description the exception
+hid, and four that hold under medium 3.5 and one up to 1 November, files
+the agent committed in the turn that reported them.
+
+Over all 824 `VERIFIED` labels in distiller's log, C' turns 90 into
+`UNSUPPORTED`: 39 of medium 3.1's 243 with `extract-6c`, all of them among
+those read, 48 of medium 3.5's 171 and 3 of `mimo-v2.6-pro`'s 17, and none
+on the routes before; 33 file changes, 31 command runs and 26 claims that a
+suite passed. Medium 3.5's 10 outside the 105 and mimo's 3 were not read.
+
+B on top of C' takes 2 more that do not hold under medium 3.5 and 1 that
+holds, 1 more under medium 3.1, and up to 1 November 9 more, results of
+programs run by hand verified on the session's one check, against 8 that
+hold, claims about `make verify` or its steps (§ No verified claim of real
+use read is false…). It takes about as many sound labels as unsound ones,
+and the recommendation leaves it out.
+
+C' would change the requirements. R-6 admits evidence from earlier turns of
+the session; it would admit it only against a claim, to find it stale or
+contradicted, never to verify it. That is the user's to decide, together
+with whether the labels it removes count as false `VERIFIED`, at the review
+of 28 November or before. It would also change `src/ledger/join.py`, which
+is frozen, and SPEC § Join, verdicts and coverage, and its exception names a
+command, `git commit`, where the join has so far matched commands only to
+what a claim names; whether a rule of the join may do that is part of the
+same decision. Nothing is changed now.
+
+Not checked: the tree half of freshness is put back from what each turn
+recorded, so a scope that no claim of the turn found stale is taken to hold
+no newer file, which C' does not lean on and A's two raised verdicts do; the
+configuration is today's for every session; the labels are Claude's
+readings, of which the user read twenty of 8 November blind; the figures for
+medium 3.1 and up to 1 November extrapolate samples of 40; and the 13 labels
+C' would take away that nobody has read.
