@@ -30,6 +30,7 @@ jobs:
           include: |
             src/**/*.py
             tools/**/*.py
+            mods/**/*.py
           comment: false
           baseline: none
           fail-on: none
