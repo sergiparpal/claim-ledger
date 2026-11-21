@@ -5493,6 +5493,39 @@ refuses. DeepInfra refused another model, `mistral-small-24b`, with 429 for a
 stretch on 18 October; it is to be watched beside the deadline and the empty
 answers.
 
+Later still, at the user's request, the first turn the new route left
+`UNKNOWN` by its deadline was recorded. It was found on 21 November, when the
+user asked what was open, by 16:08 UTC. `errors.log`, at 152 lines since
+the 429 above, held a 153rd for the nineteenth turn of `db7c93fd`,
+`ExtractError: the model call passed its 20.0s deadline`. The session had
+hashed `668331c6a351` at 09:40 UTC and ran 22 turns under 0.3.5, the last at
+14:46 UTC, before 0.3.6 was shipped at 15:37. The line carries 14:38:06 UTC,
+the moment the Stop handler began, and the transcript's `hook_success` row,
+at 14:38:26 UTC, gives 20,097 milliseconds and exit 0: the call was abandoned
+at its deadline and the hook ended by itself, inside the turn's 23 seconds
+and the harness's 28. The transcript shows the turn's `UNKNOWN` line with
+that error and 4 checks seen, so I-9 held; the band came later, so the line
+stood only in the row the Code tab folds. The report was of 2,525
+characters; the turn before, at 14:32 UTC, and the one after, at 14:41 UTC,
+were answered in 3.2 and 4.2 seconds, for reports of 981 and 1,478
+characters, with 9 and 12 claims. The client keeps nothing of an abandoned
+call, so whether the endpoint slowed or the answer grew is not known; on the
+corpus, the slowest call was the endpoint slowing. No measurement made here is
+known to have shared the endpoint then: no file under `corpus/`, the private
+corpora repository or the sessions' scratchpads changed between 14:25 and
+14:50 UTC. Of the 16 lines `errors.log` holds for a deadline, the other 15
+are of the deadline of 12 seconds, the last on 30 October, so this is the
+first call to pass the deadline since it was raised to 20 seconds on 31
+October, under any route. At 16:16 UTC `tools/daily_use.py latency` gave,
+under `668331c6a351`, 49 turns in four sessions: 45 answered, 2 empty, the
+one refused and this one past the deadline, the answered ones taking 2.9
+seconds at the median, 6.1 at the 90th percentile and 12.8 at most, 2.85
+seconds for each 1,000 characters of report. One call in the 48 that answered
+or ran out of time passed the deadline, where the corpus's third pass had 5
+in 81 and the pass of 6 November 28: the risk the move took has shown once,
+which does not yet say how often. Not checked: how long the same report
+takes now, since its capture was not sent again.
+
 ### If an earlier turn's record could count only against a claim, 38 of the 45 `VERIFIED` labels of medium 3.5 that do not hold would go, and none that holds — 20 November 2026
 
 The user asked what to do next. The answer put first, for the review of 28
