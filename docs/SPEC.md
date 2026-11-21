@@ -51,6 +51,9 @@ claim-ledger/
 │   ├── fixtures/              synthetic sessions: evidence log + report text
 │   ├── doubles.py             recorded extractor responses, no HTTP
 │   └── test_*.py
+├── mods/claim-ledger-band/    the band, a mod of its own (§ Appendix format):
+│   ├── band.py                reads the turn's appendix back, makes the line
+│   └── hooks/register.tsx     draws it; TypeScript, as a mod must be
 ├── claim-ledger.toml          the user's configuration, committed
 └── README.md
 ```
@@ -405,6 +408,7 @@ measure.
 - `NOT_CHECKABLE` claims are counted, never listed. Listing opinions back to their author is noise.
 - The whole thing is capped at 10,000 characters. On overflow, entries are dropped from the least severe upward and the last line says how many.
 - The appendix goes to the user through `systemMessage`, and never into the model's context. Feeding it back would teach the agent what the ledger catches, which is the Goodhart failure the requirements name.
+- The band, `mods/claim-ledger-band/`, a mod listed in the same marketplace, shows the appendix again, read back from the transcript once the turn completes: one line above the prompt and the whole in a pane. It only draws, and nothing a mod draws enters the model's context. Its line names every group the appendix lists, in the appendix's order, with the appendix's last line after them (I-5). A turn that left no appendix says so (I-9).
 
 ## Corpus capture
 

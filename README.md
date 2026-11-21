@@ -192,6 +192,11 @@ git config core.hooksPath .githooks
 The suite makes no network call and no model call, and neither the tests nor
 the hooks write to `.claude/claim-ledger/`.
 
+The band's reader, `mods/claim-ledger-band/band.py`, is in the suite. Its
+TypeScript module is not, since running it takes Claude Code itself; after a
+change to it, run its own tests with `claude plugin test mods/claim-ledger-band`
+and check it with `claude plugin validate mods/claim-ledger-band`.
+
 ## Install
 
 1. Write `claim-ledger.toml` at the project root. The one in this repository
@@ -209,6 +214,13 @@ the hooks write to `.claude/claim-ledger/`.
    place. Either way Claude Code runs the hooks out of `<plugin>` as it stands
    at each call, so make `<plugin>` a checkout that moves only when you ship a
    version, not the tree you edit.
+4. To keep the appendix in view, install the band from the same marketplace:
+   `claude plugin install claim-ledger-band@claim-ledger --scope local`. It is
+   a mod, `mods/claim-ledger-band/`. When a turn ends it reads back the
+   appendix the Stop hook left in the transcript and shows it as one line
+   above the prompt, worst group first. Its Open button shows the whole
+   appendix in a pane. It shows only what the appendix says, nothing it draws
+   reaches the model, and a turn that left no appendix says so in the band.
 
 While git would commit `.claude/claim-ledger/`, the plugin writes nothing and
 says so on every tool call. Whether git would is git's answer, so ignoring

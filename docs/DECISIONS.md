@@ -5664,3 +5664,84 @@ Not checked: the page as rendered; whether mimo's two empty answers, to
 reports with nothing checkable, left anything unlisted; and how many
 appendices since 15 November list scratchpad writes as `UNREPORTED`, which
 the page leaves for the day.
+
+### The appendix is kept in view by a band above the prompt, since the folded one goes almost unread — 21 November 2026
+
+Asked on 21 November whether they read the appendix that distiller's Code tab
+folds under each answer, in the row "Aviso de Claude Code", the user answered
+"Casi nunca": almost never. The decision page had put that question last of
+the review's four (§ The decision page is brought to the review…), and it was
+answered a week early. What the outage of 17 to 19 November showed agrees:
+99 turns `UNKNOWN` in four sessions over about 45 hours were found when the
+user asked what was open, not from the appendix (§ The route's endpoint is
+gone…). I-9 held as written, since every one of those turns said `UNKNOWN`,
+and nobody saw it. SPEC § Appendix format names a ledger nobody reads as the
+failure this design is most likely to die of. With the appendix unread, (c)
+and rule C' would improve what nobody looks at, and the two weeks of use
+could not show whether its noise matters, so the review's choice came down
+to the mod or neither. The mod was recommended, and built that day at the
+user's word ("Sí, ya") rather than chosen on the 28th, since it changes
+nothing the review counts.
+
+The mod is `mods/claim-ledger-band/`, listed in this repository's marketplace
+as `claim-ledger-band`, version 0.1.0. When a turn of the session's main loop
+completes, it runs `band.py`, which reads the transcript back from its end
+for the appendix the Stop hook left after the turn's last answer, and it draws
+what that prints. One line goes in the band above the prompt, and the whole
+appendix in a pane the band's button opens. The line is the appendix's own
+for the collapsed and `UNKNOWN` forms. For an expanded one it is the groups
+the appendix lists, in the renderer's order, which is severity first, each
+with its count, then the appendix's last line, so it never reads milder than
+its worst group (I-5). An answered turn with no appendix after its last answer
+says so as an error, after a second look a second later. An interrupted turn,
+or one that ended on an API error or a refusal, says it was not audited. The
+reader stops at the turn's last answer, or at a row of the turn's prompt, so
+an earlier turn's appendix is never shown as this one's. Nothing in the
+pipeline changes, no FROZEN file, and not distiller's configuration. The
+`turn.complete` hook hands on the turn's result as it came (I-10), and what a
+mod draws never enters the model's context, so the trap of feeding the
+appendix back to the agent stays shut. The band's button opens the pane, and
+the mod registers no slash command.
+
+The line's colour comes from a scale of four, and the words stay the
+appendix's. Red is for `CONTRADICTED` or `UNKNOWN`, and for an appendix that
+is missing, cut at the cap, in a form the band does not know, or that the band
+could not read. Yellow is for `STALE` and for a turn not audited. The plain
+colour is for any other group, and dim is for nothing listed and for any line
+while the next turn runs. The first scale warned on any group. Over the 584
+appendices in distiller's transcripts up to 20 November, all of which
+`band.py` summarises, that scale would have warned on 301, nearly all for
+`UNSUPPORTED`, and a band that warns on every other turn would be read as the
+folded row was. Under the scale taken, 286 are plain, 15 yellow, 41 dim and
+242 red, 236 of the red ones turns `UNKNOWN`, nearly all of them the outage.
+
+The reader is Python, standard library only, so that the suite holds it on
+3.11 to 3.14. `tests/test_band.py`, 29 tests, renders appendices with
+`ledger.appendix` and checks the line against them, I-5 over every mix of the
+listed verdicts, and checks the reader against transcripts where an earlier
+turn's appendix stands before this turn's answer. A change to the renderer
+that the band would misread fails the suite. The module is TypeScript, as a
+mod's must be, with no dependency. Its 9 tests run under
+`claude plugin test`, which neither the suite nor CI can run, since neither
+has Claude Code; they pass on 2.1.326, the build the desktop app runs, and
+`claude plugin validate` passes, its type check included. The suite: 524 OK
+on each of 3.11 to 3.14.
+
+The band ships as the plugin does. The marketplace lists it with a relative
+source, so Claude Code reads it out of the release copy, and the checkout
+moves it. `ship.py` compares claim-ledger's version, so this change raises it
+to 0.3.6, with nothing of the plugin's own changed. The band is installed
+once per project, from a terminal:
+`claude plugin install claim-ledger-band@claim-ledger --scope local`. Run as
+the mod runs it, from distiller with a bare environment, `band.py` answered
+in 21 ms on a 3.3 MB transcript, under `/usr/bin/python3` 3.12.3.
+
+Not checked: the band and the pane as the Code tab draws them; that on this
+build, in a real session, `turn.complete` comes after the Stop hook's row is
+in the transcript, as it did on 2.1.321 on 13 November; that `python3`
+resolves for `$.process.run` in the app as it does in a shell; the plugin
+root the install gives the band; that the runtime loads nothing of the band
+as part of claim-ledger, whose folder holds it, though validate's report
+lists only the plugin's three hooks for it; and whether the band gets read,
+which is what the review of 28 November is left to judge, from the days it
+runs.

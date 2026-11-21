@@ -1,0 +1,9 @@
+{
+  "name": "claim-ledger-band",
+  "version": "0.1.0",
+  "description": "Keeps claim-ledger's appendix in view: one line above the prompt, and all of it in a pane.",
+  "author": {
+    "name": "sergiparpal"
+  },
+  "types": "./types/index.d.ts"
+}

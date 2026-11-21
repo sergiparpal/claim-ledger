@@ -9,6 +9,11 @@
       "name": "claim-ledger",
       "source": "./",
       "description": "Gives every factual claim in an agent's end-of-turn report a verdict taken from the harness's own execution record."
+    },
+    {
+      "name": "claim-ledger-band",
+      "source": "./mods/claim-ledger-band",
+      "description": "Keeps claim-ledger's appendix in view: one line above the prompt, and all of it in a pane."
     }
   ]
 }

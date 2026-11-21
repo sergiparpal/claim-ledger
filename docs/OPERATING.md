@@ -21,6 +21,13 @@ claude plugin marketplace add ~/code/claim-ledger-release --scope local
 claude plugin install claim-ledger@claim-ledger --scope local
 ```
 
+The band, which keeps the appendix in view above the prompt (§ Reading the
+line), is installed from the same marketplace, once per project:
+
+```bash
+claude plugin install claim-ledger-band@claim-ledger --scope local
+```
+
 A session started with `--plugin-dir` runs the folder it names in place of the
 installed plugin, so `claude --plugin-dir ~/code/claim-ledger` would put the
 tree being edited in that session.
@@ -64,6 +71,11 @@ install reports the new version, both installed and as the folder holds it.
 It rolls nothing back: on a failure it says where the copy was left and how
 to put it back. A Claude Code session cannot ship, since its sandbox keeps
 the release copy and `~/.claude/plugins` read-only.
+
+The band ships the same way. The marketplace lists it with a relative source,
+so Claude Code reads it out of the release copy too, and the checkout moves it
+with the plugin. `ship.py` goes by claim-ledger's version, so a release that
+changes only the band still raises that version.
 
 The checkout is the ship. A session left open across it would run the new
 scripts from its next hook, which is why the sessions close first. The update
@@ -114,6 +126,34 @@ nothing to list, the same answer prints the collapsed line, and there
 `0 verified, 0 unchecked` vouches for nothing.
 
 Nothing ever blocks. Phase 1 observes and reports.
+
+### The band
+
+The desktop app's Code tab folds the appendix under each answer, in a row
+labelled "Aviso de Claude Code", where it goes almost unread. With the band
+installed, it is also one line above the prompt, made from the appendix of the
+turn that just ended:
+
+```text
+claim-ledger · STALE 1 · UNSUPPORTED 2 · 1 verified, 2 unchecked · 1 check seen
+```
+
+The collapsed and `UNKNOWN` lines are shown as they are. An expanded
+appendix becomes its groups in its own order, worst first, each with its
+count, then its last line. **Open** shows the whole appendix in a pane. The
+colour follows the worst of it, and the words never read milder than that:
+
+| Colour | When |
+| --- | --- |
+| red | `CONTRADICTED` or `UNKNOWN`; no appendix after an answered turn; an appendix cut at the cap, or in a form the band does not know; or the band could not read the turn |
+| yellow | `STALE`; or a turn not audited because it was interrupted, ended on an API error or was refused |
+| plain | `UNSUPPORTED`, `UNREPORTED` or `EXTRACTION DEFECTS`, and nothing worse |
+| dim | nothing listed; and any line while the next turn runs |
+
+`no appendix for this turn` means the Stop hook left none after the turn's
+answer: the turn was not audited. Look for its cause in `errors.log` and in the
+turn's `hook_success` attachment, as for an `UNKNOWN` turn below. A subagent's
+turn changes nothing in the band, since the ledger audits the main loop.
 
 ## UNKNOWN turns
 

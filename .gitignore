@@ -4,3 +4,7 @@
 # Python
 __pycache__/
 *.py[cod]
+
+# The types Claude Code lays beside a mod it loads from a folder it watches.
+# Ignored so that they never leave the release copy unclean for tools/ship.py.
+mods/*/.claude-plugin/types/
