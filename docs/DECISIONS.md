@@ -5745,3 +5745,18 @@ as part of claim-ledger, whose folder holds it, though validate's report
 lists only the plugin's three hooks for it; and whether the band gets read,
 which is what the review of 28 November is left to judge, from the days it
 runs.
+
+Later the same day the user shipped 0.3.6 with `ship.py`, which moved the
+release copy to `5bc8d88` at 15:37 UTC, and installed the band in distiller at
+local scope from a terminal. The app's `plugin list` shows it enabled and read
+from the release copy's `mods/claim-ledger-band`. In the first session after,
+begun at 15:41 UTC on the desktop app's 2.1.326, the first turn ended at 15:44.
+Above the prompt the band showed the line `band.py` gives for that transcript,
+an `UNSUPPORTED` group of one with 1 verified and 29 unchecked, in the plain
+tone, and one band, not two. Its button opened the pane at the right of the
+window, with that line over the whole appendix in monospace. So
+`turn.complete` found the appendix, at once or on the second look, `python3`
+resolves for `$.process.run` in the app, and the plugin root is the release
+copy's folder. Still not seen: the red and yellow tones, the dimming while a
+turn runs, and the pane in its small form. Whether the band gets read is still
+the review's to judge.
