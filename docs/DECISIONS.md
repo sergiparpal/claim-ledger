@@ -5793,3 +5793,82 @@ resolves for `$.process.run` in the app, and the plugin root is the release
 copy's folder. Still not seen: the red and yellow tones, the dimming while a
 turn runs, and the pane in its small form. Whether the band gets read is still
 the review's to judge.
+
+### `mimo-v2.6-pro` finds about as much as medium 3.1 on the holdout, on `semantic-diff-weaver`'s reports and on the user's 26, and marks less that matches nothing — 22 November 2026
+
+The entry of 20 November left `mimo-v2.6-pro` unmeasured on the holdout, on
+the anchor and on `semantic-diff-weaver`'s reports (§ `mimo-v2.6-pro` finds
+as much as medium 3.5…). On 21 November the user asked whether that could be
+measured, and at the user's leave it was, on 22 November. The anchor needed
+no call: its six reports are in the corpus, so the three passes of 20
+November already hold answers for them. Scored against the user's
+annotation, they find 23 of its 29 checkable claims at the worst pass (0.79),
+with a spurious share of 0.40, as medium 3.1's stored passes do; medium
+3.5's find 21 (0.72), at 0.39. The holdout and the 100 reports of
+`semantic-diff-weaver` were each run three times through
+`corpus/routes/mimo-v2.6-pro.toml` (`9ad48a03de95`), with `extract-6c` and
+the hook's 20 seconds, by `tools/measure_route.py run --corpus`: the
+holdout's reports from distiller's captures, `semantic-diff-weaver`'s from
+the reports rebuilt in the private repository. Those went to DeepInfra for
+the first time, at the user's leave; `deepinfra/fp8` is among OpenRouter's
+zero-retention endpoints (the same entry). The three reports the user
+annotated blind in distiller are in the holdout, and the seventeen of
+`semantic-diff-weaver` among its 100, so the two runs also give all 26
+reports the user annotated by hand.
+
+| The worst of three passes on each figure: recall on checkable claims, then the spurious share | `mimo-v2.6-pro` | `mistral-medium-3.1`, its stored passes |
+| --- | --- | --- |
+| The holdout, 35 reports | 596 of 714 (0.83), 0.44 | 602 of 711 (0.85), 0.55 |
+| `semantic-diff-weaver`'s 100 | 324 of 422 (0.77), 0.30 | 305 of 418 (0.73), 0.38 |
+| The user's 6 of the anchor | 23 of 29 (0.79), 0.40 | 23 of 29 (0.79), 0.40 |
+| The user's 3 of distiller, blind | 43 of 48 (0.90), 0.48 | 45 of 48 (0.94), 0.45 |
+| The user's 5 of `semantic-diff-weaver`, blind | 16 of 22 (0.73), 0.31 | 16 of 22 (0.73), 0.36 |
+| The user's 12 of `semantic-diff-weaver`, blind | 23 of 44 (0.52), 0.36 | 23 of 44 (0.52), 0.43 |
+| The same 12, adjudicated | 26 of 52 (0.50), 0.35 | 25 of 52 (0.48), 0.41 |
+| All 26 the user annotated, blind where blind | 108 of 143 (0.76), 0.38 | 107 of 143 (0.75), 0.41 |
+| The corpus, 81 reports, for comparison | 790 of 1,019 (0.78), 0.44 | 776 of 991 (0.78), 0.48 |
+
+The 26 are summed pass by pass over the anchor's six and the three, five and
+twelve annotated blind, as on 8 November, and give medium 3.1 the figures
+recorded then. A report leaves a pass's count when it got no usable answer
+in that pass (§ `mimo-v2.6-pro` finds as much as medium 3.5…), so the
+routes' totals differ by a few claims; mimo lost two answers on the holdout
+to the deadline. Its passes over the holdout found 0.90, 0.87 and 0.83, and
+medium 3.1's 0.85, 0.85 and 0.86; over `semantic-diff-weaver`'s 100, 0.77,
+0.77 and 0.78 against 0.73, 0.73 and 0.74. So on every set mimo finds about
+as much as medium 3.1, more on `semantic-diff-weaver` and a little less at
+the worst pass on the holdout and on the user's three of distiller. It
+marks less that matches nothing on every set but two, those three, where it
+marks more, and the anchor, where the two are level: 0.44 against 0.55 on
+the holdout, 0.30 against 0.38 on `semantic-diff-weaver`, 0.38 against 0.41
+over the 26. Neither comes near phase 1, and nothing changes: the route
+stays as the user chose it on 20 November.
+
+The holdout's 117 calls ran from 08:14 to 08:26 UTC, at 5.1 seconds at the
+median and 15.2 at the 95th percentile; 2 of the 105 on captured reports
+passed 20 seconds and were abandoned, as 2 of medium 3.1's had passed it.
+`semantic-diff-weaver`'s 331 ran from 09:06 to 09:21 UTC, at 1.6 seconds at
+the median and 5.6 at most, none past 20 seconds, where 6 of medium 3.1's
+had passed it. No answer of either run came back empty or carried a defect,
+where medium 3.1's stored runs hold 3 and 9 empty answers. The runs cost
+$0.15 and $0.11, as the router reported them.
+
+The runs shared the key and the endpoint with distiller's Stop hook, so they
+were kept out of its turns. A first attempt, which also waited for no job to
+be running in distiller, waited twelve hours while a background job of
+distiller's session ran through the night, and gave up at 05:10 UTC without
+calling anything. At the user's word the second waited only for the newest
+timed row of distiller's transcripts to be the end of a turn and 15 minutes
+old, and looked again before each run. Distiller's agent was woken by its
+own tasks during both runs, at 08:18 and 09:20 UTC, but its Stop hooks, the
+only calls it makes to the route, came at 07:58:34 and 08:50:49 UTC, outside
+them; they ended in 2.2 and 1.7 seconds, and `errors.log` stayed at 153
+lines. The turn begun at 09:20 had not ended when the second run did. The
+scripts that gated and scored the runs are in the session's scratchpad, not
+here. The answers are `corpus/runs/holdout-mimo-v2.6-pro-extract-6c+bf5a552b.jsonl`
+and the same with `sdw-`, with sentence numbers and types and no text.
+
+Not checked: the claims missed, by type; medium 3.5 on either set; the
+account's balance after the runs. The reference on the holdout and on
+`semantic-diff-weaver`'s 100 is the annotator's; the user's own covers only
+the 26.
