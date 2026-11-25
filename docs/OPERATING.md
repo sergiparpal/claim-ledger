@@ -207,6 +207,16 @@ The report is still captured. Nothing is lost for the corpus.
 one you interrupt, and not one that dies on an API error. `capture = false` under
 `[corpus]` turns it off.
 
+Two things the ledger does not keep are in Claude Code's transcript of the
+session, under `~/.claude/projects/<project>/`: the Stop hook's duration, in its
+`hook_success` attachment, and the appendix as the session showed it. Claude
+Code deletes a transcript `cleanupPeriodDays` days after its last write, 30 by
+default, unless the desktop app wrote it. On this machine
+`~/.claude/settings.json` sets 3650 since 25 November 2026, after the
+transcripts of 31 of distiller's terminal sessions had gone
+([DECISIONS](DECISIONS.md)). On another machine or account, set it there too,
+or a terminal session's transcript lasts a month.
+
 Nothing in this repository holds a report's text: the corpus and the holdout are
 distiller's reports, which their annotations and the runs' answers name. A copy
 of distiller's `.claude/claim-ledger/` as it stood on 7 November 2026, its 117

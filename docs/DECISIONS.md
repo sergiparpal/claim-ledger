@@ -5872,3 +5872,60 @@ Not checked: the claims missed, by type; medium 3.5 on either set; the
 account's balance after the runs. The reference on the holdout and on
 `semantic-diff-weaver`'s 100 is the annotator's; the user's own covers only
 the 26.
+
+### Claude Code deletes a terminal session's transcript after thirty days, and with it the hook's duration — 25 November 2026
+
+On 25 November, asked what was open, `tools/daily_use.py recording` checked
+38 of distiller's sessions where on 21 November it had checked 50, while no
+session log had gone: it checks only a session whose Claude Code transcript is
+still under `~/.claude/projects/`. The 31 logs whose transcript is gone are
+exactly those that last changed between 12 and 25 October. The 19 of 12 to 21
+October were gone by 21 November, and the 12 of 22 to 25 October have gone
+since, which is what a deletion thirty days after a transcript's last write
+would remove.
+
+Claude Code deletes them. When any of its processes starts, it deletes the
+transcripts under `~/.claude/projects/` last written more than
+`cleanupPeriodDays` days before: 30 unless a settings file says otherwise, and
+no settings file here said otherwise. It spares a transcript that a desktop
+host wrote. It reads the `entrypoint` field at the head and the tail of each
+one, and those of the desktop app, `claude-desktop`, are exempt, with no
+ceiling unless `desktopSessionCleanupPeriodDays` sets one. The settings' own
+descriptions say so in the terminal's Claude Code, 2.1.316, and in the desktop
+app's, 2.1.331, and the code that classifies a transcript was read in the
+second; the documentation was not looked at. What is on disk agrees: of the
+297 transcripts under `~/.claude/projects/`, in every project, 182 of the
+desktop app's are older than 26 October and none of a terminal's is. A
+desktop session's transcript would have been kept, so distiller's 31 were
+sessions run from a terminal, like the ten of 28 October to 2 November that
+remain. Nothing records which process deleted them, and nothing of them is
+left: no copy in a trash, no debug log, and the prompt history holds no
+session ids.
+
+What went with them is what only the transcript holds: the Stop hook's
+`durationMs`, the only record of latency there is (§ One turn in four passes
+the deadline), the appendix as the session showed it, and the conversation
+itself. The ledger's own record is whole. The session logs, `claims.jsonl`,
+`errors.log` and the captured reports, the corpus and the holdout among them,
+are in distiller's `.claude/claim-ledger/` and in the private copy. Figures
+this file gives from those transcripts stand as they were counted, but cannot
+be counted again: `daily_use.py latency` finds no hook time for their turns,
+and `recording` no longer checks them. The review of 28 November loses
+nothing, since every session in distiller since 14 November was opened in the
+desktop app.
+
+Ten terminal sessions were left, of 28 October to 2 November, five of which
+this file cites. Together they hold 26 MB and 21 runs of the ledger's Stop
+hook with their durations. They would have been deleted from 27 November at
+23:25 UTC on, the last after 2 December at 10:48. At the user's word ("Sí,
+súbelo"), `"cleanupPeriodDays": 3650` went into the user's settings,
+`~/.claude/settings.json`, on 25 November, the one line changed. From the
+next start of any Claude Code process, a terminal session's transcript is kept
+for ten years, in every project; the desktop app's were kept already. All ten
+were still there afterwards. The setting is the user's and lies outside this
+repository, so on another machine or account it has to be made again
+(OPERATING § Where the corpus accumulates).
+
+Not checked: that a sweep keeps to the new value, which shows if `64907bb0`'s
+transcript is still there after 28 November; which process deleted the 31;
+and which entrypoints besides `claude-desktop` count as a desktop host.
