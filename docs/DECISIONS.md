@@ -5526,6 +5526,48 @@ in 81 and the pass of 6 November 28: the risk the move took has shown once,
 which does not yet say how often. Not checked: how long the same report
 takes now, since its capture was not sent again.
 
+Later still, at the user's request, the second turn the new route left
+`UNKNOWN` by its deadline was recorded, the first turn `UNKNOWN` since the
+band was installed. It was found on 26 November, when the user asked what was
+open, by 07:18 UTC. `errors.log`, at 153 lines since the deadline above, held
+a 154th for the third turn of `52d4a38f`,
+`ExtractError: the model call passed its 20.0s deadline`. The session had
+hashed `668331c6a351` at 20:36 UTC on 25 November and had run five turns by
+07:17 UTC the next day, all under 0.3.6, since the release copy has stood at
+`5bc8d88` from 15:37 UTC on 21 November. The line carries 20:55:23 UTC, the
+moment the Stop handler began, and the transcript's `hook_success` row, at
+20:55:43 UTC, gives 20,097 milliseconds and exit 0, as for the 153rd: the
+call was abandoned at its deadline and the hook ended by itself, inside the
+turn's 23 seconds and the harness's 28. The transcript shows the turn's
+`UNKNOWN` line with that error and 0 checks seen, so I-9 held. It is the only
+`UNKNOWN` line in distiller's transcripts since 0.3.6 was shipped, and the
+other 58 turns since were answered. Run on the transcript as it stood when
+the turn ended, and again with the rows written before the next prompt, the
+release copy's `band.py` gives that line at its `error` level, the level the
+band draws in red. Whether the Code tab drew it so, and whether anyone saw
+it, only the user can say. The report was of 4,902 characters; the turn
+before, at 20:46 UTC, and the one after, at 22:57 UTC, were answered in 7.2
+and 1.4 seconds, for reports of 4,171 and 375 characters, with 46 and 5
+claims. The client keeps nothing of an abandoned call, so whether the
+endpoint slowed or the answer grew is not known. No measurement made here is
+known to have shared the endpoint then: no file under `corpus/`, the private
+corpora repository or this repository's sessions' scratchpads changed
+between 20:48 and 21:05 UTC, the last before that being the copy of
+distiller's state into the private repository, which sends nothing to the
+route, and no session here ran `tools/measure_route.py` after 20:00 UTC that
+day. Of the 17 lines `errors.log` holds for a deadline, 15 are of the
+deadline of 12 seconds, the last on 30 October, and 2 of the 20 seconds, both
+under mimo. At 07:18 UTC on 26 November `tools/daily_use.py latency` gave,
+under `668331c6a351`, 106 turns in eight sessions: 101 answered, 2 empty, the
+one refused and these two past the deadline, the answered ones taking 2.9
+seconds at the median, 6.3 at the 90th percentile and 12.8 at most, 2.41
+seconds for each 1,000 characters of report. Two calls in the 105 that
+answered or ran out of time passed the deadline, as 2 of the 105 on captured
+reports did in the holdout's run of 22 November, where the corpus's third
+pass had 5 in 81; two are too few to say how often it will be. Not checked:
+how long the same report takes now, since its capture was not sent again,
+and the band as the Code tab drew it.
+
 ### If an earlier turn's record could count only against a claim, 38 of the 45 `VERIFIED` labels of medium 3.5 that do not hold would go, and none that holds — 20 November 2026
 
 The user asked what to do next. The answer put first, for the review of 28
